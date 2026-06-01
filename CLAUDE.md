@@ -106,8 +106,8 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 |------|----------|
 | `data/career-ops.db` | **Primary data store** — applications + pipeline (SQLite) |
 | `db.mjs` | DB CLI + library — get/update/query/stats/verify/migrate |
-| `data/applications.md` | Legacy MD tracker — kept for reference, NOT the source of truth |
-| `data/pipeline.md` | Legacy pipeline inbox — kept for manual URL entry, syncs to DB |
+| ~~`data/applications.md`~~ | Deleted — DB is source of truth |
+| ~~`data/pipeline.md`~~ | Deleted — use `node db.mjs add-pipeline` or `/career-ops intake` |
 | `data/scan-history.tsv` | Scanner dedup history |
 | `portals.yml` | Query and company config |
 | `templates/cv-template.html` | HTML template for CVs |
@@ -397,7 +397,7 @@ All reports MUST include `**URL:**` in the header. Include `**Legitimacy:** {tie
 1. Add new URLs: `node db.mjs add-pipeline <url>`
 2. After evaluating: `node db.mjs update <num> status=Evaluated ...` + `node db.mjs pipeline-done <pipeline_id> <num>`
 3. Verify DB: `node db.mjs verify`
-4. Recovery (if DB lost): `node db.mjs migrate` re-imports from applications.md
+4. Recovery (if DB lost): restore from backup or re-evaluate from `reports/` using `node db.mjs update`
 
 @AGENTS.md
 <!-- Add anything Claude Code specific that other agents don't need -->
