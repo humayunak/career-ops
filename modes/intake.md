@@ -57,9 +57,13 @@ Store as: `Recruiter: {name} <{email}>` in the notes field (omit if not provided
 
 ## Deduplication check
 
-Before writing, scan `data/pipeline.md` for any existing entry (pending or processed) that matches the same listing URL. If found:
-> "This URL is already in your pipeline (#NNN — {Company} | {Role}). Skip duplicate?"
-If yes → stop. If no → add anyway (user may want to re-evaluate).
+Before writing, check the DB:
+```bash
+node db.mjs query --json   # check pipeline table via db.mjs pipeline-pending
+```
+Or simply let `node db.mjs add-pipeline` handle it — the pipeline table has a UNIQUE constraint on URL. If the insert returns `{ ok: false, error: "URL already in pipeline" }`:
+> "This URL is already in your pipeline. Skip duplicate?"
+If yes → stop. If no → user must manually update via `node db.mjs`.
 
 ---
 

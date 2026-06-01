@@ -16,6 +16,7 @@ const COW_PANELS = [
   { id: 'profile', title: 'Profile', group: 'You' },
   { id: 'runs', title: 'Runs', group: 'System' },
   { id: 'commands', title: 'Commands', group: 'System' },
+  { id: 'mindmap', title: 'Mindmap', group: 'System' },
 ];
 
 const COW_PANEL_IDS = Object.fromEntries(
@@ -24,6 +25,7 @@ const COW_PANEL_IDS = Object.fromEntries(
 
 const COW_LOADERS = {
   commands: loadCommandsPanel,
+  mindmap: loadMindmapPanel,
   overview: loadOverviewPanel,
   inbox: loadInboxPanel,
   applications: loadApplicationsPanel,

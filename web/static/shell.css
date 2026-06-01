@@ -827,6 +827,147 @@ body {
   display: block;
 }
 
+/* ── Mindmap dark-mode overrides (Mermaid uses foreignObject for labels) ── */
+.mm-canvas svg { background: #11111b; overflow: visible; }
+
+/* edges */
+.mm-canvas .mindmap-edge,
+.mm-canvas path.edge { stroke: #585b70 !important; stroke-width: 1.5px !important; }
+
+/* root circle */
+.mm-canvas .mindmap-node.section-root > circle,
+.mm-canvas .mindmap-node.section-root > ellipse {
+  fill: #cba6f7 !important; stroke: #b4befe !important;
+}
+.mm-canvas .mindmap-node.section-root .nodeLabel,
+.mm-canvas .mindmap-node.section-root .nodeLabel * {
+  color: #1e1e2e !important; font-weight: 700 !important;
+}
+
+/* depth-1 branch nodes */
+.mm-canvas .mindmap-node.section-1 > rect,
+.mm-canvas .mindmap-node.section-1 > polygon,
+.mm-canvas .mindmap-node.section-1 > path {
+  fill: #313244 !important; stroke: #89b4fa !important; stroke-width: 1.5px !important;
+}
+.mm-canvas .mindmap-node.section-1 .nodeLabel,
+.mm-canvas .mindmap-node.section-1 .nodeLabel * {
+  color: #89b4fa !important; font-weight: 600 !important;
+}
+
+/* all other nodes */
+.mm-canvas .mindmap-node > rect,
+.mm-canvas .mindmap-node > circle,
+.mm-canvas .mindmap-node > ellipse,
+.mm-canvas .mindmap-node > polygon,
+.mm-canvas .mindmap-node > path {
+  fill: #1e1e2e !important; stroke: #45475a !important;
+}
+.mm-canvas .mindmap-node .nodeLabel,
+.mm-canvas .mindmap-node .nodeLabel *,
+.mm-canvas .mindmap-node text {
+  color: #cdd6f4 !important; fill: #cdd6f4 !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace !important;
+  font-size: 13px !important;
+}
+
+/* ── Mindmap panel ─────────────────────────────── */
+.mm-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+}
+
+.mm-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.mm-toolbar__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.mm-toolbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mm-zoom-label {
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 44px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.mm-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #11111b;
+  user-select: none;
+}
+
+.mm-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+.mm-canvas svg {
+  display: block;
+}
+
+.mm-hint {
+  position: absolute;
+  bottom: 12px;
+  right: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* mindmap fills full height — lock scroll on the container */
+.main-scroll:has(#mainMindmap.is-active) {
+  overflow: hidden;
+  padding: 0;
+}
+
+#mainMindmap.main-view.is-active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  max-width: none;
+}
+
+#mainMindmap #mindmapRoot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#mainMindmap .mm-panel {
+  flex: 1;
+  min-height: 0;
+}
+
 .app-actions {
   display: flex;
   flex-wrap: wrap;
