@@ -1,13 +1,16 @@
 import { existsSync, readdirSync, readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { join, basename } from 'path';
 import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const WEB_LIB = fileURLToPath(new URL('.', import.meta.url));
+const REPO_ROOT = join(WEB_LIB, '..', '..');
 
 export const RUN_SCRIPTS = {
-  scan: { cmd: 'scan.mjs', label: 'Portal scan' },
-  verify: { cmd: 'verify-pipeline.mjs', label: 'Verify pipeline' },
-  patterns: { cmd: 'analyze-patterns.mjs', label: 'Pattern analysis' },
-  merge: { cmd: 'merge-tracker.mjs', label: 'Merge tracker' },
-  doctor: { cmd: 'doctor.mjs', label: 'Doctor' },
+  scan: { cmd: 'scripts/scan.mjs', label: 'Portal scan', cwd: REPO_ROOT },
+  patterns: { cmd: 'scripts/analyze-patterns.mjs', label: 'Pattern analysis', cwd: REPO_ROOT },
+  doctor: { cmd: 'scripts/doctor.mjs', label: 'Doctor', cwd: REPO_ROOT },
+  verify: { cmd: 'scripts/db.mjs', args: ['verify'], label: 'Verify database', cwd: REPO_ROOT },
 };
 
 export function runsDir(root) {
@@ -49,14 +52,17 @@ export function runScript(root, name) {
 
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const logPath = join(runsDir(root), `${name}-${ts}.log`);
+  const cwd = spec.cwd || root;
+  const scriptPath = join(cwd, spec.cmd);
+  const args = [scriptPath, ...(spec.args || [])];
 
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [join(root, spec.cmd)], {
-      cwd: root,
-      env: { ...process.env },
+    const child = spawn(process.execPath, args, {
+      cwd,
+      env: { ...process.env, CAREER_OPS_ROOT: root },
     });
 
-    let out = `$ ${process.execPath} ${spec.cmd}\n`;
+    let out = `$ ${process.execPath} ${args.join(' ')}\n`;
     child.stdout.on('data', (d) => {
       out += d.toString();
     });

@@ -24,10 +24,10 @@
 
 import Database from 'better-sqlite3';
 import { readFileSync, existsSync, readdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const ROOT = dirname(fileURLToPath(import.meta.url));
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DB_PATH = join(ROOT, 'data', 'career-ops.db');
 
 // ---------------------------------------------------------------------------
@@ -376,7 +376,14 @@ function cmdMigrate(db) {
 // Main
 // ---------------------------------------------------------------------------
 
-const [,, cmd, ...rest] = process.argv;
+const isDbCli =
+  process.argv[1] &&
+  fileURLToPath(import.meta.url) === resolve(process.argv[1]);
+
+if (!isDbCli) {
+  // Imported as library (web server) — skip CLI
+} else {
+const [, , cmd, ...rest] = process.argv;
 
 const db = openDb();
 
@@ -409,3 +416,4 @@ Commands:
 }
 
 db.close();
+}

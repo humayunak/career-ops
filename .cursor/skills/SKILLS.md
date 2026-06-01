@@ -17,6 +17,7 @@ When improving **CV templates**, **dashboard**, or any UI in this repo, read the
 | ui-typography | `.cursor/skills/ui-typography/SKILL.md` | Type scale, pairing, readability |
 | popular-web-designs | `.cursor/skills/popular-web-designs/SKILL.md` | Reference patterns from well-known sites |
 | architecture-diagram | `.cursor/skills/architecture-diagram/SKILL.md` | Dark SVG/HTML architecture diagrams |
+| process-flow-diagram | `.cursor/skills/process-flow-diagram/SKILL.md` | Dark SVG/HTML process flows (workflows, approvals, automation) |
 | excalidraw | `.cursor/skills/excalidraw/SKILL.md` | Hand-drawn style diagrams |
 
 ## Career-ops

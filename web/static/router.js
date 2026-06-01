@@ -7,32 +7,48 @@ const COW = {
 };
 
 const COW_PANELS = [
-  { id: 'overview', title: 'Overview', group: 'Work' },
-  { id: 'inbox', title: 'Inbox', group: 'Work' },
-  { id: 'applications', title: 'Applications', group: 'Work' },
-  { id: 'reports', title: 'Reports', group: 'Work' },
-  { id: 'portals', title: 'Portals', group: 'Sources' },
+  { id: 'overview', title: 'Overview', group: 'Home' },
+  { id: 'inbox', title: 'Inbox', group: 'Jobs' },
+  { id: 'applications', title: 'Applications', group: 'Jobs' },
+  { id: 'reports', title: 'Reports', group: 'Insights' },
+  { id: 'patterns', title: 'Patterns', group: 'Insights' },
+  { id: 'followups', title: 'Follow-ups', group: 'Insights' },
+  { id: 'interviewprep', title: 'Interview prep', group: 'Insights' },
+  { id: 'discovery', title: 'Discovery', group: 'Sources' },
   { id: 'linkedin', title: 'LinkedIn', group: 'Sources' },
   { id: 'profile', title: 'Profile', group: 'You' },
-  { id: 'runs', title: 'Runs', group: 'System' },
-  { id: 'workflow', title: 'Workflow', group: 'System' },
-  { id: 'commands', title: 'Commands', group: 'System' },
-  { id: 'mindmap', title: 'Mindmap', group: 'System' },
+  { id: 'workflow', title: 'How it works', group: 'Help' },
+  { id: 'commands', title: 'AI commands', group: 'Help' },
+  { id: 'runs', title: 'Maintenance', group: 'Help' },
 ];
 
-const COW_PANEL_IDS = Object.fromEntries(
-  COW_PANELS.map((p) => [p.id, `main${p.id.charAt(0).toUpperCase()}${p.id.slice(1)}`]),
-);
+const COW_PANEL_IDS = {
+  overview: 'mainOverview',
+  inbox: 'mainInbox',
+  applications: 'mainApplications',
+  reports: 'mainReports',
+  patterns: 'mainPatterns',
+  followups: 'mainFollowups',
+  interviewprep: 'mainInterviewprep',
+  discovery: 'mainDiscovery',
+  linkedin: 'mainLinkedin',
+  profile: 'mainProfile',
+  workflow: 'mainWorkflow',
+  commands: 'mainCommands',
+  runs: 'mainRuns',
+};
 
 const COW_LOADERS = {
   commands: loadCommandsPanel,
   workflow: loadWorkflowPanel,
-  mindmap: loadMindmapPanel,
   overview: loadOverviewPanel,
   inbox: loadInboxPanel,
   applications: loadApplicationsPanel,
   reports: loadReportsPanel,
-  portals: loadPortalsPanel,
+  patterns: loadPatternsPanel,
+  followups: loadFollowupsPanel,
+  interviewprep: loadInterviewPrepPanel,
+  discovery: loadDiscoveryPanel,
   linkedin: loadLinkedinPanel,
   profile: loadProfilePanel,
   runs: loadRunsPanel,

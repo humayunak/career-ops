@@ -32,7 +32,7 @@ import { pathToFileURL, fileURLToPath } from 'url';
 import path from 'path';
 import yaml from 'js-yaml';
 
-import { makeHttpCtx } from './providers/_http.mjs';
+import { makeHttpCtx } from '../providers/_http.mjs';
 
 const parseYaml = yaml.load;
 
@@ -42,7 +42,7 @@ const PORTALS_PATH = process.env.CAREER_OPS_PORTALS || 'portals.yml';
 const SCAN_HISTORY_PATH = 'data/scan-history.tsv';
 const PIPELINE_PATH = 'data/pipeline.md';
 const APPLICATIONS_PATH = 'data/applications.md';
-const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'providers');
+const PROVIDERS_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../providers');
 
 // Ensure required directories exist (fresh setup)
 mkdirSync('data', { recursive: true });

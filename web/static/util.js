@@ -146,23 +146,28 @@ function openPdfPreview(filename, title) {
 }
 
 function buildApplyPrompt(app) {
-  const num = app.reportNumber ? String(app.reportNumber).padStart(3, '0') : '???';
-  const reportLine = app.reportPath
-    ? `Report: ${app.reportPath}`
-    : app.reportNumber
-      ? `Report: #${app.reportNumber} (search reports/ for ${app.company})`
-      : 'Report: (run evaluation first)';
+  return typeof applyPrompt === 'function' ? applyPrompt(app) : '';
+}
 
-  return `/career-ops apply
+async function patchApplication(num, fields) {
+  return api(`/api/applications/${encodeURIComponent(num)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(fields),
+  });
+}
 
-Company: ${app.company}
-Role: ${app.role}
-${reportLine}
-Apply draft file: data/apply-drafts/${num}.md
+async function patchPipeline(id, fields) {
+  return api(`/api/pipeline/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    body: JSON.stringify(fields),
+  });
+}
 
-Open the job application form in your browser, then continue here.
-
-After generating form answers, write the full Q&A to data/apply-drafts/${num}.md so I can read it in the web UI (Applications → View apply). Use one career-ops chat — do not open a new thread.`;
+async function addPipelineJob({ url, notes, source }) {
+  return api('/api/pipeline', {
+    method: 'POST',
+    body: JSON.stringify({ url, notes: notes || '', source: source || 'manual' }),
+  });
 }
 
 async function openApplyDraft(reportNumber, title) {
@@ -181,7 +186,7 @@ async function openApplyDraft(reportNumber, title) {
     mount.innerHTML = '<div id="applyMdMount"></div>';
     mountMdViewer($('applyMdMount'), data.markdown, data.path);
   } catch (e) {
-    mount.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p><p class="muted">Run apply in Cursor first; agent should save to <code>data/apply-drafts/${String(reportNumber).padStart(3, '0')}.md</code></p></div>`;
+    mount.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p><p class="muted">Run the application assistant first, then Refresh.</p></div>`;
   }
 }
 
@@ -201,6 +206,45 @@ function closePdfPreview() {
     modal.hidden = true;
     modal.setAttribute('aria-hidden', 'true');
   }
+}
+
+/**
+ * Wire a header "select all" checkbox to row checkboxes in the same table.
+ * Updates checked / indeterminate on the header when rows change.
+ */
+function wireTableSelectAll(container, { rowSelector, onRowChange }) {
+  const header = container?.querySelector('[data-select-all]');
+  if (!header || !rowSelector) return;
+
+  const getRows = () => [...container.querySelectorAll(rowSelector)];
+
+  const syncHeader = () => {
+    const rows = getRows();
+    const checked = rows.filter((cb) => cb.checked);
+    header.checked = rows.length > 0 && checked.length === rows.length;
+    header.indeterminate = checked.length > 0 && checked.length < rows.length;
+  };
+
+  header.addEventListener('change', () => {
+    const on = header.checked;
+    header.indeterminate = false;
+    getRows().forEach((cb) => {
+      if (cb.checked !== on) {
+        cb.checked = on;
+        onRowChange?.(cb, on);
+      }
+    });
+    syncHeader();
+  });
+
+  getRows().forEach((cb) => {
+    cb.addEventListener('change', () => {
+      onRowChange?.(cb, cb.checked);
+      syncHeader();
+    });
+  });
+
+  syncHeader();
 }
 
 document.addEventListener('DOMContentLoaded', initMarked);

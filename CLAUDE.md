@@ -3,7 +3,7 @@
 <!-- HUMAYUN'S INSTANCE — branch: humayun/web-ui -->
 <!-- upstream: https://github.com/santifer/career-ops.git -->
 <!-- to pull upstream updates: git fetch upstream && git merge upstream/main -->
-<!-- NEVER run `node update-system.mjs apply` — use git merge instead (web/ is excluded from SYSTEM_PATHS) -->
+<!-- NEVER run `node scripts/update-system.mjs apply` — use git merge instead (web/ is excluded from SYSTEM_PATHS) -->
 
 ## Working Surfaces
 
@@ -40,28 +40,28 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 
 **Humayun's Extended User Layer (also protected, NOT in upstream):**
 - `web/` — local browser UI (Catppuccin Mocha, port 8793). Do not overwrite.
-- `db.mjs` — SQLite data layer (replaces MD-based tracker flow). Do not overwrite.
+- `scripts/db.mjs` — SQLite data layer (replaces MD-based tracker flow). Do not overwrite.
 - `web/lib/db.mjs` — web server DB access layer. Do not overwrite.
-- `data/career-ops.db` — SQLite DB (gitignored, user data). Fresh — run `node db.mjs migrate` to seed.
+- `data/career-ops.db` — SQLite DB (gitignored, user data). Fresh — run `node scripts/db.mjs migrate` to seed.
 - `batch/build-*.mjs`, `batch/fetch-*.mjs`, `batch/sync-*.mjs`, `batch/write-*.mjs` — custom batch scripts
 - `templates/cv-temp-*.html` — role-specific CV template variants
 - `.cursor/` — Cursor IDE skills and config
 
 ## DB Quick Reference (agent-facing)
 
-**RULE: Never read `applications.md` to find a single row. Always use `node db.mjs`.**
+**RULE: Never read `applications.md` to find a single row. Always use `node scripts/db.mjs`.**
 
 ```bash
-node db.mjs get <num>                          # fetch single app — ~80 tokens vs 3,500
-node db.mjs update <num> status=Applied        # write back a field
-node db.mjs update <num> notes="text" score=4.2 pdf=✅ report=reports/NNN-slug-date.md
-node db.mjs query status=Evaluated             # filtered list (human table)
-node db.mjs query --json score>=4.0            # JSON for scripts
-node db.mjs stats                              # counts + top unapplied
-node db.mjs add-pipeline <url>                 # add to inbox
-node db.mjs pipeline-pending                   # list pending (JSON)
-node db.mjs verify                             # integrity check
-node db.mjs migrate                            # re-sync from applications.md (recovery only)
+node scripts/db.mjs get <num>                          # fetch single app — ~80 tokens vs 3,500
+node scripts/db.mjs update <num> status=Applied        # write back a field
+node scripts/db.mjs update <num> notes="text" score=4.2 pdf=✅ report=reports/NNN-slug-date.md
+node scripts/db.mjs query status=Evaluated             # filtered list (human table)
+node scripts/db.mjs query --json score>=4.0            # JSON for scripts
+node scripts/db.mjs stats                              # counts + top unapplied
+node scripts/db.mjs add-pipeline <url>                 # add to inbox
+node scripts/db.mjs pipeline-pending                   # list pending (JSON)
+node scripts/db.mjs verify                             # integrity check
+node scripts/db.mjs migrate                            # re-sync from applications.md (recovery only)
 ```
 
 **Removed (replaced by db.mjs):** `merge-tracker.mjs`, `dedup-tracker.mjs`, `normalize-statuses.mjs`, `verify-pipeline.mjs` — deleted, do not recreate.
@@ -71,7 +71,7 @@ node db.mjs migrate                            # re-sync from applications.md (r
 ```bash
 git fetch upstream
 git merge upstream/main   # resolve conflicts in system files only
-# NEVER run: node update-system.mjs apply  (use git merge instead)
+# NEVER run: node scripts/update-system.mjs apply  (use git merge instead)
 ```
 
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
@@ -81,20 +81,20 @@ git merge upstream/main   # resolve conflicts in system files only
 On the first message of each session, run the update checker silently:
 
 ```bash
-node update-system.mjs check
+node scripts/update-system.mjs check
 ```
 
 Parse the JSON output:
 - `{"status": "update-available", "local": "1.0.0", "remote": "1.1.0", "changelog": "..."}` → tell the user:
   > "career-ops update available (v{local} → v{remote}). Your data (CV, profile, tracker, reports) will NOT be touched. Want me to update?"
-  If yes → run `node update-system.mjs apply`. If no → run `node update-system.mjs dismiss`.
+  If yes → run `node scripts/update-system.mjs apply`. If no → run `node scripts/update-system.mjs dismiss`.
 - `{"status": "up-to-date"}` → say nothing
 - `{"status": "dismissed"}` → say nothing
 - `{"status": "offline"}` → say nothing
 - `{"status": "no-remote-version"}` → say nothing (checker reached GitHub but neither VERSION nor the latest release tag parsed as semver — treat as a silent non-failure, same as offline)
 
 The user can also say "check for updates" or "update career-ops" at any time to force a check.
-To rollback: `node update-system.mjs rollback`
+To rollback: `node scripts/update-system.mjs rollback`
 
 ## What is career-ops
 
@@ -105,24 +105,24 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | File | Function |
 |------|----------|
 | `data/career-ops.db` | **Primary data store** — applications + pipeline (SQLite) |
-| `db.mjs` | DB CLI + library — get/update/query/stats/verify/migrate |
+| `scripts/db.mjs` | DB CLI + library — get/update/query/stats/verify/migrate |
 | ~~`data/applications.md`~~ | Deleted — DB is source of truth |
-| ~~`data/pipeline.md`~~ | Deleted — use `node db.mjs add-pipeline` or `/career-ops intake` |
+| ~~`data/pipeline.md`~~ | Deleted — use `node scripts/db.mjs add-pipeline` or `/career-ops intake` |
 | `data/scan-history.tsv` | Scanner dedup history |
 | `portals.yml` | Query and company config |
 | `templates/cv-template.html` | HTML template for CVs |
 | `templates/cv-template.tex` | LaTeX/Overleaf template for CVs |
-| `generate-pdf.mjs` | Playwright: HTML to PDF |
-| `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
+| `scripts/generate-pdf.mjs` | Playwright: HTML to PDF |
+| `scripts/generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
 | `article-digest.md` | Compact proof points from portfolio (optional) |
 | `interview-prep/story-bank.md` | Accumulated STAR+R stories across evaluations |
 | `interview-prep/{company}-{role}.md` | Company-specific interview intel reports |
-| `analyze-patterns.mjs` | Pattern analysis script (JSON output) |
-| `followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
+| `scripts/analyze-patterns.mjs` | Pattern analysis script (JSON output) |
+| `scripts/followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
 | `data/follow-ups.md` | Follow-up history tracker |
-| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
-| `check-liveness.mjs` | Job posting liveness checker |
-| `liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
+| `scripts/scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
+| `scripts/check-liveness.mjs` | Job posting liveness checker |
+| `scripts/liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`). Blocks A-F + G (Posting Legitimacy), plus `## Machine Summary` YAML for downstream scripts. Header includes `**Legitimacy:** {tier}`. |
 
 ### OpenCode Commands
@@ -219,7 +219,7 @@ Copy `templates/portals.example.yml` → `portals.yml`. If they gave target role
 #### Step 4: Tracker DB
 If `data/career-ops.db` doesn't exist, run:
 ```bash
-node db.mjs migrate   # imports applications.md if it exists, otherwise creates empty DB
+node scripts/db.mjs migrate   # imports applications.md if it exists, otherwise creates empty DB
 ```
 
 #### Step 5: Get to know the user (important for quality)
@@ -372,7 +372,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 After generating a report and PDF:
 ```bash
-node db.mjs update <num> status=Evaluated score=4.2 pdf=1 report=reports/NNN-slug-YYYY-MM-DD.md notes="one liner"
+node scripts/db.mjs update <num> status=Evaluated score=4.2 pdf=1 report=reports/NNN-slug-YYYY-MM-DD.md notes="one liner"
 # If it's a new entry not yet in DB:
 # — use import-tsv or add via db.mjs directly
 ```
@@ -394,10 +394,10 @@ All reports MUST include `**URL:**` in the header. Include `**Legitimacy:** {tie
 
 ### Pipeline Integrity
 
-1. Add new URLs: `node db.mjs add-pipeline <url>`
-2. After evaluating: `node db.mjs update <num> status=Evaluated ...` + `node db.mjs pipeline-done <pipeline_id> <num>`
-3. Verify DB: `node db.mjs verify`
-4. Recovery (if DB lost): restore from backup or re-evaluate from `reports/` using `node db.mjs update`
+1. Add new URLs: `node scripts/db.mjs add-pipeline <url>`
+2. After evaluating: `node scripts/db.mjs update <num> status=Evaluated ...` + `node scripts/db.mjs pipeline-done <pipeline_id> <num>`
+3. Verify DB: `node scripts/db.mjs verify`
+4. Recovery (if DB lost): restore from backup or re-evaluate from `reports/` using `node scripts/db.mjs update`
 
 @AGENTS.md
 <!-- Add anything Claude Code specific that other agents don't need -->

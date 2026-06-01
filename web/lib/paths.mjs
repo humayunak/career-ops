@@ -17,21 +17,19 @@ export const FILE_ALLOWLIST = new Set([
   'portals.yml',
 ]);
 
-export function resolveCareerOpsRoot() {
-  const fromEnv = process.env.CAREER_OPS_ROOT;
-  if (fromEnv) return resolve(fromEnv);
-  return resolve(join(__dirname, '..', '..'));
-}
-
-/** User-layer files the web UI may write. */
-export const FILE_WRITE_ALLOWLIST = new Set([
-  'config/profile.yml',
-  'portals.yml',
-  'data/pipeline.md',
-]);
-
+/** Allow interview-prep markdown files */
 export function resolveAllowedFile(root, relPath) {
   const normalized = normalize(relPath).replace(/^(\.\.(\/|\\|$))+/, '');
+  if (normalized.startsWith('interview-prep/') && normalized.endsWith('.md')) {
+    const full = resolve(join(root, normalized));
+    if (!full.startsWith(resolve(join(root, 'interview-prep')))) {
+      return { error: 'Invalid path', status: 403 };
+    }
+    if (!existsSync(full)) {
+      return { error: 'File not found', status: 404 };
+    }
+    return { full, rel: normalized };
+  }
   if (!FILE_ALLOWLIST.has(normalized)) {
     return { error: 'Path not allowlisted', status: 403 };
   }
@@ -44,6 +42,19 @@ export function resolveAllowedFile(root, relPath) {
   }
   return { full, rel: normalized };
 }
+
+export function resolveCareerOpsRoot() {
+  const fromEnv = process.env.CAREER_OPS_ROOT;
+  if (fromEnv) return resolve(fromEnv);
+  return resolve(join(__dirname, '..', '..'));
+}
+
+/** User-layer files the web UI may write. */
+export const FILE_WRITE_ALLOWLIST = new Set([
+  'config/profile.yml',
+  'portals.yml',
+  'data/pipeline.md',
+]);
 
 export function resolveWritableFile(root, relPath) {
   const normalized = normalize(relPath).replace(/^(\.\.(\/|\\|$))+/, '');

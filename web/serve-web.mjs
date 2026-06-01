@@ -4,7 +4,7 @@
  */
 
 import { createServer } from 'http';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from 'fs';
 import { join, extname, basename } from 'path';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
@@ -13,9 +13,12 @@ import {
   resolveCareerOpsRoot,
   resolveAllowedFile,
   resolveWritableFile,
-  applicationsPath,
 } from './lib/paths.mjs';
-import { parseCommandsFromSkill, buildSnapshot, findReportFile } from './lib/parsers.mjs';
+import { parseCommandsFromSkill, findReportFile } from './lib/parsers.mjs';
+import { buildSnapshotFromDb } from './lib/snapshot.mjs';
+import { parseReportSummary } from './lib/report-summary.mjs';
+import { runPatternsAnalysis } from './lib/patterns-api.mjs';
+import { runFollowupCadence } from './lib/followup-api.mjs';
 import {
   getApplications, getApplication, updateApplication, getMetrics,
   getPipelinePending, getPipelineAll, addPipelineUrl, markPipelineDone, discardPipelineItem,
@@ -117,7 +120,7 @@ async function handleApi(req, res, url) {
   }
 
   if (url.pathname === '/api/snapshot') {
-    return json(res, 200, buildSnapshot(CAREER_OPS_ROOT, applicationsPath(CAREER_OPS_ROOT)));
+    return json(res, 200, buildSnapshotFromDb(CAREER_OPS_ROOT));
   }
 
   // --- DB-backed endpoints ---
@@ -182,7 +185,44 @@ async function handleApi(req, res, url) {
       path: found.rel,
       filename: found.name,
       markdown,
+      summary: parseReportSummary(markdown),
     });
+  }
+
+  if (url.pathname === '/api/insights/patterns' && req.method === 'GET') {
+    try {
+      const result = await runPatternsAnalysis(CAREER_OPS_ROOT);
+      return json(res, result.ok ? 200 : 500, result);
+    } catch (e) {
+      return json(res, 500, { ok: false, error: e.message });
+    }
+  }
+
+  if (url.pathname === '/api/insights/followups' && req.method === 'GET') {
+    try {
+      const overdueOnly = url.searchParams.get('overdue') === '1';
+      const result = await runFollowupCadence(CAREER_OPS_ROOT, { overdueOnly });
+      return json(res, result.ok ? 200 : 500, result);
+    } catch (e) {
+      return json(res, 500, { ok: false, error: e.message });
+    }
+  }
+
+  if (url.pathname === '/api/interview-prep' && req.method === 'GET') {
+    const dir = join(CAREER_OPS_ROOT, 'interview-prep');
+    if (!existsSync(dir)) return json(res, 200, { files: [] });
+    const files = readdirSync(dir)
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => {
+        const full = join(dir, f);
+        return {
+          name: f,
+          path: `interview-prep/${f}`,
+          mtime: statSync(full).mtime.toISOString(),
+        };
+      })
+      .sort((a, b) => (a.mtime < b.mtime ? 1 : -1));
+    return json(res, 200, { files });
   }
 
   if (url.pathname === '/api/runs' && req.method === 'GET') {
@@ -345,7 +385,19 @@ function handleRequest(req, res) {
     const filePut = req.method === 'PUT' && url.pathname === '/api/file';
     const configPut =
       req.method === 'PUT' && (url.pathname === '/api/profile' || url.pathname === '/api/portals');
-    if (!readOnlyGet && !runPost && !mutatingPost && !filePut && !configPut) {
+    const appPatch =
+      req.method === 'PATCH' && /^\/api\/applications\/\d+$/.test(url.pathname);
+    const pipelinePatch =
+      req.method === 'PATCH' && /^\/api\/pipeline\/\d+$/.test(url.pathname);
+    if (
+      !readOnlyGet &&
+      !runPost &&
+      !mutatingPost &&
+      !filePut &&
+      !configPut &&
+      !appPatch &&
+      !pipelinePatch
+    ) {
       return json(res, 405, { error: 'Method not allowed' });
     }
     return handleApi(req, res, url);

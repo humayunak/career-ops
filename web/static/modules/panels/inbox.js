@@ -1,4 +1,4 @@
-/** Inbox — workflow strip, scan triage, pipeline pending */
+/** Inbox — portal scan triage, pending evaluate */
 
 let scanOffers = [];
 let selectedScan = new Set();
@@ -14,6 +14,9 @@ async function loadInboxPanel() {
     const pending = snap.pipelinePending || [];
 
     root.innerHTML = `
+      <div class="panel-intro">
+        <p>Jobs waiting for evaluation. Add new roles with <strong>/career-ops intake</strong> in your assistant, or use portal scan below.</p>
+      </div>
       <div class="workflow-strip glass-card" role="list">
         <div class="workflow-step"><span class="workflow-step__n">${wf.inbox ?? pending.length}</span><span>Inbox</span></div>
         <div class="workflow-step__arrow">→</div>
@@ -21,25 +24,26 @@ async function loadInboxPanel() {
         <div class="workflow-step__arrow">→</div>
         <div class="workflow-step"><span class="workflow-step__n">${wf.reports ?? 0}</span><span>Reports</span></div>
         <div class="workflow-step__arrow">→</div>
-        <div class="workflow-step"><span class="workflow-step__n">${wf.pdfs ?? 0}</span><span>PDFs</span></div>
+        <div class="workflow-step"><span class="workflow-step__n">${wf.pdfs ?? 0}</span><span>Resumes</span></div>
       </div>
 
-      <section class="glass-card">
+      <section class="glass-card" style="margin-top:16px">
         <div class="section-head">
-          <h2 class="section-title">Portal scan (preview)</h2>
+          <h2 class="section-title">Portal scan</h2>
           <div class="section-head__actions">
             <button type="button" class="btn btn--sm" id="btnScanPreview">Preview scan</button>
-            <button type="button" class="btn btn--sm btn--primary" id="btnScanRun">Run scan → inbox</button>
+            <button type="button" class="btn btn--sm btn--primary" id="btnScanRun">Run scan</button>
+            <button type="button" class="btn btn--sm btn--ghost" data-goto-portals>Portals settings</button>
           </div>
         </div>
-        <p class="muted">Dry-run matches <code>portals.yml</code> filters. Add selected roles to <code>data/pipeline.md</code> before evaluating in Cursor.</p>
+        <p class="muted">Uses enabled companies and filters from <strong>Sources → Portals</strong>. Preview first, then run to add matches here.</p>
         <div id="scanTriageMount"></div>
       </section>
 
-      <section class="glass-card">
+      <section class="glass-card" style="margin-top:16px">
         <div class="section-head">
-          <h2 class="section-title">Pending evaluate</h2>
-          <button type="button" class="btn btn--sm btn--primary" id="copyPipelineCmd">Copy /career-ops pipeline</button>
+          <h2 class="section-title">Ready to evaluate</h2>
+          <button type="button" class="btn btn--sm" id="copyPipelineCmd">Copy batch evaluate prompt</button>
         </div>
         <div id="pipelineList"></div>
       </section>
@@ -48,9 +52,10 @@ async function loadInboxPanel() {
     $('btnScanPreview')?.addEventListener('click', runScanPreview);
     $('btnScanRun')?.addEventListener('click', runScanFull);
     $('copyPipelineCmd')?.addEventListener('click', async () => {
-      await copyText('/career-ops pipeline\n\nProcess pending URLs in data/pipeline.md.');
-      showToast('Copied pipeline command');
+      await copyText(pipelinePrompt());
+      showToast('Batch evaluate prompt copied');
     });
+    root.querySelector('[data-goto-portals]')?.addEventListener('click', () => switchPanel('portals'));
 
     renderScanTriage();
     renderPipelineList(pending);
@@ -71,11 +76,10 @@ function renderScanTriage() {
   mount.innerHTML = `
     <div class="triage-actions">
       <button type="button" class="btn btn--sm btn--primary" id="btnAddSelected">Add selected to inbox</button>
-      <button type="button" class="btn btn--sm" id="btnSelectAll">Select all</button>
     </div>
     <div class="table-wrap" style="margin-top:12px">
       <table class="data-table">
-        <thead><tr><th></th><th>Company</th><th>Role</th><th>Location</th><th>URL</th></tr></thead>
+        <thead><tr><th class="col-check"><input type="checkbox" data-select-all aria-label="Select all"></th><th>Company</th><th>Role</th><th>Location</th><th>URL</th></tr></thead>
         <tbody>
           ${scanOffers
             .map(
@@ -95,17 +99,13 @@ function renderScanTriage() {
     <p class="muted">${scanOffers.length} match(es)</p>
   `;
 
-  mount.querySelectorAll('[data-scan-idx]').forEach((cb) => {
-    cb.addEventListener('change', () => {
+  wireTableSelectAll(mount, {
+    rowSelector: '[data-scan-idx]',
+    onRowChange: (cb, checked) => {
       const i = parseInt(cb.dataset.scanIdx, 10);
-      if (cb.checked) selectedScan.add(i);
+      if (checked) selectedScan.add(i);
       else selectedScan.delete(i);
-    });
-  });
-
-  $('btnSelectAll')?.addEventListener('click', () => {
-    scanOffers.forEach((_, i) => selectedScan.add(i));
-    renderScanTriage();
+    },
   });
 
   $('btnAddSelected')?.addEventListener('click', addSelectedToPipeline);
@@ -115,7 +115,7 @@ async function runScanPreview() {
   const btn = $('btnScanPreview');
   const mount = $('scanTriageMount');
   if (btn) btn.disabled = true;
-  if (mount) mount.innerHTML = '<p class="loading">Scanning portals (dry-run)…</p>';
+  if (mount) mount.innerHTML = '<p class="loading">Scanning job boards…</p>';
 
   try {
     const result = await api('/api/scan/preview', { method: 'POST' });
@@ -138,7 +138,7 @@ async function runScanFull() {
   try {
     await api('/api/scan/run', { method: 'POST' });
     invalidateSnapshot();
-    showToast('Scan complete — check pending inbox');
+    showToast('Scan complete — check list below');
     await loadInboxPanel();
   } catch (e) {
     showToast(e.message);
@@ -159,7 +159,7 @@ async function addSelectedToPipeline() {
       body: JSON.stringify({ offers }),
     });
     invalidateSnapshot();
-    showToast(`Added ${r.added} to pipeline`);
+    showToast(`Added ${r.added ?? offers.length} to inbox`);
     scanOffers = [];
     selectedScan = new Set();
     await loadInboxPanel();
@@ -173,34 +173,57 @@ function renderPipelineList(items) {
   if (!list) return;
 
   if (!items.length) {
-    list.innerHTML = '<div class="empty-state"><p>Inbox is empty. Use portal scan or LinkedIn source.</p></div>';
+    list.innerHTML =
+      '<div class="empty-state"><p>Inbox is empty. Run portal scan on Portals, use LinkedIn source, or <code>/career-ops intake</code> in your assistant.</p></div>';
     return;
   }
 
   list.innerHTML = `
     <div class="table-wrap">
       <table class="data-table">
-        <thead><tr><th></th><th>Company</th><th>Role</th><th>URL</th></tr></thead>
+        <thead><tr><th>Company</th><th>Role</th><th>Actions</th></tr></thead>
         <tbody>
           ${items
             .map(
-              (i, idx) => `
-            <tr>
-              <td class="muted">${idx + 1}</td>
+              (i) => `
+            <tr data-pipeline-id="${i.id}">
               <td>${esc(i.company || '—')}</td>
               <td>${esc(i.role || '—')}</td>
-              <td><a class="ext-link" href="${esc(i.url)}" target="_blank" rel="noopener">${esc(truncateUrl(i.url))}</a></td>
+              <td class="app-actions">
+                <a class="btn btn--sm btn--ghost ext-link" href="${esc(i.url)}" target="_blank" rel="noopener">Open</a>
+                <button type="button" class="btn btn--sm" data-eval-pipe="${i.id}">Evaluate</button>
+                <button type="button" class="btn btn--sm btn--ghost" data-dismiss-pipe="${i.id}">Dismiss</button>
+              </td>
             </tr>`,
             )
             .join('')}
         </tbody>
       </table>
     </div>
-    <p class="muted">${items.length} pending</p>
+    <p class="muted">${items.length} waiting</p>
   `;
-}
 
-function truncateUrl(url) {
-  if (!url || url.length < 48) return url || '';
-  return url.slice(0, 44) + '…';
+  const byId = new Map(items.map((i) => [String(i.id), i]));
+
+  list.querySelectorAll('[data-eval-pipe]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const item = byId.get(btn.dataset.evalPipe);
+      if (!item) return;
+      await copyText(evaluatePrompt(item.url, item.company, item.role));
+      showToast('Evaluate prompt copied');
+    });
+  });
+
+  list.querySelectorAll('[data-dismiss-pipe]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      try {
+        await patchPipeline(btn.dataset.dismissPipe, { status: 'discarded' });
+        invalidateSnapshot();
+        showToast('Removed from inbox');
+        await loadInboxPanel();
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+  });
 }

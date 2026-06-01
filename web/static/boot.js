@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
       refreshBtn.disabled = true;
       try {
         await refreshAll();
-        showToast('Refreshed from disk');
+        showToast('Synced');
       } catch (e) {
         showToast(e.message);
       } finally {

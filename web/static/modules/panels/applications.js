@@ -1,4 +1,4 @@
-/** Applications — table + TUI-style filter tabs */
+/** Applications — table + filters + status edit */
 
 const APP_TABS = [
   { id: 'all', label: 'All' },
@@ -13,6 +13,8 @@ const APP_TABS = [
 
 let appFilterTab = 'all';
 let appSearch = '';
+let appCompareSelected = new Set();
+let appDrawerNum = null;
 
 function normalizeStatus(raw) {
   let s = (raw || '').replace(/\*\*/g, '').trim().toLowerCase();
@@ -78,7 +80,7 @@ async function loadApplicationsPanel() {
 
     root.innerHTML = `
       <div class="panel-intro">
-        <p><strong>Copy apply</strong> → paste in your single Cursor career-ops chat. After the agent saves <code>data/apply-drafts/NNN.md</code>, click <strong>View apply</strong> and refresh.</p>
+        <p><strong>Copy application answers</strong> sends a prompt to your AI assistant. After it saves answers, click <strong>Refresh</strong> then <strong>View answers</strong>.</p>
       </div>
       <div class="filter-bar">
         <div class="tab-bar tab-bar--wrap" role="tablist">
@@ -91,8 +93,10 @@ async function loadApplicationsPanel() {
           <span class="sr-only">Search applications</span>
           <input type="search" class="search-input" id="appSearchInput" placeholder="Search company, role, notes…" value="${esc(appSearch)}">
         </label>
+        <button type="button" class="btn btn--sm" id="btnCompareApps" disabled>Compare selected (0)</button>
       </div>
       <div id="applicationsTable"></div>
+      <div id="appDrawerMount"></div>
     `;
 
     root.querySelectorAll('.tab-btn[data-tab]').forEach((btn) => {
@@ -105,43 +109,81 @@ async function loadApplicationsPanel() {
     const searchEl = $('appSearchInput');
     searchEl?.addEventListener('input', () => {
       appSearch = searchEl.value;
-      renderApplicationsTable(filterApps(apps));
+      renderApplicationsTable(filterApps(apps), apps);
     });
 
-    renderApplicationsTable(filterApps(apps));
+    $('btnCompareApps')?.addEventListener('click', async () => {
+      const selected = apps.filter((a) => appCompareSelected.has(a.number));
+      if (selected.length < 2) {
+        showToast('Select at least 2 applications to compare');
+        return;
+      }
+      if (selected.length > 3) {
+        showToast('Select at most 3 applications');
+        return;
+      }
+      await copyText(comparePrompt(selected));
+      showToast('Compare prompt copied — paste in your AI assistant');
+    });
+
+    renderApplicationsTable(filterApps(apps), apps);
+    if (appDrawerNum != null) {
+      const app = apps.find((a) => a.number === appDrawerNum);
+      if (app) renderAppDrawer(app);
+    }
   } catch (e) {
     root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
   }
 }
 
-function renderApplicationsTable(list) {
+function updateCompareButton() {
+  const btn = $('btnCompareApps');
+  if (!btn) return;
+  const n = appCompareSelected.size;
+  btn.disabled = n < 2;
+  btn.textContent = `Compare selected (${n})`;
+}
+
+function renderApplicationsTable(list, allApps) {
   const el = $('applicationsTable');
   if (!el) return;
 
   if (!list.length) {
     el.innerHTML = '<div class="empty-state"><p>No applications match this filter.</p></div>';
+    updateCompareButton();
     return;
   }
 
   el.innerHTML = `
     <div class="table-wrap">
-      <table class="data-table">
+      <table class="data-table data-table--apps">
         <thead>
           <tr>
-            <th>#</th><th>Date</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>PDF</th><th>Report</th><th>Apply</th>
+            <th class="col-check"><input type="checkbox" data-select-all aria-label="Select all for compare"></th>
+            <th>#</th><th>Date</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Notes</th><th>PDF</th><th>Report</th><th>Apply</th>
           </tr>
         </thead>
         <tbody>
           ${list
             .map(
               (a) => `
-            <tr>
-              <td>${a.number}</td>
+            <tr data-app-num="${a.number}" class="app-row${appDrawerNum === a.number ? ' app-row--open' : ''}">
+              <td class="col-check">
+                <input type="checkbox" data-compare="${a.number}" aria-label="Select for compare" ${appCompareSelected.has(a.number) ? 'checked' : ''}>
+              </td>
+              <td><button type="button" class="link-btn" data-open-drawer="${a.number}">${a.number}</button></td>
               <td>${esc(a.date)}</td>
               <td>${esc(a.company)}</td>
               <td>${esc(a.role)}</td>
               <td><span class="score-pill ${scoreClass(a.score)}">${esc(formatScore(a.score, a.scoreRaw))}</span></td>
-              <td><span class="status-chip" style="color:${statusColor(a.norm)}">${esc(a.status)}</span></td>
+              <td>
+                <select class="status-select" data-status-num="${a.number}" aria-label="Status for ${esc(a.company)}">
+                  ${statusSelectOptions(a.status)}
+                </select>
+              </td>
+              <td class="notes-cell">
+                <input type="text" class="notes-input" data-notes-num="${a.number}" value="${esc(a.notes || '')}" placeholder="Notes…">
+              </td>
               <td>${
                 a.pdfFilename
                   ? `<button type="button" class="link-btn" data-preview-pdf="${esc(a.pdfFilename)}">Preview</button>`
@@ -153,10 +195,10 @@ function renderApplicationsTable(list) {
               <td class="app-actions">
                 ${
                   a.reportNumber
-                    ? `<button type="button" class="btn btn--sm" data-copy-apply="${esc(a.reportNumber)}">Copy apply</button>
+                    ? `<button type="button" class="btn btn--sm" data-copy-apply="${esc(a.reportNumber)}">Copy answers</button>
                        ${
                          a.hasApplyDraft
-                           ? `<button type="button" class="btn btn--sm btn--primary" data-view-apply="${esc(a.reportNumber)}">View apply</button>`
+                           ? `<button type="button" class="btn btn--sm btn--primary" data-view-apply="${esc(a.reportNumber)}">View answers</button>`
                            : `<span class="muted app-actions__pending">—</span>`
                        }`
                     : '—'
@@ -170,6 +212,97 @@ function renderApplicationsTable(list) {
     </div>
   `;
 
+  const maxCompare = 3;
+  const compareHeader = el.querySelector('[data-select-all]');
+
+  const syncCompareHeader = () => {
+    if (!compareHeader) return;
+    const rows = [...el.querySelectorAll('[data-compare]')];
+    const checked = rows.filter((cb) => cb.checked);
+    compareHeader.checked = rows.length > 0 && checked.length === rows.length;
+    compareHeader.indeterminate = checked.length > 0 && checked.length < rows.length;
+  };
+
+  const applyCompareRow = (cb, checked) => {
+    const num = parseInt(cb.dataset.compare, 10);
+    if (checked) {
+      if (appCompareSelected.size >= maxCompare && !appCompareSelected.has(num)) {
+        cb.checked = false;
+        showToast('Maximum 3 applications for compare');
+        return;
+      }
+      appCompareSelected.add(num);
+    } else {
+      appCompareSelected.delete(num);
+    }
+    updateCompareButton();
+    syncCompareHeader();
+  };
+
+  el.querySelectorAll('[data-compare]').forEach((cb) => {
+    cb.addEventListener('change', () => applyCompareRow(cb, cb.checked));
+  });
+
+  compareHeader?.addEventListener('change', () => {
+    if (compareHeader.checked) {
+      for (const a of list) {
+        if (appCompareSelected.size >= maxCompare) break;
+        appCompareSelected.add(a.number);
+      }
+      if (list.length > maxCompare) {
+        showToast('Only the first 3 rows were selected (compare limit)');
+      }
+    } else {
+      for (const a of list) appCompareSelected.delete(a.number);
+    }
+    el.querySelectorAll('[data-compare]').forEach((cb) => {
+      const num = parseInt(cb.dataset.compare, 10);
+      cb.checked = appCompareSelected.has(num);
+    });
+    updateCompareButton();
+    syncCompareHeader();
+  });
+
+  syncCompareHeader();
+
+  el.querySelectorAll('[data-open-drawer]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const num = parseInt(btn.dataset.openDrawer, 10);
+      appDrawerNum = appDrawerNum === num ? null : num;
+      const app = allApps.find((a) => a.number === num);
+      renderAppDrawer(app || null);
+      el.querySelectorAll('.app-row').forEach((row) => {
+        row.classList.toggle('app-row--open', parseInt(row.dataset.appNum, 10) === appDrawerNum);
+      });
+    });
+  });
+
+  el.querySelectorAll('[data-status-num]').forEach((sel) => {
+    sel.addEventListener('change', async () => {
+      const num = sel.dataset.statusNum;
+      try {
+        await patchApplication(num, { status: sel.value });
+        invalidateSnapshot();
+        showToast('Status updated');
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+  });
+
+  el.querySelectorAll('[data-notes-num]').forEach((input) => {
+    input.addEventListener('change', async () => {
+      const num = input.dataset.notesNum;
+      try {
+        await patchApplication(num, { notes: input.value });
+        invalidateSnapshot();
+        showToast('Notes saved');
+      } catch (e) {
+        showToast(e.message);
+      }
+    });
+  });
+
   el.querySelectorAll('[data-goto-report]').forEach((btn) => {
     btn.addEventListener('click', () => {
       COW._reportPick = btn.dataset.gotoReport;
@@ -179,7 +312,7 @@ function renderApplicationsTable(list) {
 
   el.querySelectorAll('[data-preview-pdf]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      openPdfPreview(btn.dataset.previewPdf, `CV #${btn.closest('tr')?.querySelector('td')?.textContent || ''}`);
+      openPdfPreview(btn.dataset.previewPdf, btn.textContent);
     });
   });
 
@@ -190,7 +323,7 @@ function renderApplicationsTable(list) {
       const app = appByReport.get(btn.dataset.copyApply);
       if (!app) return;
       await copyText(buildApplyPrompt(app));
-      showToast('Apply prompt copied — paste in your career-ops Cursor chat');
+      showToast('Application prompt copied — paste in your AI assistant');
     });
   });
 
@@ -200,4 +333,74 @@ function renderApplicationsTable(list) {
       openApplyDraft(btn.dataset.viewApply, app ? `${app.company} — ${app.role}` : undefined);
     });
   });
+
+  updateCompareButton();
+}
+
+async function renderAppDrawer(app) {
+  const mount = $('appDrawerMount');
+  if (!mount) return;
+  if (!app) {
+    mount.innerHTML = '';
+    return;
+  }
+
+  mount.innerHTML = `
+    <aside class="app-drawer glass-card" aria-label="Job details">
+      <div class="app-drawer__head">
+        <h2 class="section-title">${esc(app.company)} — ${esc(app.role)}</h2>
+        <button type="button" class="btn btn--sm btn--ghost" data-close-drawer aria-label="Close">Close</button>
+      </div>
+      <p class="muted">#${app.number} · ${esc(app.date)} · <span class="score-pill ${scoreClass(app.score)}">${esc(formatScore(app.score, app.scoreRaw))}</span></p>
+      <div class="app-drawer__actions">
+        ${app.reportNumber ? `<button type="button" class="btn btn--sm" data-drawer-report="${esc(app.reportNumber)}">View report</button>` : ''}
+        ${app.pdfFilename ? `<button type="button" class="btn btn--sm" data-drawer-pdf="${esc(app.pdfFilename)}">Preview resume</button>` : ''}
+        ${app.reportNumber ? `<button type="button" class="btn btn--sm" data-drawer-copy-apply="${esc(app.reportNumber)}">Copy application prompt</button>` : ''}
+        ${app.hasApplyDraft ? `<button type="button" class="btn btn--sm btn--primary" data-drawer-view-apply="${esc(app.reportNumber)}">View answers</button>` : ''}
+      </div>
+      <div id="appDrawerSummary" class="app-drawer__summary"><p class="loading">Loading summary…</p></div>
+    </aside>
+  `;
+
+  mount.querySelector('[data-close-drawer]')?.addEventListener('click', () => {
+    appDrawerNum = null;
+    mount.innerHTML = '';
+    document.querySelectorAll('.app-row--open').forEach((r) => r.classList.remove('app-row--open'));
+  });
+
+  mount.querySelector('[data-drawer-report]')?.addEventListener('click', () => {
+    COW._reportPick = app.reportNumber;
+    switchPanel('reports');
+  });
+
+  mount.querySelector('[data-drawer-pdf]')?.addEventListener('click', (e) => {
+    openPdfPreview(e.target.dataset.drawerPdf, `${app.company} resume`);
+  });
+
+  mount.querySelector('[data-drawer-copy-apply]')?.addEventListener('click', async () => {
+    await copyText(buildApplyPrompt(app));
+    showToast('Application prompt copied');
+  });
+
+  mount.querySelector('[data-drawer-view-apply]')?.addEventListener('click', () => {
+    openApplyDraft(app.reportNumber, `${app.company} — ${app.role}`);
+  });
+
+  if (app.reportNumber) {
+    try {
+      const data = await api(`/api/reports/${encodeURIComponent(app.reportNumber)}`);
+      const summary = typeof parseReportSummary === 'function' ? parseReportSummary(data.markdown) : null;
+      const sumEl = $('appDrawerSummary');
+      if (sumEl && summary) {
+        sumEl.innerHTML = renderReportSummaryCard(summary);
+      } else if (sumEl) {
+        sumEl.innerHTML = '<p class="muted">No summary available. Open the full report.</p>';
+      }
+    } catch {
+      const sumEl = $('appDrawerSummary');
+      if (sumEl) sumEl.innerHTML = '<p class="muted">Report not found.</p>';
+    }
+  } else {
+    $('appDrawerSummary').innerHTML = '<p class="muted">Evaluate this role to generate a report.</p>';
+  }
 }

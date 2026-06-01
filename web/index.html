@@ -21,17 +21,20 @@
           <span class="sidebar__logo">CO</span>
           <div>
             <div class="sidebar__name">Career-Ops</div>
-            <div class="sidebar__tag" id="sidebarVersion">Mission control</div>
+            <div class="sidebar__tag" id="sidebarVersion">Job search</div>
           </div>
         </div>
 
         <nav class="sidebar-nav">
           <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Work</span>
+            <span class="sidebar-nav__label">Home</span>
             <button type="button" class="sidebar-nav__item is-active" data-panel="overview">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
               <span class="sidebar-nav__label-text">Overview</span>
             </button>
+          </div>
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">Jobs</span>
             <button type="button" class="sidebar-nav__item" data-panel="inbox">
               <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12H2l3-7h14l3 7z"/><path d="M5 12v7h14v-7"/></svg></span>
               <span class="sidebar-nav__label-text">Inbox</span>
@@ -40,16 +43,31 @@
               <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
               <span class="sidebar-nav__label-text">Applications</span>
             </button>
+          </div>
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">Insights</span>
             <button type="button" class="sidebar-nav__item" data-panel="reports">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span>
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
               <span class="sidebar-nav__label-text">Reports</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="patterns">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 5-9"/></svg></span>
+              <span class="sidebar-nav__label-text">Patterns</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="followups">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+              <span class="sidebar-nav__label-text">Follow-ups</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="interviewprep">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
+              <span class="sidebar-nav__label-text">Interview prep</span>
             </button>
           </div>
           <div class="sidebar-nav__group">
             <span class="sidebar-nav__label">Sources</span>
-            <button type="button" class="sidebar-nav__item" data-panel="portals">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span>
-              <span class="sidebar-nav__label-text">Portals</span>
+            <button type="button" class="sidebar-nav__item" data-panel="discovery">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
+              <span class="sidebar-nav__label-text">Discovery</span>
             </button>
             <button type="button" class="sidebar-nav__item" data-panel="linkedin">
               <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v2"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></span>
@@ -64,27 +82,23 @@
             </button>
           </div>
           <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">System</span>
-            <button type="button" class="sidebar-nav__item" data-panel="runs">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-              <span class="sidebar-nav__label-text">Runs</span>
-            </button>
+            <span class="sidebar-nav__label">Help</span>
             <button type="button" class="sidebar-nav__item" data-panel="workflow">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/><circle cx="19" cy="12" r="2"/></svg></span>
-              <span class="sidebar-nav__label-text">Workflow</span>
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg></span>
+              <span class="sidebar-nav__label-text">How it works</span>
             </button>
             <button type="button" class="sidebar-nav__item" data-panel="commands">
               <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span>
-              <span class="sidebar-nav__label-text">Commands</span>
+              <span class="sidebar-nav__label-text">AI commands</span>
             </button>
-            <button type="button" class="sidebar-nav__item" data-panel="mindmap">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></span>
-              <span class="sidebar-nav__label-text">Mindmap</span>
+            <button type="button" class="sidebar-nav__item" data-panel="runs">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+              <span class="sidebar-nav__label-text">Maintenance</span>
             </button>
           </div>
         </nav>
 
-        <p class="sidebar__footer">Refresh data with <kbd>Refresh</kbd> in the header.</p>
+        <p class="sidebar__footer">Use <kbd>Refresh</kbd> to sync after working in your AI assistant.</p>
       </div>
     </aside>
 
@@ -92,7 +106,7 @@
       <header class="topbar">
         <div>
           <h1 class="topbar__title" id="topbarTitle">Overview</h1>
-          <p class="topbar__meta" id="topbarMeta">Catppuccin Mocha</p>
+          <p class="topbar__meta" id="topbarMeta">Home · Career-Ops</p>
         </div>
         <div class="topbar__actions">
           <button type="button" class="btn btn--ghost" id="btnRefresh">Refresh</button>
@@ -112,8 +126,17 @@
         <section id="mainReports" class="main-view" aria-label="Reports" hidden>
           <div id="reportsRoot"></div>
         </section>
-        <section id="mainPortals" class="main-view" aria-label="Portals" hidden>
-          <div id="portalsRoot"></div>
+        <section id="mainPatterns" class="main-view" aria-label="Patterns" hidden>
+          <div id="patternsRoot"></div>
+        </section>
+        <section id="mainFollowups" class="main-view" aria-label="Follow-ups" hidden>
+          <div id="followupsRoot"></div>
+        </section>
+        <section id="mainInterviewprep" class="main-view" aria-label="Interview prep" hidden>
+          <div id="interviewPrepRoot"></div>
+        </section>
+        <section id="mainDiscovery" class="main-view main-view--discovery" aria-label="Discovery" hidden>
+          <div id="discoveryRoot"></div>
         </section>
         <section id="mainLinkedin" class="main-view" aria-label="LinkedIn" hidden>
           <div id="linkedinRoot"></div>
@@ -121,20 +144,14 @@
         <section id="mainProfile" class="main-view" aria-label="Profile" hidden>
           <div id="profileRoot"></div>
         </section>
-        <section id="mainRuns" class="main-view" aria-label="Runs" hidden>
-          <div id="runsRoot"></div>
-        </section>
-        <section id="mainWorkflow" class="main-view" aria-label="Workflow" hidden>
+        <section id="mainWorkflow" class="main-view" aria-label="How it works" hidden>
           <div id="workflowRoot"></div>
         </section>
-        <section id="mainMindmap" class="main-view" aria-label="Mindmap" hidden>
-          <div id="mindmapRoot"></div>
-        </section>
-        <section id="mainCommands" class="main-view" aria-label="Commands" hidden>
-          <div class="panel-intro">
-            <p>Slash commands and data map. Full lifecycle diagram is on the Workflow tab.</p>
-          </div>
+        <section id="mainCommands" class="main-view" aria-label="AI commands" hidden>
           <div id="commandsRoot"></div>
+        </section>
+        <section id="mainRuns" class="main-view" aria-label="Maintenance" hidden>
+          <div id="runsRoot"></div>
         </section>
       </main>
     </div>
@@ -158,7 +175,7 @@
     <div class="pdf-modal__backdrop" data-close-apply></div>
     <div class="pdf-modal__panel glass-card pdf-modal__panel--wide" role="dialog" aria-labelledby="applyModalTitle">
       <header class="pdf-modal__header">
-        <h2 id="applyModalTitle" class="pdf-modal__title">Apply draft</h2>
+        <h2 id="applyModalTitle" class="pdf-modal__title">Application answers</h2>
         <div class="pdf-modal__actions">
           <button type="button" class="btn btn--sm" data-close-apply aria-label="Close">Close</button>
         </div>
@@ -168,16 +185,20 @@
   </div>
 
   <script src="static/vendor/marked.min.js"></script>
+  <script src="static/lib/user-copy.js"></script>
+  <script src="static/lib/report-summary.js"></script>
   <script src="static/util.js"></script>
   <script src="static/lib/config-forms.js"></script>
-  <script src="static/modules/panels/mindmap.js"></script>
   <script src="static/modules/panels/workflow.js"></script>
   <script src="static/modules/panels/commands.js"></script>
   <script src="static/modules/panels/overview.js"></script>
   <script src="static/modules/panels/inbox.js"></script>
   <script src="static/modules/panels/applications.js"></script>
   <script src="static/modules/panels/reports.js"></script>
-  <script src="static/modules/panels/portals.js"></script>
+  <script src="static/modules/panels/patterns.js"></script>
+  <script src="static/modules/panels/followups.js"></script>
+  <script src="static/modules/panels/interview-prep.js"></script>
+  <script src="static/modules/panels/discovery.js"></script>
   <script src="static/modules/panels/linkedin.js"></script>
   <script src="static/modules/panels/profile.js"></script>
   <script src="static/modules/panels/runs.js"></script>

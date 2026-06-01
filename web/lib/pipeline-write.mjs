@@ -44,6 +44,14 @@ export function enrichOffersWithUrls(offers, stdout) {
 
 export function appendToPipelineFile(root, offers) {
   if (!offers.length) return { added: 0 };
+  try {
+    return appendToPipelineFileInner(root, offers);
+  } catch {
+    return { added: 0, skippedFile: true };
+  }
+}
+
+function appendToPipelineFileInner(root, offers) {
   const path = join(root, 'data', 'pipeline.md');
   mkdirSync(join(root, 'data'), { recursive: true });
   let text = existsSync(path) ? readFileSync(path, 'utf8') : '# Pipeline Inbox\n\n## Pendientes\n\n';

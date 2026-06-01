@@ -7,7 +7,7 @@
  * Graceful degradation: DB errors return empty/null rather than 500.
  */
 
-import { openDb } from '../../db.mjs';
+import { openDb } from '../../scripts/db.mjs';
 
 function withDb(fn) {
   const db = openDb();
@@ -46,7 +46,8 @@ export function updateApplication(num, fields) {
   for (const [k, v] of Object.entries(fields)) {
     if (!ALLOWED.has(k)) continue;
     sets.push(`${k} = ?`);
-    vals.push(v);
+    if (k === 'pdf') vals.push(v === true || v === '1' || v === 1 ? 1 : 0);
+    else vals.push(v);
   }
   if (!sets.length) return { ok: false, error: 'No valid fields' };
   vals.push(parseInt(num));

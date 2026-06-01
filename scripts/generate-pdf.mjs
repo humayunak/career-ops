@@ -19,7 +19,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Ensure output directory exists (fresh setup)
-mkdirSync(resolve(__dirname, 'output'), { recursive: true });
+mkdirSync(resolve(__dirname, '../output'), { recursive: true });
 
 /**
  * Normalize text for ATS compatibility by converting problematic Unicode.
@@ -113,7 +113,7 @@ async function generatePDF() {
   let html = await readFile(inputPath, 'utf-8');
 
   // Resolve font paths relative to career-ops/fonts/
-  const fontsDir = resolve(__dirname, 'fonts');
+  const fontsDir = resolve(__dirname, '../fonts');
   html = html.replace(
     /url\(['"]?\.\/fonts\//g,
     `url('file://${fontsDir}/`

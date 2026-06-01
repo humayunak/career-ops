@@ -1,4 +1,4 @@
-/** Overview — metrics + funnel (Go dashboard progress) */
+/** Overview — metrics, next actions */
 
 async function loadOverviewPanel() {
   const root = $('overviewRoot');
@@ -9,6 +9,21 @@ async function loadOverviewPanel() {
     const snap = await ensureSnapshot();
     const m = snap.metrics;
     const p = snap.progress;
+    const apps = snap.applications || [];
+
+    const highNotApplied = apps.filter(
+      (a) => a.score >= 4 && /^evaluated$/i.test(a.status),
+    ).length;
+
+    let followupOverdue = 0;
+    try {
+      const fu = await api('/api/insights/followups');
+      if (fu.ok && fu.data?.metadata) {
+        followupOverdue = (fu.data.metadata.overdue || 0) + (fu.data.metadata.urgent || 0);
+      }
+    } catch {
+      /* optional */
+    }
 
     const funnelHtml = (p.funnelStages || [])
       .map(
@@ -33,18 +48,32 @@ async function loadOverviewPanel() {
       .join('');
 
     root.innerHTML = `
-      <div class="kpi-row">
+      <section class="glass-card next-actions">
+        <h2 class="section-title">What to do next</h2>
+        <div class="next-actions__grid">
+          <button type="button" class="next-action-card" data-goto="inbox">
+            <span class="next-action-card__n">${m.pipelinePending}</span>
+            <span class="next-action-card__label">Jobs to evaluate</span>
+          </button>
+          <button type="button" class="next-action-card" data-goto="applications" data-filter="top">
+            <span class="next-action-card__n">${highNotApplied}</span>
+            <span class="next-action-card__label">Strong fits not applied</span>
+          </button>
+          <button type="button" class="next-action-card" data-goto="followups">
+            <span class="next-action-card__n">${followupOverdue}</span>
+            <span class="next-action-card__label">Follow-ups due</span>
+          </button>
+        </div>
+      </section>
+
+      <div class="kpi-row" style="margin-top:16px">
         <div class="kpi"><div class="kpi__label">Applications</div><div class="kpi__value">${m.total}</div></div>
         <div class="kpi"><div class="kpi__label">Actionable</div><div class="kpi__value">${m.actionable}</div></div>
         <div class="kpi"><div class="kpi__label">Avg score</div><div class="kpi__value">${m.avgScore || '—'}</div></div>
-        <button type="button" class="kpi kpi--link" data-goto="inbox"><div class="kpi__label">Pipeline inbox</div><div class="kpi__value">${m.pipelinePending}</div></button>
+        <button type="button" class="kpi kpi--link" data-goto="inbox"><div class="kpi__label">Inbox</div><div class="kpi__value">${m.pipelinePending}</div></button>
       </div>
-      <div class="quick-actions" style="margin-bottom:16px">
-        <button type="button" class="btn btn--sm" data-goto="inbox">Open inbox</button>
-        <button type="button" class="btn btn--sm" data-goto="portals">Portal settings</button>
-        <button type="button" class="btn btn--sm" data-goto="profile">Profile</button>
-      </div>
-      <div class="split-2">
+
+      <div class="split-2" style="margin-top:16px">
         <section class="glass-card">
           <h2 class="section-title">Funnel</h2>
           <div class="funnel">${funnelHtml || '<p class="muted">No applications yet</p>'}</div>
@@ -57,14 +86,20 @@ async function loadOverviewPanel() {
         <section class="glass-card">
           <h2 class="section-title">Score distribution</h2>
           <div class="buckets">${bucketsHtml || '<p class="muted">—</p>'}</div>
-          <p class="muted" style="margin:12px 0 0">Top score: <strong>${p.topScore || '—'}</strong> · PDFs: <strong>${m.withPdf}</strong> · Offers: <strong>${p.totalOffers}</strong></p>
+          <p class="muted" style="margin:12px 0 0">Top score: <strong>${p.topScore || '—'}</strong> · Resumes: <strong>${m.withPdf}</strong> · Offers: <strong>${p.totalOffers}</strong></p>
         </section>
       </div>
     `;
 
     root.querySelectorAll('[data-goto]').forEach((btn) => {
-      btn.addEventListener('click', () => switchPanel(btn.dataset.goto));
+      btn.addEventListener('click', () => {
+        if (btn.dataset.filter === 'top') {
+          appFilterTab = 'top';
+        }
+        switchPanel(btn.dataset.goto);
+      });
     });
+
   } catch (e) {
     root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
   }

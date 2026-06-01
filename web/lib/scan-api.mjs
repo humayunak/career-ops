@@ -3,7 +3,7 @@ import { join } from 'path';
 import { parseScanStdout } from './pipeline-write.mjs';
 
 export function runScanDryRun(root, { verify = false } = {}) {
-  const args = [join(root, 'scan.mjs'), '--dry-run', '--json-only'];
+  const args = [join(root, 'scripts/scan.mjs'), '--dry-run', '--json-only'];
   if (verify) args.push('--verify');
 
   return new Promise((resolve, reject) => {
@@ -66,7 +66,7 @@ function parseScanSummary(stdout) {
 
 export function runScanAndSave(root) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [join(root, 'scan.mjs')], {
+    const child = spawn(process.execPath, [join(root, 'scripts/scan.mjs')], {
       cwd: root,
       env: { ...process.env },
     });

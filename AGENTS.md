@@ -27,20 +27,20 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 On the first message of each session, run the update checker silently:
 
 ```bash
-node update-system.mjs check
+node scripts/update-system.mjs check
 ```
 
 Parse the JSON output:
 - `{"status": "update-available", "local": "1.0.0", "remote": "1.1.0", "changelog": "..."}` → tell the user:
   > "career-ops update available (v{local} → v{remote}). Your data (CV, profile, tracker, reports) will NOT be touched. Want me to update?"
-  If yes → run `node update-system.mjs apply`. If no → run `node update-system.mjs dismiss`.
+  If yes → run `node scripts/update-system.mjs apply`. If no → run `node scripts/update-system.mjs dismiss`.
 - `{"status": "up-to-date"}` → say nothing
 - `{"status": "dismissed"}` → say nothing
 - `{"status": "offline"}` → say nothing
 - `{"status": "no-remote-version"}` → say nothing (checker reached GitHub but neither VERSION nor the latest release tag parsed as semver — treat as a silent non-failure, same as offline)
 
 The user can also say "check for updates" or "update career-ops" at any time to force a check.
-To rollback: `node update-system.mjs rollback`
+To rollback: `node scripts/update-system.mjs rollback`
 
 ## What is career-ops
 
@@ -56,17 +56,17 @@ AI-powered, CLI-agnostic job search automation: pipeline tracking, offer evaluat
 | `portals.yml` | Query and company config |
 | `templates/cv-template.html` | HTML template for CVs |
 | `templates/cv-template.tex` | LaTeX/Overleaf template for CVs |
-| `generate-pdf.mjs` | Playwright: HTML to PDF |
-| `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
+| `scripts/generate-pdf.mjs` | Playwright: HTML to PDF |
+| `scripts/generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
 | `article-digest.md` | Compact proof points from portfolio (optional) |
 | `interview-prep/story-bank.md` | Accumulated STAR+R stories across evaluations |
 | `interview-prep/{company}-{role}.md` | Company-specific interview intel reports |
-| `analyze-patterns.mjs` | Pattern analysis script (JSON output) |
-| `followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
+| `scripts/analyze-patterns.mjs` | Pattern analysis script (JSON output) |
+| `scripts/followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
 | `data/follow-ups.md` | Follow-up history tracker |
-| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
-| `check-liveness.mjs` | Job posting liveness checker |
-| `liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
+| `scripts/scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
+| `scripts/check-liveness.mjs` | Job posting liveness checker |
+| `scripts/liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`). Blocks A-F + G (Posting Legitimacy). Header includes `**Legitimacy:** {tier}`. |
 
 ### First Run — Onboarding (IMPORTANT)

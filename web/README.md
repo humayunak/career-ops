@@ -1,6 +1,6 @@
 # Career-Ops Web UI
 
-Local mission control — **Catppuccin Mocha** + glass surfaces.
+Local dashboard for your job search — reads from **SQLite** (`data/career-ops.db`).
 
 ## Run
 
@@ -12,45 +12,35 @@ http://127.0.0.1:8793 · `CAREER_OPS_ROOT` · `CAREER_OPS_WEB_PORT`
 
 ## Navigation
 
-| Group | Panel | Content |
+| Group | Panel | Purpose |
 |-------|-------|---------|
-| **Work** | Overview | KPIs, funnel, score distribution |
-| | Inbox | Workflow strip, portal scan triage, pipeline pending |
-| | Applications | Tracker + **Copy apply** / **View apply** + PDF preview |
-| | Reports | Report markdown + linked resume PDF |
-| | LinkedIn | Apify search URL → triage → inbox (`APIFY_TOKEN`) |
-| **You** | Profile | Form editor for `profile.yml`, markdown view for `_profile.md`, CV/digest |
-| **Sources** | Portals | Tag editors for scan keywords + company toggles + YAML |
-| **System** | Workflow | Full-page lifecycle diagram (discover → apply → statuses) |
-| | Runs | `scan`, `verify`, `patterns`, … |
-| | Commands | `/career-ops` copy for Cursor · data map |
-| | Mindmap | Zoomable Mermaid mode catalog |
+| **Home** | Overview | KPIs, next actions, quick add job |
+| **Jobs** | Inbox | Add URLs, portal scan, evaluate handoffs |
+| | Applications | Tracker, status edits, apply answers, compare |
+| **Insights** | Reports | Summary + full evaluation reports |
+| | Patterns | Targeting insights from history |
+| | Follow-ups | Cadence and copy follow-up prompts |
+| | Interview prep | Read interview prep documents |
+| **Sources** | Portals | Job board keywords and companies |
+| | LinkedIn | Import from LinkedIn search (Apify) |
+| **You** | Profile | Your targets and CV |
+| **Help** | How it works | Lifecycle diagram |
+| | AI commands | Copy prompts for your assistant |
+| | Maintenance | Scan, doctor, DB verify, patterns script |
 
-## APIs (local only)
+## Workflow
 
-- `POST /api/scan/preview` — dry-run portal scan (`scan.mjs --dry-run --json-only`)
-- `POST /api/scan/run` — write matches to `data/pipeline.md`
-- `POST /api/pipeline/add` — `{ offers: [{ url, company, title }] }`
-- `POST /api/linkedin/scan` — `{ searchUrl }` via Apify
-- `PUT /api/profile` — `{ structured: {...} }` or `{ content: "yaml..." }`
-- `PUT /api/portals` — `{ structured: { titleFilter, locationFilter, companies } }` or raw YAML
-- `PUT /api/file` — save allowlisted files
-- `GET /api/output/{file}.pdf` — inline PDF (also used in preview modal)
-- `GET /api/apply-drafts/{reportNum}` — apply Q&A markdown from `data/apply-drafts/`
+1. **Add jobs** in Inbox (URL) or via portal/LinkedIn scan.
+2. **Evaluate** — copy prompt → paste in Cursor/Claude → assistant writes report + PDF.
+3. **Refresh** in the web UI to see updates.
+4. **Apply** — copy application prompt → view saved answers in Applications.
+5. **Update status** with the dropdown in Applications.
 
-### Apply workflow
+## APIs
 
-1. **Applications → Copy apply** — paste in one pinned Cursor chat (not a new thread per job).
-2. Agent completes `/career-ops apply` and saves `data/apply-drafts/{NNN}.md`.
-3. **Refresh** → **View apply** on that row.
-
-See **Workflow** for the architecture diagram (`/static/career-ops-workflow.html`).
-
-## LinkedIn / Apify
-
-```bash
-export APIFY_TOKEN=your_token
-# optional: export APIFY_LINKEDIN_ACTOR=actor~name
-```
-
-Paste a LinkedIn jobs search URL in **Sources → LinkedIn**, fetch, select rows, **Add to inbox**.
+- `GET /api/snapshot` — DB-backed applications, pipeline, metrics
+- `PATCH /api/applications/:num` — update status, notes, etc.
+- `PATCH /api/pipeline/:id` — dismiss inbox item
+- `POST /api/pipeline` — add job URL
+- `GET /api/insights/patterns` · `GET /api/insights/followups`
+- `GET /api/interview-prep` — list prep markdown files

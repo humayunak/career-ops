@@ -12,7 +12,7 @@ async function loadRunsPanel() {
 
     root.innerHTML = `
       <div class="panel-intro">
-        <p>Run Node scripts locally. Logs saved to <code>data/web-runs/</code>.</p>
+        <p>Maintenance tools (scan, health check, pattern analysis). For everyday job search, use Inbox and Applications instead.</p>
         <div class="run-actions" id="runScriptBtns"></div>
       </div>
       <div class="split-2">
