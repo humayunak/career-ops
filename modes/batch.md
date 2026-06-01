@@ -16,7 +16,7 @@ Conductor (headed browser mode)
   ├─ Job 2: click next, read JD + URL
   │    └─► headless worker → report .md + PDF + tracker-line
   │
-  └─ End: merge tracker-additions → applications.md + summary
+  └─ End: node db.mjs import-tsv each result → DB + summary
 ```
 
 Each worker is a headless child process with a clean 200K token context. The conductor only orchestrates. See the **Headless / Batch Mode** table in `AGENTS.md` for the correct command per CLI.
@@ -30,7 +30,7 @@ batch/
   batch-runner.sh               # Standalone orchestrator script
   batch-prompt.md               # Prompt template for workers
   logs/                         # One log per job (gitignored)
-  tracker-additions/            # Tracker lines (gitignored)
+  tracker-additions/            # TSV results per worker (gitignored, imported to DB)
 ```
 
 ## Mode A: Conductor --chrome
@@ -53,7 +53,7 @@ batch/
    f. Log to `logs/{report_num}-{id}.log`
    g. Chrome: go back → next job
 5. **Pagination**: If no more jobs → click "Next" → repeat
-6. **End**: Merge `tracker-additions/` → `applications.md` + summary
+6. **End**: `node db.mjs import-tsv batch/tracker-additions/{id}.tsv` per job → DB + summary
 
 ## Mode B: Standalone script
 
@@ -90,7 +90,7 @@ Each worker receives `batch-prompt.md` as a system prompt. It is self-contained.
 The worker produces:
 1. `.md` report in `reports/`
 2. PDF in `output/`
-3. Tracker line in `batch/tracker-additions/{id}.tsv`
+3. TSV row in `batch/tracker-additions/{id}.tsv` (imported to DB by conductor)
 4. Result JSON via stdout
 
 ## Error handling

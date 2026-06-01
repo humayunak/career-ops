@@ -1,23 +1,21 @@
-# Modo: tracker — Tracker de Aplicaciones
+# Mode: tracker — Application Tracker
 
-Lee y muestra `data/applications.md`.
+Query and display application data from the DB.
 
-**Formato del tracker:**
-```markdown
-| # | Fecha | Empresa | Rol | Score | Estado | PDF | Report |
+```bash
+node db.mjs stats                        # summary counts by status
+node db.mjs query                        # all applications (table)
+node db.mjs query status=Evaluated       # filtered
+node db.mjs query --json score>=4.0      # JSON output
+node db.mjs get <num>                    # single application detail
 ```
 
-Estados posibles: `Evaluada` → `Aplicado` → `Respondido` → `Contacto` → `Entrevista` → `Oferta` / `Rechazada` / `Descartada` / `NO APLICAR`
+**To update a status or field:**
+```bash
+node db.mjs update <num> status=Applied
+node db.mjs update <num> notes="text" score=4.2
+```
 
-- `Aplicado` = el candidato envió su candidatura
-- `Respondido` = Un recruiter/empresa contactó y el candidato respondió (inbound)
-- `Contacto` = El candidato contactó proactivamente a alguien de la empresa (outbound, ej: LinkedIn power move)
+**Canonical statuses:** `Evaluated` → `Applied` → `Responded` → `Interview` → `Offer` / `Rejected` / `Discarded` / `SKIP`
 
-Si el usuario pide actualizar un estado, editar la fila correspondiente.
-
-Mostrar también estadísticas:
-- Total de aplicaciones
-- Por estado
-- Score promedio
-- % con PDF generado
-- % con report generado
+Show the user a formatted summary table from `node db.mjs query` output. Include stats: total, by status, avg score, pipeline pending.

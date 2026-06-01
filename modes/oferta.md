@@ -208,10 +208,9 @@ node db.mjs update <num> date=YYYY-MM-DD company="Company" role="Role Title" \
 ```
 
 To get the next sequential number: `node db.mjs stats` (check highest num + 1).
-If creating a new entry (not yet in DB): use `INSERT` via import-tsv or add the row directly.
+New entry not yet in DB — use `update` with all fields; it will INSERT if num doesn't exist:
 
 ```bash
-# Quick insert via TSV (9 cols: num date company role status score pdf report notes):
-echo "073\t2026-06-01\tCompany\tRole\tEvaluated\t4.2\t0\treports/073-company-2026-06-01.md\tnotes" \
-  | node db.mjs import-tsv /dev/stdin
+node db.mjs update <num> date=YYYY-MM-DD company="Company" role="Role" \
+  score=X.X status=Evaluated pdf=0 report=reports/NNN-slug-YYYY-MM-DD.md notes="summary"
 ```
