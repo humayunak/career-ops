@@ -357,6 +357,12 @@ function cmdImportTsv(db, file) {
 }
 
 function cmdMigrate(db) {
+  // Safety: if DB already has data, require --force flag to avoid accidental wipe
+  const existing = db.prepare('SELECT COUNT(*) as n FROM applications').get().n;
+  if (existing > 0 && !process.argv.includes('--force')) {
+    console.log(`DB already has ${existing} applications. Use --force to re-import and overwrite.`);
+    return;
+  }
   console.log('Migrating applications.md...');
   const a = migrateApplications(db);
   console.log(`  → ${a} applications imported`);

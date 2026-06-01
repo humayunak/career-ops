@@ -104,8 +104,10 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 
 | File | Function |
 |------|----------|
-| `data/applications.md` | Application tracker |
-| `data/pipeline.md` | Inbox of pending URLs |
+| `data/career-ops.db` | **Primary data store** — applications + pipeline (SQLite) |
+| `db.mjs` | DB CLI + library — get/update/query/stats/verify/migrate |
+| `data/applications.md` | Legacy MD tracker — kept for reference, NOT the source of truth |
+| `data/pipeline.md` | Legacy pipeline inbox — kept for manual URL entry, syncs to DB |
 | `data/scan-history.tsv` | Scanner dedup history |
 | `portals.yml` | Query and company config |
 | `templates/cv-template.html` | HTML template for CVs |
@@ -214,13 +216,10 @@ If `portals.yml` is missing:
 
 Copy `templates/portals.example.yml` → `portals.yml`. If they gave target roles in Step 2, update `title_filter.positive` to match.
 
-#### Step 4: Tracker
-If `data/applications.md` doesn't exist, create it:
-```markdown
-# Applications Tracker
-
-| # | Date | Company | Role | Score | Status | PDF | Report | Notes |
-|---|------|---------|------|-------|--------|-----|--------|-------|
+#### Step 4: Tracker DB
+If `data/career-ops.db` doesn't exist, run:
+```bash
+node db.mjs migrate   # imports applications.md if it exists, otherwise creates empty DB
 ```
 
 #### Step 5: Get to know the user (important for quality)
@@ -362,54 +361,29 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 ## Stack and Conventions
 
-- Node.js (mjs modules), Playwright (PDF + scraping), YAML (config), HTML/CSS (template), Markdown (data), Canva MCP (optional visual CV)
+- Node.js (mjs modules), SQLite via `better-sqlite3`, Playwright (PDF + scraping), YAML (config), HTML/CSS (template)
 - Scripts in `.mjs`, configuration in YAML
 - Output in `output/` (gitignored), Reports in `reports/`
-- JDs in `jds/` (referenced as `local:jds/{file}` in pipeline.md)
+- JDs in `jds/` (referenced as `local:jds/{file}`)
 - Batch in `batch/` (gitignored except scripts and prompt)
-- Report numbering: sequential 3-digit zero-padded, max existing + 1
-- **RULE: After each batch of evaluations, run `node merge-tracker.mjs`** to merge tracker additions and avoid duplications.
-- **RULE: NEVER create new entries in applications.md if company+role already exists.** Update the existing entry.
+- Report numbering: sequential 3-digit zero-padded — next = max existing + 1
 
-### TSV Format for Tracker Additions
+### Adding a New Application (DB flow)
 
-Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 10 tab-separated columns:
-
+After generating a report and PDF:
+```bash
+node db.mjs update <num> status=Evaluated score=4.2 pdf=1 report=reports/NNN-slug-YYYY-MM-DD.md notes="one liner"
+# If it's a new entry not yet in DB:
+# — use import-tsv or add via db.mjs directly
 ```
-{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{source}\t{note}
-```
 
-**Column order (IMPORTANT -- status BEFORE score):**
-1. `num` -- sequential number (integer)
-2. `date` -- YYYY-MM-DD
-3. `company` -- short company name
-4. `role` -- job title
-5. `status` -- canonical status (e.g., `Evaluated`)
-6. `score` -- format `X.X/5` (e.g., `4.2/5`)
-7. `pdf` -- `✅` or `❌`
-8. `report` -- markdown link `[num](reports/...)`
-9. `source` -- `linkedin` or `portal` (use `—` if unknown)
-10. `notes` -- one-line summary
+All reports MUST include `**URL:**` in the header. Include `**Legitimacy:** {tier}`.
 
-**Note:** In applications.md, score comes BEFORE status. The merge script handles this column swap automatically.
-
-### Pipeline Integrity
-
-1. **NEVER edit applications.md to ADD new entries** -- Write TSV in `batch/tracker-additions/` and `merge-tracker.mjs` handles the merge.
-2. **YES you can edit applications.md to UPDATE status/notes of existing entries.**
-3. All reports MUST include `**URL:**` in the header (between Score and PDF). Include `**Legitimacy:** {tier}` (see Block G in `modes/oferta.md`).
-4. All statuses MUST be canonical (see `templates/states.yml`).
-5. Health check: `node verify-pipeline.mjs`
-6. Normalize statuses: `node normalize-statuses.mjs`
-7. Dedup: `node dedup-tracker.mjs`
-
-### Canonical States (applications.md)
-
-**Source of truth:** `templates/states.yml`
+### Canonical States
 
 | State | When to use |
 |-------|-------------|
-| `Evaluated` | Report completed, pending decision |
+| `Evaluated` | Report done, pending decision |
 | `Applied` | Application sent |
 | `Responded` | Company responded |
 | `Interview` | In interview process |
@@ -418,9 +392,12 @@ Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slu
 | `Discarded` | Discarded by candidate or offer closed |
 | `SKIP` | Doesn't fit, don't apply |
 
-**RULES:**
-- No markdown bold (`**`) in status field
-- No dates in status field (use the date column)
-- No extra text (use the notes column)
+### Pipeline Integrity
+
+1. Add new URLs: `node db.mjs add-pipeline <url>`
+2. After evaluating: `node db.mjs update <num> status=Evaluated ...` + `node db.mjs pipeline-done <pipeline_id> <num>`
+3. Verify DB: `node db.mjs verify`
+4. Recovery (if DB lost): `node db.mjs migrate` re-imports from applications.md
+
 @AGENTS.md
 <!-- Add anything Claude Code specific that other agents don't need -->
