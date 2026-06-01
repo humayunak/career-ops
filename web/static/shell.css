@@ -968,6 +968,78 @@ body {
   min-height: 0;
 }
 
+/* ── Workflow panel (full-page diagram iframe) ── */
+.wf-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 0;
+}
+
+.wf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+.wf-toolbar__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.wf-toolbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wf-stage {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: #020617;
+}
+
+.wf-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.main-scroll:has(#mainWorkflow.is-active) {
+  overflow: hidden;
+  padding: 0;
+}
+
+#mainWorkflow.main-view.is-active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  max-width: none;
+}
+
+#mainWorkflow #workflowRoot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#mainWorkflow .wf-panel {
+  flex: 1;
+  min-height: 0;
+}
+
 .app-actions {
   display: flex;
   flex-wrap: wrap;

@@ -11,19 +11,19 @@
       font-family: 'JetBrains Mono', monospace;
       background: #020617;
       min-height: 100vh;
-      padding: 1.5rem;
+      padding: 1.25rem 1.5rem 2rem;
       color: #fff;
     }
-    .container { max-width: 1100px; margin: 0 auto; }
-    .header { margin-bottom: 1.5rem; }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .header { margin-bottom: 1.25rem; }
     .header-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; }
     .pulse-dot {
-      width: 10px; height: 10px; background: #89b4fa; border-radius: 50%;
+      width: 10px; height: 10px; background: #22d3ee; border-radius: 50%;
       animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-    h1 { font-size: 1.25rem; font-weight: 700; }
-    .subtitle { color: #94a3b8; font-size: 0.75rem; margin-left: 1.35rem; }
+    h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em; }
+    .subtitle { color: #94a3b8; font-size: 0.72rem; margin-left: 1.35rem; line-height: 1.5; }
     .diagram-container {
       background: rgba(15, 23, 42, 0.5);
       border-radius: 1rem;
@@ -31,10 +31,10 @@
       padding: 1rem;
       overflow-x: auto;
     }
-    svg { width: 100%; min-width: 880px; display: block; }
+    svg { width: 100%; min-width: 1200px; display: block; }
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 0.75rem;
       margin-top: 1.25rem;
     }
@@ -50,9 +50,12 @@
     .card-dot.emerald { background: #34d399; }
     .card-dot.violet { background: #a78bfa; }
     .card-dot.amber { background: #fbbf24; }
-    .card h3 { font-size: 0.8rem; font-weight: 600; }
-    .card ul { list-style: none; color: #94a3b8; font-size: 0.7rem; line-height: 1.5; }
-    .footer { margin-top: 1rem; color: #64748b; font-size: 0.65rem; text-align: center; }
+    .card-dot.rose { background: #fb7185; }
+    .card h3 { font-size: 0.78rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.68rem; line-height: 1.55; }
+    .card li { margin-bottom: 0.25rem; }
+    .footer { margin-top: 1rem; color: #64748b; font-size: 0.62rem; text-align: center; }
+    .phase-tag { font-size: 0.65rem; color: #64748b; margin: 0.75rem 0 0.25rem; letter-spacing: 0.06em; text-transform: uppercase; }
   </style>
 </head>
 <body>
@@ -60,13 +63,15 @@
     <header class="header">
       <div class="header-row">
         <div class="pulse-dot"></div>
-        <h1>Career-Ops — Human + Agent Workflow</h1>
+        <h1>Career-Ops — Session lifecycle &amp; data flow</h1>
       </div>
-      <p class="subtitle">Web UI (ops desk) · Cursor agent (brain) · local files (source of truth)</p>
+      <p class="subtitle">Web UI = ops desk (read + triage) · Cursor = one agent chat (write artifacts) · SQLite + files = handoff · Rose dashed = human approval required</p>
     </header>
 
+    <p class="phase-tag">Swimlanes · phased flow · application status rail</p>
+
     <div class="diagram-container">
-      <svg viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 1200 880" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
             <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
@@ -74,117 +79,251 @@
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
             <path d="M0,0 L0,6 L8,3 z" fill="#64748b"/>
           </marker>
+          <marker id="arrow-rose" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#fb7185"/>
+          </marker>
+          <marker id="arrow-violet" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/>
+          </marker>
         </defs>
+
         <rect width="100%" height="100%" fill="url(#grid)"/>
 
-        <!-- Arrows (behind boxes) -->
-        <line x1="440" y1="95" x2="440" y2="125" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="200" y1="185" x2="200" y2="215" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="440" y1="185" x2="440" y2="215" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="680" y1="185" x2="680" y2="215" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="440" y1="275" x2="440" y2="305" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="320" y1="365" x2="320" y2="395" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <line x1="560" y1="365" x2="560" y2="395" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
-        <path d="M 120 430 L 120 455 L 200 455" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow)"/>
+        <!-- ========== ARROWS (behind boxes) ========== -->
+        <!-- Human → agent -->
+        <line x1="280" y1="88" x2="520" y2="88" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="720" y1="88" x2="920" y2="88" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-rose)"/>
+        <!-- Discover → pipeline -->
+        <line x1="120" y1="218" x2="120" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="300" y1="218" x2="300" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="480" y1="218" x2="480" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="660" y1="218" x2="660" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="840" y1="218" x2="840" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="1020" y1="218" x2="1020" y2="248" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- Pipeline merge -->
+        <path d="M 120 278 L 120 300 L 600 300 L 600 318" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <path d="M 300 278 L 300 295 L 600 295" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <path d="M 480 278 L 480 295 L 600 295" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <path d="M 660 278 L 660 295 L 600 295" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <path d="M 840 278 L 840 295 L 600 295" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <path d="M 1020 278 L 1020 300 L 600 300" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
+        <!-- Evaluate chain -->
+        <line x1="600" y1="378" x2="600" y2="408" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="420" y1="458" x2="320" y2="458" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <line x1="780" y1="458" x2="880" y2="458" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
+        <line x1="600" y1="498" x2="600" y2="528" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <!-- Context inputs -->
+        <path d="M 60 430 L 60 458 L 180 458" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrow)"/>
+        <!-- Apply HITL -->
+        <path d="M 200 600 L 200 640 L 380 640" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-rose)"/>
+        <path d="M 520 600 L 520 640 L 700 640" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-rose)"/>
+        <path d="M 840 640 L 980 640 L 980 600" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" marker-end="url(#arrow-rose)"/>
+        <!-- DB to lifecycle -->
+        <line x1="600" y1="548" x2="600" y2="578" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-violet)"/>
 
-        <!-- Human boundary -->
-        <rect x="40" y="20" width="800" height="470" rx="12" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.6"/>
-        <text x="55" y="42" fill="#fbbf24" font-size="9" font-weight="600">YOU — browser + one Cursor chat</text>
+        <!-- ========== HUMAN BOUNDARY ========== -->
+        <rect x="32" y="28" width="1136" height="108" rx="12" fill="none" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.65"/>
+        <text x="48" y="48" fill="#fbbf24" font-size="9" font-weight="600">HUMAN-IN-THE-LOOP — browser + one Cursor chat (never auto-submit applications)</text>
 
         <!-- Web UI -->
-        <rect x="340" y="55" width="200" height="40" rx="6" fill="#0f172a"/>
-        <rect x="340" y="55" width="200" height="40" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
-        <text x="440" y="72" fill="#22d3ee" font-size="11" font-weight="600" text-anchor="middle">Career-Ops Web UI</text>
-        <text x="440" y="86" fill="#94a3b8" font-size="8" text-anchor="middle">:8793 · profile · portals · inbox</text>
+        <rect x="80" y="58" width="200" height="56" rx="6" fill="#0f172a"/>
+        <rect x="80" y="58" width="200" height="56" rx="6" fill="rgba(8,51,68,0.45)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="180" y="78" fill="#22d3ee" font-size="10" font-weight="600" text-anchor="middle">Web UI :8793</text>
+        <text x="180" y="94" fill="#94a3b8" font-size="7.5" text-anchor="middle">Profile · Portals · Inbox · Apps</text>
 
-        <!-- Three paths -->
-        <rect x="100" y="130" width="200" height="55" rx="6" fill="#0f172a"/>
-        <rect x="100" y="130" width="200" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="200" y="152" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">scan.mjs</text>
-        <text x="200" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">portals.yml → pipeline.md</text>
+        <!-- Cursor -->
+        <rect x="520" y="58" width="200" height="56" rx="6" fill="#0f172a"/>
+        <rect x="520" y="58" width="200" height="56" rx="6" fill="rgba(6,78,59,0.45)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="620" y="78" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">Cursor agent</text>
+        <text x="620" y="94" fill="#94a3b8" font-size="7.5" text-anchor="middle">/career-ops · modes/*.md</text>
 
-        <rect x="340" y="130" width="200" height="55" rx="6" fill="#0f172a"/>
-        <rect x="340" y="130" width="200" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="440" y="152" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">Cursor Agent</text>
-        <text x="440" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">evaluate · pipeline · apply</text>
+        <!-- Submit gate -->
+        <rect x="920" y="58" width="200" height="56" rx="6" fill="#0f172a"/>
+        <rect x="920" y="58" width="200" height="56" rx="6" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="1020" y="78" fill="#fb7185" font-size="10" font-weight="600" text-anchor="middle">ATS form</text>
+        <text x="1020" y="94" fill="#94a3b8" font-size="7.5" text-anchor="middle">YOU click Submit</text>
 
-        <rect x="580" y="130" width="200" height="55" rx="6" fill="#0f172a"/>
-        <rect x="580" y="130" width="200" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
-        <text x="680" y="152" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">batch workers</text>
-        <text x="680" y="168" fill="#94a3b8" font-size="8" text-anchor="middle">headless CLI</text>
+        <!-- Phase label -->
+        <text x="48" y="158" fill="#64748b" font-size="8" font-weight="600">PHASE 1 — DISCOVER &amp; INTAKE</text>
 
-        <!-- Pipeline -->
-        <rect x="290" y="220" width="300" height="55" rx="6" fill="#0f172a"/>
-        <rect x="290" y="220" width="300" height="55" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="440" y="242" fill="#a78bfa" font-size="10" font-weight="600" text-anchor="middle">data/pipeline.md</text>
-        <text x="440" y="258" fill="#94a3b8" font-size="8" text-anchor="middle">inbox · triage before evaluate</text>
+        <!-- Entry paths -->
+        <rect x="40" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="40" y="168" width="160" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="120" y="188" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">scan.mjs</text>
+        <text x="120" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">portals.yml · zero LLM</text>
 
-        <!-- Outputs -->
-        <rect x="180" y="310" width="160" height="50" rx="6" fill="#0f172a"/>
-        <rect x="180" y="310" width="160" height="50" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="260" y="332" fill="#a78bfa" font-size="9" font-weight="600" text-anchor="middle">reports/*.md</text>
-        <text x="260" y="346" fill="#94a3b8" font-size="7" text-anchor="middle">evaluation A–G</text>
+        <rect x="220" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="220" y="168" width="160" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="300" y="188" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">intake</text>
+        <text x="300" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">URL · JD · LinkedIn</text>
 
-        <rect x="360" y="310" width="160" height="50" rx="6" fill="#0f172a"/>
-        <rect x="360" y="310" width="160" height="50" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="440" y="332" fill="#a78bfa" font-size="9" font-weight="600" text-anchor="middle">output/*.pdf</text>
-        <text x="440" y="346" fill="#94a3b8" font-size="7" text-anchor="middle">tailored CV</text>
+        <rect x="400" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="400" y="168" width="160" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="480" y="188" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">auto-pipeline</text>
+        <text x="480" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">paste JD or URL</text>
 
-        <rect x="540" y="310" width="160" height="50" rx="6" fill="#0f172a"/>
-        <rect x="540" y="310" width="160" height="50" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="620" y="332" fill="#a78bfa" font-size="9" font-weight="600" text-anchor="middle">applications.md</text>
-        <text x="620" y="346" fill="#94a3b8" font-size="7" text-anchor="middle">tracker</text>
+        <rect x="580" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="580" y="168" width="160" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="660" y="188" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">pipeline</text>
+        <text x="660" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">N pending URLs</text>
 
-        <!-- Apply draft -->
-        <rect x="60" y="400" width="180" height="50" rx="6" fill="#0f172a"/>
-        <rect x="60" y="400" width="180" height="50" rx="6" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
-        <text x="150" y="422" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">apply-drafts/NNN.md</text>
-        <text x="150" y="436" fill="#94a3b8" font-size="7" text-anchor="middle">View apply in web</text>
+        <rect x="760" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="760" y="168" width="160" height="50" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="840" y="188" fill="#34d399" font-size="9" font-weight="600" text-anchor="middle">batch</text>
+        <text x="840" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">parallel headless</text>
 
-        <rect x="280" y="400" width="320" height="50" rx="6" fill="#0f172a"/>
-        <rect x="280" y="400" width="320" height="50" rx="6" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="440" y="422" fill="#cbd5e1" font-size="9" font-weight="600" text-anchor="middle">config/profile.yml · modes/_profile.md</text>
-        <text x="440" y="436" fill="#94a3b8" font-size="7" text-anchor="middle">cv.md · article-digest.md</text>
+        <rect x="940" y="168" width="160" height="50" rx="6" fill="#0f172a"/>
+        <rect x="940" y="168" width="160" height="50" rx="6" fill="rgba(251,146,60,0.25)" stroke="#fb923c" stroke-width="1.5"/>
+        <text x="1020" y="188" fill="#fb923c" font-size="9" font-weight="600" text-anchor="middle">LinkedIn API</text>
+        <text x="1020" y="204" fill="#94a3b8" font-size="7" text-anchor="middle">web Sources tab</text>
+
+        <text x="48" y="248" fill="#64748b" font-size="8" font-weight="600">PHASE 2 — TRIAGE</text>
+
+        <!-- Pipeline inbox -->
+        <rect x="420" y="318" width="360" height="60" rx="6" fill="#0f172a"/>
+        <rect x="420" y="318" width="360" height="60" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="600" y="340" fill="#a78bfa" font-size="10" font-weight="600" text-anchor="middle">pipeline · status pending</text>
+        <text x="600" y="356" fill="#94a3b8" font-size="7.5" text-anchor="middle">db.mjs add-pipeline · web Inbox triage · pipeline.md sync</text>
+        <text x="600" y="368" fill="#64748b" font-size="7" text-anchor="middle">→ pipeline-done &lt;id&gt; &lt;app_num&gt; when evaluated</text>
+
+        <text x="48" y="408" fill="#64748b" font-size="8" font-weight="600">PHASE 3 — EVALUATE (Playwright verify URL · modes/_shared + oferta)</text>
+
+        <!-- Evaluate -->
+        <rect x="440" y="418" width="320" height="80" rx="6" fill="#0f172a"/>
+        <rect x="440" y="418" width="320" height="80" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="600" y="440" fill="#34d399" font-size="10" font-weight="600" text-anchor="middle">Evaluate A–G</text>
+        <text x="600" y="456" fill="#94a3b8" font-size="7.5" text-anchor="middle">oferta · auto-pipeline · pipeline per URL</text>
+        <text x="600" y="470" fill="#94a3b8" font-size="7" text-anchor="middle">score ≥ 4.0 → apply · &lt; 4.0 → SKIP (override ok)</text>
+        <text x="600" y="484" fill="#64748b" font-size="7" text-anchor="middle">ofertas · deep · interview-prep · patterns · followup</text>
+
+        <!-- Context -->
+        <rect x="40" y="428" width="140" height="70" rx="6" fill="#0f172a"/>
+        <rect x="40" y="428" width="140" height="70" rx="6" fill="rgba(30,41,59,0.55)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="110" y="448" fill="#cbd5e1" font-size="8" font-weight="600" text-anchor="middle">Context IN</text>
+        <text x="110" y="462" fill="#94a3b8" font-size="7" text-anchor="middle">cv.md</text>
+        <text x="110" y="474" fill="#94a3b8" font-size="7" text-anchor="middle">profile.yml</text>
+        <text x="110" y="486" fill="#94a3b8" font-size="7" text-anchor="middle">_profile.md</text>
+
+        <!-- Artifacts out -->
+        <rect x="200" y="438" width="120" height="50" rx="6" fill="#0f172a"/>
+        <rect x="200" y="438" width="120" height="50" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="260" y="458" fill="#a78bfa" font-size="8" font-weight="600" text-anchor="middle">reports/*.md</text>
+        <text x="260" y="472" fill="#94a3b8" font-size="7" text-anchor="middle">blocks A–G</text>
+
+        <rect x="880" y="438" width="120" height="50" rx="6" fill="#0f172a"/>
+        <rect x="880" y="438" width="120" height="50" rx="6" fill="rgba(76,29,149,0.35)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="940" y="458" fill="#a78bfa" font-size="8" font-weight="600" text-anchor="middle">output/*.pdf</text>
+        <text x="940" y="472" fill="#94a3b8" font-size="7" text-anchor="middle">generate-pdf.mjs</text>
+
+        <text x="48" y="518" fill="#64748b" font-size="8" font-weight="600">PHASE 4 — PERSIST (source of truth)</text>
+
+        <!-- DB hub -->
+        <rect x="380" y="528" width="440" height="72" rx="6" fill="#0f172a"/>
+        <rect x="380" y="528" width="440" height="72" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="2"/>
+        <text x="600" y="552" fill="#a78bfa" font-size="11" font-weight="700" text-anchor="middle">data/career-ops.db</text>
+        <text x="600" y="568" fill="#94a3b8" font-size="7.5" text-anchor="middle">applications (#, score, status, report, pdf) · pipeline (url, pending|done)</text>
+        <text x="600" y="582" fill="#64748b" font-size="7" text-anchor="middle">node db.mjs get · update · query · pipeline-pending · pipeline-done</text>
+
+        <text x="48" y="618" fill="#64748b" font-size="8" font-weight="600">PHASE 5 — APPLY (human gates)</text>
+
+        <rect x="80" y="628" width="240" height="48" rx="6" fill="#0f172a"/>
+        <rect x="80" y="628" width="240" height="48" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="200" y="648" fill="#22d3ee" font-size="8.5" font-weight="600" text-anchor="middle">Web: Copy apply prompt</text>
+        <text x="200" y="662" fill="#94a3b8" font-size="7" text-anchor="middle">Applications row → Cursor</text>
+
+        <rect x="380" y="628" width="240" height="48" rx="6" fill="#0f172a"/>
+        <rect x="380" y="628" width="240" height="48" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="500" y="648" fill="#34d399" font-size="8.5" font-weight="600" text-anchor="middle">apply mode</text>
+        <text x="500" y="662" fill="#94a3b8" font-size="7" text-anchor="middle">data/apply-drafts/NNN.md</text>
+
+        <rect x="880" y="628" width="240" height="48" rx="6" fill="#0f172a"/>
+        <rect x="880" y="628" width="240" height="48" rx="6" fill="rgba(136,19,55,0.35)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="1000" y="648" fill="#fb7185" font-size="8.5" font-weight="600" text-anchor="middle">Review → Submit</text>
+        <text x="1000" y="662" fill="#94a3b8" font-size="7" text-anchor="middle">status → Applied</text>
+
+        <text x="48" y="708" fill="#64748b" font-size="8" font-weight="600">APPLICATION LIFECYCLE (templates/states.yml)</text>
+
+        <!-- Status rail -->
+        <rect x="48" y="718" width="1104" height="44" rx="8" fill="rgba(15,23,42,0.6)" stroke="#1e293b" stroke-width="1"/>
+        <text x="100" y="744" fill="#a78bfa" font-size="8" text-anchor="middle">Evaluated</text>
+        <text x="100" y="754" fill="#64748b" font-size="6" text-anchor="middle">report done</text>
+        <text x="200" y="744" fill="#94a3b8" font-size="10">→</text>
+        <text x="280" y="744" fill="#34d399" font-size="8" text-anchor="middle">Applied</text>
+        <text x="360" y="744" fill="#94a3b8" font-size="10">→</text>
+        <text x="440" y="744" fill="#cbd5e1" font-size="8" text-anchor="middle">Responded</text>
+        <text x="520" y="744" fill="#94a3b8" font-size="10">→</text>
+        <text x="600" y="744" fill="#22d3ee" font-size="8" text-anchor="middle">Interview</text>
+        <text x="680" y="744" fill="#94a3b8" font-size="10">→</text>
+        <text x="760" y="744" fill="#fbbf24" font-size="8" text-anchor="middle">Offer</text>
+        <text x="880" y="744" fill="#fb7185" font-size="8" text-anchor="middle">Rejected</text>
+        <text x="980" y="744" fill="#94a3b8" font-size="8" text-anchor="middle">Discarded</text>
+        <text x="1080" y="744" fill="#64748b" font-size="8" text-anchor="middle">SKIP</text>
+
+        <!-- Session arcs annotation -->
+        <rect x="48" y="778" width="340" height="52" rx="6" fill="rgba(6,78,59,0.15)" stroke="#34d399" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="58" y="796" fill="#34d399" font-size="7.5" font-weight="600">Quick session</text>
+        <text x="58" y="810" fill="#94a3b8" font-size="6.5">Paste JD → auto-pipeline → report + PDF → db update Evaluated</text>
+        <text x="58" y="822" fill="#94a3b8" font-size="6.5">Web Refresh → Reports / Applications</text>
+
+        <rect x="410" y="778" width="340" height="52" rx="6" fill="rgba(76,29,149,0.15)" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="420" y="796" fill="#a78bfa" font-size="7.5" font-weight="600">Batch session</text>
+        <text x="420" y="810" fill="#94a3b8" font-size="6.5">scan → pipeline pending → /career-ops pipeline (3+ parallel)</text>
+        <text x="420" y="822" fill="#94a3b8" font-size="6.5">pipeline-done links inbox row to app #</text>
+
+        <rect x="772" y="778" width="380" height="52" rx="6" fill="rgba(136,19,55,0.12)" stroke="#fb7185" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="782" y="796" fill="#fb7185" font-size="7.5" font-weight="600">Apply session</text>
+        <text x="782" y="810" fill="#94a3b8" font-size="6.5">Copy apply → agent drafts → View apply in web → YOU submit</text>
+        <text x="782" y="822" fill="#94a3b8" font-size="6.5">followup · contacto · tracker modes along the way</text>
 
         <!-- Legend -->
-        <rect x="60" y="468" width="760" height="1" fill="#1e293b"/>
-        <circle cx="80" cy="488" r="4" fill="#22d3ee"/><text x="95" y="492" fill="#94a3b8" font-size="8">Web UI</text>
-        <circle cx="160" cy="488" r="4" fill="#34d399"/><text x="175" y="492" fill="#94a3b8" font-size="8">Scripts / Agent</text>
-        <circle cx="280" cy="488" r="4" fill="#a78bfa"/><text x="295" y="492" fill="#94a3b8" font-size="8">Data files</text>
-        <circle cx="380" cy="488" r="4" fill="#fb7185"/><text x="395" y="492" fill="#94a3b8" font-size="8">Apply output</text>
+        <rect x="48" y="848" width="1104" height="1" fill="#1e293b"/>
+        <circle cx="68" cy="864" r="4" fill="#22d3ee"/><text x="82" y="868" fill="#94a3b8" font-size="7.5">Web UI</text>
+        <circle cx="148" cy="864" r="4" fill="#34d399"/><text x="162" y="868" fill="#94a3b8" font-size="7.5">Agent / scripts</text>
+        <circle cx="248" cy="864" r="4" fill="#a78bfa"/><text x="262" y="868" fill="#94a3b8" font-size="7.5">DB + artifacts</text>
+        <circle cx="358" cy="864" r="4" fill="#fb7185"/><text x="372" y="868" fill="#94a3b8" font-size="7.5">Human gate (dashed)</text>
+        <circle cx="478" cy="864" r="4" fill="#fb923c"/><text x="492" y="868" fill="#94a3b8" font-size="7.5">External feed</text>
       </svg>
     </div>
 
     <div class="cards">
       <div class="card">
-        <div class="card-header"><div class="card-dot cyan"></div><h3>Web (human)</h3></div>
+        <div class="card-header"><div class="card-dot cyan"></div><h3>Web — ops desk</h3></div>
         <ul>
-          <li>• Edit profile + portal keywords</li>
-          <li>• Scan triage → inbox</li>
-          <li>• Copy apply per row</li>
-          <li>• View apply draft + PDF</li>
+          <li>• Read DB + files (Refresh)</li>
+          <li>• Edit profile.yml · portals.yml</li>
+          <li>• Inbox triage · scan dry-run</li>
+          <li>• Copy apply · view draft · PDF modal</li>
         </ul>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-dot emerald"></div><h3>Cursor (agent)</h3></div>
+        <div class="card-header"><div class="card-dot emerald"></div><h3>Agent — one chat</h3></div>
         <ul>
-          <li>• One pinned chat only</li>
-          <li>• /career-ops pipeline</li>
-          <li>• /career-ops apply</li>
-          <li>• Writes apply-drafts/*.md</li>
+          <li>• Writes reports/, output/, apply-drafts/</li>
+          <li>• node db.mjs update · pipeline-done</li>
+          <li>• Playwright for live URLs (not WebFetch alone)</li>
+          <li>• Never clicks Submit on ATS forms</li>
         </ul>
       </div>
       <div class="card">
-        <div class="card-header"><div class="card-dot violet"></div><h3>Artifacts</h3></div>
+        <div class="card-header"><div class="card-dot violet"></div><h3>Persistence</h3></div>
         <ul>
-          <li>• reports/ evaluations</li>
-          <li>• output/ PDFs</li>
-          <li>• applications.md tracker</li>
-          <li>• pipeline.md inbox</li>
+          <li>• career-ops.db — tracker + inbox</li>
+          <li>• reports/ · output/ · jds/</li>
+          <li>• User layer: cv.md · _profile.md</li>
+          <li>• Mindmap tab = mode catalog reference</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-dot rose"></div><h3>Quality gates</h3></div>
+        <ul>
+          <li>• Score &lt; 4.0 → recommend SKIP</li>
+          <li>• Review PDF + report before apply</li>
+          <li>• Ethical use: quality over volume</li>
+          <li>• Batch: Verification unconfirmed header</li>
         </ul>
       </div>
     </div>
-    <p class="footer">career-ops · local only · 127.0.0.1:8793</p>
+    <p class="footer">career-ops · Humayun fork · local 127.0.0.1:8793</p>
   </div>
 </body>
 </html>

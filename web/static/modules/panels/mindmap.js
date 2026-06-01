@@ -36,8 +36,8 @@ const MINDMAP_SOURCE = `mindmap
       intake
         log job URL
     Data Files
+      career-ops.db
       cv.md
-      applications.md
       pipeline.md
       profile.yml
       portals.yml

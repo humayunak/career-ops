@@ -15,6 +15,7 @@ const COW_PANELS = [
   { id: 'linkedin', title: 'LinkedIn', group: 'Sources' },
   { id: 'profile', title: 'Profile', group: 'You' },
   { id: 'runs', title: 'Runs', group: 'System' },
+  { id: 'workflow', title: 'Workflow', group: 'System' },
   { id: 'commands', title: 'Commands', group: 'System' },
   { id: 'mindmap', title: 'Mindmap', group: 'System' },
 ];
@@ -25,6 +26,7 @@ const COW_PANEL_IDS = Object.fromEntries(
 
 const COW_LOADERS = {
   commands: loadCommandsPanel,
+  workflow: loadWorkflowPanel,
   mindmap: loadMindmapPanel,
   overview: loadOverviewPanel,
   inbox: loadInboxPanel,

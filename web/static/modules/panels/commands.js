@@ -1,21 +1,13 @@
-/** Commands — architecture diagram + slash commands */
+/** Commands — slash commands + compact workflow reference */
 
-function renderArchitectureSection() {
+function renderWorkflowHint() {
   return `
     <section class="glass-card diagrams-card">
       <div class="section-head">
-        <h2 class="section-title">Workflow architecture</h2>
-        <a class="btn btn--sm btn--ghost ext-link" href="/static/career-ops-workflow.html" target="_blank" rel="noopener">Open full diagram</a>
+        <h2 class="section-title">Workflow diagram</h2>
+        <button type="button" class="btn btn--sm btn--ghost" id="btnGoWorkflow">Open Workflow tab</button>
       </div>
-      <p class="muted">Web = ops desk. Cursor = one agent chat. Files on disk are the handoff between them.</p>
-      <div class="diagram-embed">
-        <iframe
-          src="/static/career-ops-workflow.html"
-          title="Career-Ops workflow architecture"
-          class="diagram-embed__frame"
-          loading="lazy"
-        ></iframe>
-      </div>
+      <p class="muted">Full-page swimlane: discover → triage → evaluate → persist → apply → status lifecycle. See sidebar <strong>Workflow</strong>.</p>
     </section>
 
     <section class="glass-card diagrams-card">
@@ -43,10 +35,11 @@ function renderArchitectureSection() {
         <tbody>
           <tr><td><code>config/profile.yml</code></td><td>Profile → Edit config</td><td>evaluate, pdf</td></tr>
           <tr><td><code>portals.yml</code></td><td>Portals → Scan keywords</td><td><code>scan.mjs</code> / scan</td></tr>
-          <tr><td><code>data/pipeline.md</code></td><td>Inbox</td><td>/career-ops pipeline</td></tr>
+          <tr><td><code>data/career-ops.db</code></td><td>Applications · Inbox</td><td><code>node db.mjs</code> · pipeline · tracker</td></tr>
+          <tr><td><code>data/pipeline.md</code></td><td>Inbox (sync)</td><td>/career-ops pipeline · add-pipeline</td></tr>
           <tr><td><code>reports/*.md</code></td><td>Reports</td><td>auto-pipeline, oferta</td></tr>
           <tr><td><code>data/apply-drafts/NNN.md</code></td><td>Applications → View apply</td><td>/career-ops apply</td></tr>
-          <tr><td><code>data/applications.md</code></td><td>Applications</td><td>tracker</td></tr>
+          <tr><td><code>output/*.pdf</code></td><td>Applications → PDF</td><td>pdf · generate-pdf.mjs</td></tr>
         </tbody>
       </table>
     </section>
@@ -67,10 +60,13 @@ async function loadCommandsPanel() {
       : '<div class="empty-state"><p>No commands found. Check .cursor/skills/career-ops/SKILL.md</p></div>';
 
     root.innerHTML = `
-      ${renderArchitectureSection()}
+      ${renderWorkflowHint()}
       <h2 class="section-title" style="margin:24px 0 16px">Slash commands</h2>
       ${cmdsHtml}
     `;
+
+    const goWf = document.getElementById('btnGoWorkflow');
+    if (goWf) goWf.addEventListener('click', () => switchPanel('workflow'));
 
     root.querySelectorAll('[data-copy-cmd]').forEach((btn) => {
       btn.addEventListener('click', async () => {

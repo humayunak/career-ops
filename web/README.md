@@ -21,8 +21,10 @@ http://127.0.0.1:8793 · `CAREER_OPS_ROOT` · `CAREER_OPS_WEB_PORT`
 | | LinkedIn | Apify search URL → triage → inbox (`APIFY_TOKEN`) |
 | **You** | Profile | Form editor for `profile.yml`, markdown view for `_profile.md`, CV/digest |
 | **Sources** | Portals | Tag editors for scan keywords + company toggles + YAML |
-| **System** | Runs | `scan`, `verify`, `patterns`, … |
-| | Commands | `/career-ops` copy for Cursor |
+| **System** | Workflow | Full-page lifecycle diagram (discover → apply → statuses) |
+| | Runs | `scan`, `verify`, `patterns`, … |
+| | Commands | `/career-ops` copy for Cursor · data map |
+| | Mindmap | Zoomable Mermaid mode catalog |
 
 ## APIs (local only)
 
@@ -42,7 +44,7 @@ http://127.0.0.1:8793 · `CAREER_OPS_ROOT` · `CAREER_OPS_WEB_PORT`
 2. Agent completes `/career-ops apply` and saves `data/apply-drafts/{NNN}.md`.
 3. **Refresh** → **View apply** on that row.
 
-See **Commands** for the architecture diagram (`/static/career-ops-workflow.html`).
+See **Workflow** for the architecture diagram (`/static/career-ops-workflow.html`).
 
 ## LinkedIn / Apify
 
