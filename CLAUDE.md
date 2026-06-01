@@ -1,4 +1,22 @@
-# Career-Ops -- AI Job Search Pipeline
+# Career-Ops — Humayun Akbar's Job Search Pipeline
+
+<!-- HUMAYUN'S INSTANCE — branch: humayun/web-ui -->
+<!-- upstream: https://github.com/santifer/career-ops.git -->
+<!-- to pull upstream updates: git fetch upstream && git merge upstream/main -->
+<!-- NEVER run `node update-system.mjs apply` — use git merge instead (web/ is excluded from SYSTEM_PATHS) -->
+
+## Working Surfaces
+
+| Surface | How to open | Slash command |
+|---------|------------|---------------|
+| **Cursor** | Open `career-ops/` folder in Cursor | `/career-ops` (via `.cursor/skills/career-ops/SKILL.md`) |
+| **Claude Code CLI** | `cd career-ops && claude` | `/career-ops` |
+| **Claude co-work** | Open this project in claude.ai | `/career-ops` skill auto-loaded |
+| **Web UI** | `npm run web` → http://127.0.0.1:8793 | n/a (local Node server, zero LLM cost) |
+
+**Active branch:** `humayun/web-ui` — contains web UI, custom batch scripts, role-specific CV templates.  
+**User:** Humayun Akbar — targeting AI Solutions Engineer / AI Automation Engineer roles.  
+**Profile:** `modes/_profile.md` (fully configured), `config/profile.yml`, `cv.md`, `article-digest.md`.
 
 ## Origin
 
@@ -19,6 +37,12 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 **System Layer (auto-updatable, DON'T put user data here):**
 - `modes/_shared.md`, `modes/oferta.md`, all other modes
 - `CLAUDE.md`, `*.mjs` scripts, `dashboard/*`, `templates/*`, `batch/*`
+
+**Humayun's Extended User Layer (also protected, NOT in upstream):**
+- `web/` — local browser UI (Catppuccin Mocha, port 8793). Do not overwrite.
+- `batch/build-*.mjs`, `batch/fetch-*.mjs`, `batch/sync-*.mjs`, `batch/write-*.mjs` — custom batch scripts
+- `templates/cv-temp-*.html` — role-specific CV template variants
+- `.cursor/` — Cursor IDE skills and config
 
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
 
