@@ -74,7 +74,7 @@ const SYSTEM_PATHS = [
   'batch/batch-prompt.md',
   'batch/batch-runner.sh',
   'dashboard/',
-  'web/',
+  // 'web/' — excluded: Humayun's custom UI layer, not upstream
   'templates/',
   'fonts/',
   '.agents/',
