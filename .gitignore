@@ -52,3 +52,4 @@ bun.lock
 career-dashboard
 package-lock.json
 batch/jds/
+data/web-runs/
