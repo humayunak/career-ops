@@ -42,7 +42,7 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 - `web/` — local browser UI (Catppuccin Mocha, port 8793). Do not overwrite.
 - `db.mjs` — SQLite data layer (replaces MD-based tracker flow). Do not overwrite.
 - `web/lib/db.mjs` — web server DB access layer. Do not overwrite.
-- `data/career-ops.db` — SQLite DB (gitignored, user data). 70 applications + pipeline migrated.
+- `data/career-ops.db` — SQLite DB (gitignored, user data). Fresh — run `node db.mjs migrate` to seed.
 - `batch/build-*.mjs`, `batch/fetch-*.mjs`, `batch/sync-*.mjs`, `batch/write-*.mjs` — custom batch scripts
 - `templates/cv-temp-*.html` — role-specific CV template variants
 - `.cursor/` — Cursor IDE skills and config
@@ -64,7 +64,7 @@ node db.mjs verify                             # integrity check
 node db.mjs migrate                            # re-sync from applications.md (recovery only)
 ```
 
-**Deprecated (replaced by db.mjs):** `merge-tracker.mjs`, `dedup-tracker.mjs`, `normalize-statuses.mjs`, `verify-pipeline.mjs` — still on disk, do not use.
+**Removed (replaced by db.mjs):** `merge-tracker.mjs`, `dedup-tracker.mjs`, `normalize-statuses.mjs`, `verify-pipeline.mjs` — deleted, do not recreate.
 
 ## Upstream Merge Protocol
 
