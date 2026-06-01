@@ -40,9 +40,39 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 
 **Humayun's Extended User Layer (also protected, NOT in upstream):**
 - `web/` — local browser UI (Catppuccin Mocha, port 8793). Do not overwrite.
+- `db.mjs` — SQLite data layer (replaces MD-based tracker flow). Do not overwrite.
+- `web/lib/db.mjs` — web server DB access layer. Do not overwrite.
+- `data/career-ops.db` — SQLite DB (gitignored, user data). 70 applications + pipeline migrated.
 - `batch/build-*.mjs`, `batch/fetch-*.mjs`, `batch/sync-*.mjs`, `batch/write-*.mjs` — custom batch scripts
 - `templates/cv-temp-*.html` — role-specific CV template variants
 - `.cursor/` — Cursor IDE skills and config
+
+## DB Quick Reference (agent-facing)
+
+**RULE: Never read `applications.md` to find a single row. Always use `node db.mjs`.**
+
+```bash
+node db.mjs get <num>                          # fetch single app — ~80 tokens vs 3,500
+node db.mjs update <num> status=Applied        # write back a field
+node db.mjs update <num> notes="text" score=4.2 pdf=✅ report=reports/NNN-slug-date.md
+node db.mjs query status=Evaluated             # filtered list (human table)
+node db.mjs query --json score>=4.0            # JSON for scripts
+node db.mjs stats                              # counts + top unapplied
+node db.mjs add-pipeline <url>                 # add to inbox
+node db.mjs pipeline-pending                   # list pending (JSON)
+node db.mjs verify                             # integrity check
+node db.mjs migrate                            # re-sync from applications.md (recovery only)
+```
+
+**Deprecated (replaced by db.mjs):** `merge-tracker.mjs`, `dedup-tracker.mjs`, `normalize-statuses.mjs`, `verify-pipeline.mjs` — still on disk, do not use.
+
+## Upstream Merge Protocol
+
+```bash
+git fetch upstream
+git merge upstream/main   # resolve conflicts in system files only
+# NEVER run: node update-system.mjs apply  (use git merge instead)
+```
 
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
 
@@ -283,6 +313,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 | Batch processes offers | `batch` |
 | Asks about rejection patterns or wants to improve targeting | `patterns` |
 | Asks about follow-ups or application cadence | `followup` |
+| Wants to log a job from URL/JD/LinkedIn/recruiter into the inbox | `intake` |
 
 ### CV Source of Truth
 
@@ -342,10 +373,10 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 ### TSV Format for Tracker Additions
 
-Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 9 tab-separated columns:
+Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 10 tab-separated columns:
 
 ```
-{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{note}
+{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{source}\t{note}
 ```
 
 **Column order (IMPORTANT -- status BEFORE score):**
@@ -357,7 +388,8 @@ Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slu
 6. `score` -- format `X.X/5` (e.g., `4.2/5`)
 7. `pdf` -- `✅` or `❌`
 8. `report` -- markdown link `[num](reports/...)`
-9. `notes` -- one-line summary
+9. `source` -- `linkedin` or `portal` (use `—` if unknown)
+10. `notes` -- one-line summary
 
 **Note:** In applications.md, score comes BEFORE status. The merge script handles this column swap automatically.
 
