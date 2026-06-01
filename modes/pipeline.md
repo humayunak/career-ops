@@ -4,13 +4,20 @@ Process job URLs stored in `data/pipeline.md`. The user adds URLs at any time an
 
 ## Workflow
 
-1. **Read** `data/pipeline.md` → search for `- [ ]` items in the "Pending" section
+1. **Get pending URLs** — use DB as primary source:
+   ```bash
+   node db.mjs pipeline-pending
+   ```
+   Returns JSON array of `{ id, url, source, notes }`. Fall back to reading `- [ ]` items from `data/pipeline.md` only if `db.mjs` is unavailable.
 2. **For each pending URL**:
    a. Calculate the next sequential `REPORT_NUM` (read `reports/`, take the highest number + 1)
-   b. **Extract JD** using Playwright (browser_navigate + browser_snapshot) → WebFetch → WebSearch
-   c. If the URL is not accessible → mark as `- [!]` with a note and continue
-   d. **Execute full auto-pipeline**: Evaluation A-F → Report .md → PDF (if score >= 3.0) → Tracker
-   e. **Move from "Pending" to "Processed"**: `- [x] #NNN | URL | Company | Role | Score/5 | PDF ✅/❌`
+   b. **Extract source**: parse the `|`-delimited fields of the pending entry for a `linkedin` or `portal` token (typically field 4 after URL | Company | Role). If not present, default to `—`.
+   c. **Extract JD** using Playwright (browser_navigate + browser_snapshot) → WebFetch → WebSearch
+   d. If the URL is not accessible → mark as `- [!]` with a note and continue
+   e. **Execute full auto-pipeline**: Evaluation A-F → Report .md → PDF (if score >= 3.0) → Tracker
+   f. **Mark done in DB**: `node db.mjs pipeline-done <id> <app_num>`
+   g. **Also update pipeline.md**: move from `- [ ]` to `- [x] #NNN | URL | Company | Role | Score/5 | PDF ✅/❌`
+   h. **Write source as column 9** in the TSV tracker-addition file (before notes, column 10); source comes from the DB pipeline record (field `source`)
 3. **If there are 3+ pending URLs**, launch agents in parallel (Agent tool with `run_in_background`) to maximize speed.
 4. **At the end**, show summary table:
 

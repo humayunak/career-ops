@@ -50,6 +50,7 @@ export function openDb() {
                    CHECK(status IN ('Evaluated','Applied','Responded','Interview','Offer','Rejected','Discarded','SKIP')),
       pdf        INTEGER NOT NULL DEFAULT 0,  -- 0=no 1=yes
       report     TEXT,                        -- relative path e.g. reports/073-company-2026-05-29.md
+      source     TEXT DEFAULT '',             -- linkedin | portal | '' (unknown)
       notes      TEXT DEFAULT ''
     );
 
@@ -64,6 +65,12 @@ export function openDb() {
       app_num    INTEGER REFERENCES applications(num)
     );
   `);
+
+  // Add source column to applications if missing (migration for existing DBs)
+  const cols = db.pragma('table_info(applications)').map(c => c.name);
+  if (!cols.includes('source')) {
+    db.exec(`ALTER TABLE applications ADD COLUMN source TEXT DEFAULT ''`);
+  }
 
   return db;
 }
@@ -319,25 +326,30 @@ function cmdImportTsv(db, file) {
   if (!existsSync(file)) { console.error(`File not found: ${file}`); process.exit(1); }
   const lines = readFileSync(file, 'utf-8').split('\n').filter(Boolean);
   const insert = db.prepare(`
-    INSERT OR REPLACE INTO applications (num, date, company, role, score, status, pdf, report, notes)
-    VALUES (@num, @date, @company, @role, @score, @status, @pdf, @report, @notes)
+    INSERT OR REPLACE INTO applications (num, date, company, role, score, status, pdf, report, source, notes)
+    VALUES (@num, @date, @company, @role, @score, @status, @pdf, @report, @source, @notes)
   `);
   const insertMany = db.transaction(rows => { for (const r of rows) insert.run(r); });
   const rows = [];
   for (const line of lines) {
     const cols = line.includes('\t') ? line.split('\t') : line.split('|').map(s=>s.trim()).filter(Boolean);
     if (cols.length < 7) continue;
-    const [numRaw, date, company, role, statusRaw, scoreRaw, pdfRaw, reportRaw, ...notesParts] = cols;
+    const [numRaw, date, company, role, statusRaw, scoreRaw, pdfRaw, reportRaw, col9, ...notesParts] = cols;
     const num = parseInt(numRaw);
     if (isNaN(num)) continue;
     const reportMatch = (reportRaw||'').match(/\(([^)]+)\)/);
+    // col9 is source if it's a known token, otherwise treat as start of notes (9-col legacy TSV)
+    const isSource = col9 && /^(linkedin|portal|—|-)$/.test(col9.trim());
+    const source = isSource ? col9.trim().replace('—', '') : '';
+    const notes = isSource ? notesParts.join('\t').trim() : [col9, ...notesParts].filter(Boolean).join('\t').trim();
     rows.push({
       num, date, company, role,
       score: parseScore(scoreRaw),
       status: normalizeStatus(statusRaw),
       pdf: pdfRaw && pdfRaw.includes('✅') ? 1 : 0,
       report: reportMatch ? reportMatch[1] : (reportRaw||''),
-      notes: notesParts.join('\t').trim(),
+      source,
+      notes,
     });
   }
   insertMany(rows);

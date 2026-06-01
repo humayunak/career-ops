@@ -217,6 +217,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 | Asks about rejection patterns or wants to improve targeting | `patterns` |
 | Asks about follow-ups or application cadence | `followup` |
 | Wants to update the system | `update` |
+| Wants to log a job from URL/JD/LinkedIn/recruiter into the inbox | `intake` |
 
 ### CV Source of Truth
 
@@ -289,10 +290,10 @@ When spawning headless workers for batch processing, use the appropriate command
 
 ### TSV Format for Tracker Additions
 
-Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 9 tab-separated columns:
+Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 10 tab-separated columns:
 
 ```
-{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{note}
+{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{source}\t{note}
 ```
 
 **Column order (IMPORTANT -- status BEFORE score):**
@@ -304,7 +305,8 @@ Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slu
 6. `score` -- format `X.X/5` (e.g., `4.2/5`)
 7. `pdf` -- `✅` or `❌`
 8. `report` -- markdown link `[num](reports/...)`
-9. `notes` -- one-line summary
+9. `source` -- `linkedin` or `portal` (use `—` if unknown)
+10. `notes` -- one-line summary
 
 **Note:** In applications.md, score comes BEFORE status. The merge script handles this column swap automatically.
 
