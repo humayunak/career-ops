@@ -16,6 +16,10 @@ import {
   applicationsPath,
 } from './lib/paths.mjs';
 import { parseCommandsFromSkill, buildSnapshot, findReportFile } from './lib/parsers.mjs';
+import {
+  getApplications, getApplication, updateApplication, getMetrics,
+  getPipelinePending, getPipelineAll, addPipelineUrl, markPipelineDone, discardPipelineItem,
+} from './lib/db.mjs';
 import { listRuns, readRun, runScript, RUN_SCRIPTS } from './lib/runs.mjs';
 import { runScanDryRun, runScanAndSave } from './lib/scan-api.mjs';
 import { appendToPipelineFile } from './lib/pipeline-write.mjs';
@@ -114,6 +118,48 @@ async function handleApi(req, res, url) {
 
   if (url.pathname === '/api/snapshot') {
     return json(res, 200, buildSnapshot(CAREER_OPS_ROOT, applicationsPath(CAREER_OPS_ROOT)));
+  }
+
+  // --- DB-backed endpoints ---
+
+  if (url.pathname === '/api/applications' && req.method === 'GET') {
+    return json(res, 200, { applications: getApplications() });
+  }
+
+  const appMatch = url.pathname.match(/^\/api\/applications\/(\d+)$/);
+  if (appMatch && req.method === 'GET') {
+    const row = getApplication(appMatch[1]);
+    if (!row) return json(res, 404, { error: 'Not found' });
+    return json(res, 200, row);
+  }
+
+  if (appMatch && req.method === 'PATCH') {
+    const body = JSON.parse((await readBody(req)) || '{}');
+    const result = updateApplication(appMatch[1], body);
+    return json(res, result.ok ? 200 : 400, result);
+  }
+
+  if (url.pathname === '/api/metrics' && req.method === 'GET') {
+    return json(res, 200, getMetrics());
+  }
+
+  if (url.pathname === '/api/pipeline' && req.method === 'GET') {
+    const all = url.searchParams.get('all');
+    return json(res, 200, { items: all ? getPipelineAll() : getPipelinePending() });
+  }
+
+  if (url.pathname === '/api/pipeline' && req.method === 'POST') {
+    const body = JSON.parse((await readBody(req)) || '{}');
+    if (!body.url) return json(res, 400, { error: 'url required' });
+    return json(res, 200, addPipelineUrl(body));
+  }
+
+  const pipelineItemMatch = url.pathname.match(/^\/api\/pipeline\/(\d+)$/);
+  if (pipelineItemMatch && req.method === 'PATCH') {
+    const body = JSON.parse((await readBody(req)) || '{}');
+    if (body.status === 'done') return json(res, 200, markPipelineDone(pipelineItemMatch[1], body.app_num));
+    if (body.status === 'discarded') return json(res, 200, discardPipelineItem(pipelineItemMatch[1]));
+    return json(res, 400, { error: 'status must be done or discarded' });
   }
 
   if (url.pathname === '/api/file') {
@@ -230,8 +276,11 @@ async function handleApi(req, res, url) {
     try {
       const body = JSON.parse((await readBody(req)) || '{}');
       const offers = body.offers || [];
+      // Write to DB
+      const dbResults = offers.map(o => addPipelineUrl({ url: o.url, source: o.source || 'portal', notes: o.title ? `${o.company || ''} — ${o.title}` : '' }));
+      // Also write to pipeline.md for legacy scan compatibility
       const result = appendToPipelineFile(CAREER_OPS_ROOT, offers);
-      return json(res, 200, result);
+      return json(res, 200, { ...result, db: dbResults });
     } catch (e) {
       return json(res, 400, { error: e.message });
     }

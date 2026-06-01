@@ -43,7 +43,7 @@ If the role on screen differs from the one evaluated:
 - **Notify the candidate**: "The role has changed from [X] to [Y]. Do you want me to re-evaluate or adapt the responses to the new title?"
 - **If adapt**: Adjust responses to the new role without re-evaluating
 - **If re-evaluate**: Execute full A-F evaluation, update report, regenerate Section G
-- **Update tracker**: Change role title in applications.md if applicable
+- **Update tracker**: `node db.mjs update <num> role="New Title"`
 
 ## Step 4 — Analyze form questions
 
@@ -101,7 +101,7 @@ The candidate reads this in the web UI (**Applications → View apply**). Do not
 ## Step 7 — Post-apply (optional)
 
 If the candidate confirms that they submitted the application:
-1. Update status in `applications.md` from "Evaluated" to "Applied"
+1. Update status: `node db.mjs update <num> status=Applied`
 2. Update Section G of the report with the final responses
 3. Suggest next step: `/career-ops contacto` for LinkedIn outreach
 

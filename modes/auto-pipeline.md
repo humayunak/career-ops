@@ -70,6 +70,9 @@ If the final score is >= 4.5, generate a draft of responses for the application 
 
 ## Step 5 — Update Tracker
 
-Record it in `data/applications.md` with all columns including Report and PDF as ✅.
+Record via DB:
+```bash
+node db.mjs update <num> date=YYYY-MM-DD company="Company" role="Role" score=X.X status=Evaluated pdf=✅ report=reports/NNN-slug-date.md notes="summary"
+```
 
 **If any step fails**, continue with the next ones and mark the failed step as pending in the tracker.

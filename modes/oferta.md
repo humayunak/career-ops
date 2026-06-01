@@ -200,18 +200,18 @@ Save full evaluation in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md`.
 
 ### 2. Record in tracker
 
-**ALWAYS** record in `data/applications.md`:
-- Next sequential number
-- Current date
-- Company
-- Role
-- Score: match average (1-5)
-- Status: `Evaluated`
-- PDF: ❌ (or ✅ if auto-pipeline generated PDF)
-- Report: link relative to the report .md (e.g., `[001](reports/001-company-2026-01-01.md)`)
+**ALWAYS** record via DB (Bash tool):
 
-**Tracker format:**
+```bash
+node db.mjs update <num> date=YYYY-MM-DD company="Company" role="Role Title" \
+  score=X.X status=Evaluated pdf=❌ report=reports/NNN-slug-YYYY-MM-DD.md notes="one-line summary"
+```
 
-```markdown
-| # | Date | Company | Role | Score | Status | PDF | Report |
+To get the next sequential number: `node db.mjs stats` (check highest num + 1).
+If creating a new entry (not yet in DB): use `INSERT` via import-tsv or add the row directly.
+
+```bash
+# Quick insert via TSV (9 cols: num date company role status score pdf report notes):
+echo "073\t2026-06-01\tCompany\tRole\tEvaluated\t4.2\t0\treports/073-company-2026-06-01.md\tnotes" \
+  | node db.mjs import-tsv /dev/stdin
 ```

@@ -112,7 +112,7 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 7. Be direct and actionable -- no fluff
 8. Native tech English for generated text. Short sentences, action verbs, no passive voice.
 8b. Case study URLs in PDF Professional Summary (recruiter may only read this).
-9. **Tracker additions as TSV** -- NEVER edit applications.md directly. Write TSV in `batch/tracker-additions/`.
+9. **Tracker is SQLite** — use `node db.mjs` scripts, NEVER read/edit applications.md directly.
 10. **Include `**URL:**` in every report header.**
 
 ### Tools
@@ -122,11 +122,23 @@ After detecting archetype, read `modes/_profile.md` for the user's specific fram
 | WebSearch | Comp research, trends, company culture, LinkedIn contacts, fallback for JDs |
 | WebFetch | Fallback for extracting JDs from static pages |
 | Playwright | Verify offers (browser_navigate + browser_snapshot). **NEVER 2+ agents with Playwright in parallel.** |
-| Read | cv.md, _profile.md, article-digest.md, cv-template.html |
-| Write | Temporary HTML for PDF, applications.md, reports .md |
-| Edit | Update tracker |
+| Read | cv.md, _profile.md, article-digest.md, cv-template.html, reports/*.md |
+| Write | Temporary HTML for PDF, reports/*.md |
+| Bash | `node db.mjs get <num>` — fetch single app (low token). `node db.mjs update <num> field=val` — write back. `node generate-pdf.mjs` |
 | Canva MCP | Optional visual CV generation. Duplicate base design, edit text, export PDF. Requires `cv.canva_resume_design_id` in profile.yml. |
-| Bash | `node generate-pdf.mjs` |
+
+### DB quick reference (use Bash tool)
+```
+node db.mjs get <num>                    # fetch single application (~80 tokens)
+node db.mjs update <num> status=Applied  # update a field
+node db.mjs update <num> notes="text" score=4.2 pdf=✅ report=reports/073-company-2026-06-01.md
+node db.mjs query status=Evaluated       # list filtered (human table)
+node db.mjs query --json score>=4.0      # JSON output
+node db.mjs stats                        # summary counts
+node db.mjs add-pipeline <url>           # add to inbox
+node db.mjs pipeline-pending             # list pending URLs (JSON)
+```
+**NEVER load applications.md to find a single row — always use `node db.mjs get <num>`.**
 
 ### Time-to-offer priority
 - Working demo + metrics > perfection
