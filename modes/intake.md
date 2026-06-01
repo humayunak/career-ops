@@ -1,6 +1,6 @@
 # Mode: intake — Job Intake Parser
 
-Accept raw input in any format (JD text, listing URL, apply URL, LinkedIn post, recruiter details) and write one structured record to the `## Pendientes` section of `data/pipeline.md`. No evaluation. No PDF. Just a clean, deduplicated inbox entry.
+Accept raw input in any format (JD text, listing URL, apply URL, LinkedIn post, recruiter details) and write one structured record to the pipeline DB. No evaluation. No PDF. Just a clean, deduplicated inbox entry.
 
 ---
 
@@ -91,11 +91,7 @@ node db.mjs add-pipeline "https://www.linkedin.com/jobs/view/123456" "linkedin" 
 node db.mjs add-pipeline "https://boards.greenhouse.io/vercel/jobs/789" "portal" "Vercel — Senior PM | Apply: https://vercel.com/apply/senior-pm"
 ```
 
-The DB is the source of truth. `data/pipeline.md` is kept in sync as a human-readable fallback — also append a matching line to `data/pipeline.md` `## Pendientes` section:
-
-```
-- [ ] {listing_url} | {company} | {role} | {source}{apply_url_part}{recruiter_part}
-```
+The DB is the source of truth. No MD file fallback.
 
 ---
 

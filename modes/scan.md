@@ -151,7 +151,7 @@ Los niveles son aditivos — se ejecutan en orden, los resultados se mezclan y d
 
 1. **Leer configuración**: `portals.yml`
 2. **Leer historial**: `data/scan-history.tsv` → URLs ya vistas
-3. **Leer dedup sources**: `data/applications.md` + `data/pipeline.md`
+3. **Leer dedup sources**: DB (applications + pipeline tables via `node db.mjs`)
 
 3.5. **Nivel 0 — Local parser** (`scan.mjs`, zero-token):
    Inicializar `local_parser_ok = []`.
@@ -214,8 +214,8 @@ Los niveles son aditivos — se ejecutan en orden, los resultados se mezclan y d
 
 7. **Deduplicar** contra 3 fuentes:
    - `scan-history.tsv` → URL exacta ya vista
-   - `applications.md` → empresa + rol normalizado ya evaluado
-   - `pipeline.md` → URL exacta ya en pendientes o procesadas
+   - DB applications table → empresa + rol normalizado ya evaluado
+   - DB pipeline table → URL exacta ya en pendientes o procesadas
 
 7.5. **Verificar liveness de resultados de WebSearch (Nivel 3)** — ANTES de añadir a pipeline:
 
@@ -236,7 +236,7 @@ Los niveles son aditivos — se ejecutan en orden, los resultados se mezclan y d
    **No interrumpir el scan entero si una URL falla.** Si `browser_navigate` da error (timeout, 403, etc.), marcar como `skipped_expired` y continuar con la siguiente.
 
 8. **Para cada oferta nueva verificada que pase filtros**:
-   a. Añadir a `pipeline.md` sección "Pendientes": `- [ ] {url} | {company} | {title}`
+   a. `node db.mjs add-pipeline "{url}" "portal" "{company} — {title}"` → DB pipeline inbox
    b. Registrar en `scan-history.tsv`: `{url}\t{date}\t{query_name}\t{title}\t{company}\tadded`
 
 9. **Ofertas filtradas por título**: registrar en `scan-history.tsv` con status `skipped_title`
@@ -258,7 +258,7 @@ Regex genérico: `(.+?)(?:\s*[@|—–-]\s*|\s+at\s+)(.+?)$`
 
 Si se encuentra una URL no accesible públicamente:
 1. Guardar el JD en `jds/{company}-{role-slug}.md`
-2. Añadir a pipeline.md como: `- [ ] local:jds/{company}-{role-slug}.md | {company} | {title}`
+2. `node db.mjs add-pipeline "local:jds/{company}-{role-slug}.md" "portal" "{company} — {title}"` → DB pipeline
 
 ## Scan History
 
@@ -282,7 +282,7 @@ Ofertas encontradas: N total
 Filtradas por título: N relevantes
 Duplicadas: N (ya evaluadas o en pipeline)
 Expiradas descartadas: N (links muertos, Nivel 3)
-Nuevas añadidas a pipeline.md: N
+Nuevas añadidas al pipeline DB: N
 
   + {company} | {title} | {query_name}
   ...
