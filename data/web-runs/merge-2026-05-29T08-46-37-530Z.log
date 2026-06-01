@@ -1,0 +1,5 @@
+$ /Users/humayunak/.nvm/versions/node/v22.19.0/bin/node merge-tracker.mjs
+📊 Existing: 68 entries, max #98
+✅ No pending additions to merge.
+
+[exit 0]

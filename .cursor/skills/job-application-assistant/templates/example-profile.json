@@ -1,0 +1,182 @@
+{
+  "personal_info": {
+    "name": "Jane Developer",
+    "email": "jane.dev@email.com",
+    "phone": "+1-555-123-4567",
+    "location": "San Francisco, CA",
+    "linkedin": "linkedin.com/in/janedev",
+    "github": "github.com/janedev",
+    "portfolio": "janedev.com",
+    "preferred_title": "Senior Full-Stack Engineer"
+  },
+  
+  "professional_summary": "Full-stack engineer with 6+ years of experience building scalable web applications. Specialized in React, Node.js, and cloud architecture. Track record of leading cross-functional teams and delivering products that impact millions of users.",
+  
+  "work_experience": [
+    {
+      "company": "TechCorp",
+      "title": "Senior Software Engineer",
+      "location": "San Francisco, CA",
+      "start_date": "Jan 2021",
+      "end_date": "Present",
+      "description": "Lead engineer for the customer-facing web platform serving 5M+ users",
+      "achievements": [
+        "Architected and led migration from monolith to microservices, reducing deployment time by 60% and improving system reliability to 99.9% uptime",
+        "Mentored team of 4 junior engineers, with 3 receiving promotions within 18 months",
+        "Reduced page load times by 40% through implementing code-splitting and lazy loading strategies",
+        "Led initiative to improve accessibility compliance, achieving WCAG 2.1 AA certification"
+      ],
+      "skills_used": ["React", "Node.js", "PostgreSQL", "AWS", "Docker", "Kubernetes", "GraphQL"],
+      "keywords": ["microservices", "cloud architecture", "technical leadership", "performance optimization"]
+    },
+    {
+      "company": "StartupXYZ",
+      "title": "Full-Stack Developer",
+      "location": "Remote",
+      "start_date": "Jun 2018",
+      "end_date": "Dec 2020",
+      "description": "Full-stack developer at early-stage fintech startup",
+      "achievements": [
+        "Built MVP from scratch that acquired 10,000 users in first 6 months",
+        "Implemented secure payment processing system handling $2M+ in transactions",
+        "Reduced customer onboarding time from 10 minutes to 2 minutes through UX improvements"
+      ],
+      "skills_used": ["JavaScript", "Python", "React", "Django", "Stripe API", "MongoDB"],
+      "keywords": ["startup", "MVP", "fintech", "payment processing"]
+    }
+  ],
+  
+  "education": [
+    {
+      "institution": "University of California, Berkeley",
+      "degree": "Bachelor of Science in Computer Science",
+      "location": "Berkeley, CA",
+      "graduation_date": "May 2018",
+      "gpa": "3.7/4.0",
+      "honors": ["Dean's List (4 semesters)"],
+      "relevant_coursework": ["Data Structures", "Algorithms", "Database Systems", "Web Development"],
+      "activities": ["Women in Computer Science - Vice President", "CS Mentorship Program"]
+    }
+  ],
+  
+  "skills": {
+    "technical": {
+      "programming_languages": ["JavaScript", "TypeScript", "Python", "SQL"],
+      "frameworks_libraries": ["React", "Next.js", "Node.js", "Express", "Django", "Redux"],
+      "tools_platforms": ["Git", "Docker", "Kubernetes", "AWS (EC2, S3, Lambda)", "CI/CD", "Jira"],
+      "databases": ["PostgreSQL", "MongoDB", "Redis"],
+      "other_technical": ["RESTful APIs", "GraphQL", "Microservices", "Test-Driven Development"]
+    },
+    "soft_skills": [
+      "Technical Leadership",
+      "Cross-functional Collaboration", 
+      "Agile/Scrum Methodologies",
+      "Mentoring & Coaching",
+      "Stakeholder Communication",
+      "Problem Solving"
+    ],
+    "languages": [
+      {"language": "English", "proficiency": "Native"},
+      {"language": "Mandarin", "proficiency": "Conversational"}
+    ]
+  },
+  
+  "certifications": [
+    {
+      "name": "AWS Certified Developer - Associate",
+      "issuer": "Amazon Web Services",
+      "date": "Mar 2022",
+      "credential_id": "AWS-12345"
+    }
+  ],
+  
+  "projects": [
+    {
+      "name": "Open-Source Component Library",
+      "description": "Created and maintain a React component library with 500+ GitHub stars",
+      "technologies": ["React", "TypeScript", "Storybook", "Jest"],
+      "impact": "Used by 50+ companies for building accessible web applications",
+      "link": "github.com/janedev/component-library",
+      "highlights": [
+        "Implemented comprehensive accessibility features following WAI-ARIA standards",
+        "Achieved 95% test coverage with unit and integration tests"
+      ]
+    }
+  ],
+  
+  "publications_presentations": [
+    {
+      "title": "Building Accessible React Components",
+      "venue": "ReactConf 2023",
+      "date": "Oct 2023",
+      "link": "youtube.com/watch?v=example",
+      "description": "Conference talk on implementing accessibility in React applications"
+    }
+  ],
+  
+  "volunteer_leadership": [
+    {
+      "organization": "Code for Good",
+      "role": "Volunteer Developer & Mentor",
+      "dates": "Jan 2020 - Present",
+      "description": "Build technology solutions for non-profits and mentor aspiring developers",
+      "achievements": ["Led team of 6 volunteers to build website for local food bank, increasing donations by 25%"]
+    }
+  ],
+  
+  "awards_recognition": [
+    {
+      "award": "TechCorp Innovation Award",
+      "issuer": "TechCorp",
+      "date": "Dec 2022",
+      "description": "Recognized for microservices migration project that improved system performance"
+    }
+  ],
+  
+  "career_preferences": {
+    "target_roles": ["Senior Engineer", "Staff Engineer", "Engineering Manager"],
+    "industries_of_interest": ["SaaS", "Fintech", "E-commerce", "Developer Tools"],
+    "company_sizes": ["Mid-size (100-1000)", "Enterprise (1000+)"],
+    "work_arrangement": ["Remote", "Hybrid"],
+    "deal_breakers": ["On-call 24/7", "No remote option", "Legacy tech with no modernization plan"],
+    "nice_to_haves": ["Strong mentorship culture", "Learning budget", "Conference speaking opportunities"]
+  },
+  
+  "keywords_to_emphasize": [
+    "microservices architecture",
+    "cloud-native applications",
+    "technical leadership",
+    "scalability",
+    "performance optimization",
+    "accessibility",
+    "agile development",
+    "full-stack development",
+    "modern JavaScript"
+  ],
+  
+  "stories_for_interviews": [
+    {
+      "theme": "Technical Leadership",
+      "situation": "Our monolithic application was becoming difficult to maintain and deploy, causing frequent outages",
+      "task": "Lead the migration to microservices architecture while maintaining business continuity",
+      "action": "Created migration roadmap, built consensus with stakeholders, mentored team on new technologies, implemented incremental migration strategy",
+      "result": "Successfully migrated 15 services over 8 months, reduced deployment time by 60%, improved uptime to 99.9%, zero customer-facing incidents during migration",
+      "skills_demonstrated": ["Technical leadership", "Project management", "Stakeholder communication", "Risk management"]
+    },
+    {
+      "theme": "Problem Solving",
+      "situation": "Users were abandoning the sign-up flow, with only 30% completion rate",
+      "task": "Identify root causes and improve conversion",
+      "action": "Analyzed user session recordings, conducted A/B tests, simplified form fields, added progress indicators",
+      "result": "Increased completion rate from 30% to 75%, resulting in 5,000 additional users per month",
+      "skills_demonstrated": ["Data analysis", "UX thinking", "A/B testing", "User empathy"]
+    }
+  ],
+  
+  "notes": {
+    "strengths": "Strong technical skills combined with leadership ability. Known for clear communication and mentoring. Excel at balancing technical excellence with business needs.",
+    "areas_for_growth": "Want to develop skills in ML/AI integration, improve public speaking confidence",
+    "career_goals": "Move into Staff Engineer or Engineering Manager role at a company with strong technical culture. Want to have broader impact on architecture decisions and team development.",
+    "unique_value_proposition": "Bridge between technical and business stakeholders. Track record of delivering complex projects on time while building strong teams. Passionate about accessibility and inclusive design."
+  }
+}

@@ -1,0 +1,8 @@
+$ /Users/humayunak/.nvm/versions/node/v22.19.0/bin/node analyze-patterns.mjs
+{
+  "error": "Not enough data: 0/5 applications beyond \"Evaluated\". Keep applying and come back later.",
+  "current": 0,
+  "threshold": 5
+}
+
+[exit 1]

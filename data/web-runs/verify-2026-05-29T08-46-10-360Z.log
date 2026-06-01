@@ -1,0 +1,17 @@
+$ /Users/humayunak/.nvm/versions/node/v22.19.0/bin/node verify-pipeline.mjs
+
+📊 Checking 68 entries in applications.md
+
+✅ All statuses are canonical
+✅ No exact duplicates found
+✅ All report links valid
+✅ All scores valid
+✅ All rows properly formatted
+✅ No pending TSVs
+✅ No bold in scores
+
+==================================================
+📊 Pipeline Health: 0 errors, 0 warnings
+🟢 Pipeline is clean!
+
+[exit 0]

@@ -1,0 +1,21 @@
+$ /Users/humayunak/.nvm/versions/node/v22.19.0/bin/node doctor.mjs
+
+career-ops doctor
+================
+
+✓ Node.js >= 18 (v22.19.0)
+✓ Dependencies installed
+✓ Playwright chromium installed
+✓ cv.md found
+✓ config/profile.yml found
+✓ portals.yml found
+✓ Fonts directory ready
+✓ data/ directory ready
+✓ output/ directory ready
+✓ reports/ directory ready
+
+Result: All checks passed. You're ready to go! Run `claude` to start.
+
+Join the community: https://discord.gg/8pRpHETxa4
+
+[exit 0]

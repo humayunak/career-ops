@@ -1,0 +1,422 @@
+[
+  {
+    "id": "1",
+    "url": "https://job-boards.eu.greenhouse.io/parloa/jobs/4799672101",
+    "status": "ok",
+    "title": "Forward Deployed Engineer, VoIP"
+  },
+  {
+    "id": "2",
+    "url": "https://job-boards.eu.greenhouse.io/parloa/jobs/4843556101",
+    "status": "ok",
+    "title": "GTM Engineer"
+  },
+  {
+    "id": "3",
+    "url": "https://job-boards.eu.greenhouse.io/parloa/jobs/4871790101",
+    "status": "ok",
+    "title": "Senior Agent Architect"
+  },
+  {
+    "id": "4",
+    "url": "https://job-boards.eu.greenhouse.io/parloa/jobs/4866271101",
+    "status": "ok",
+    "title": " Senior Forward Deployed Engineer - Partner Success - US"
+  },
+  {
+    "id": "5",
+    "url": "https://job-boards.eu.greenhouse.io/parloa/jobs/4604587101",
+    "status": "ok",
+    "title": "Senior/Lead Forward Deployed Engineer - US"
+  },
+  {
+    "id": "6",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5183044008",
+    "status": "ok",
+    "title": "Anthropic Fellows Program, AI Safety"
+  },
+  {
+    "id": "7",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5030244008",
+    "status": "ok",
+    "title": "Anthropic Fellows Program, AI Security"
+  },
+  {
+    "id": "8",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5183051008",
+    "status": "ok",
+    "title": "Anthropic Fellows Program, ML Systems & Performance"
+  },
+  {
+    "id": "9",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/4616971008",
+    "status": "ok",
+    "title": "Research Engineer/Research Scientist, Pre-training"
+  },
+  {
+    "id": "10",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5139654008",
+    "status": "ok",
+    "title": "Research Lead, Training Insights"
+  },
+  {
+    "id": "11",
+    "url": "https://job-boards.greenhouse.io/anthropic/jobs/5231717008",
+    "status": "ok",
+    "title": "Supply Chain Security & Assurance Lead"
+  },
+  {
+    "id": "12",
+    "url": "https://job-boards.greenhouse.io/humeai/jobs/4775962008",
+    "status": "ok",
+    "title": "AI Researcher"
+  },
+  {
+    "id": "13",
+    "url": "https://job-boards.greenhouse.io/humeai/jobs/4856037008",
+    "status": "ok",
+    "title": "Product Manager, Growth"
+  },
+  {
+    "id": "14",
+    "url": "https://job-boards.greenhouse.io/humeai/jobs/4003488008",
+    "status": "ok",
+    "title": "Senior/Staff AI Research Engineer"
+  },
+  {
+    "id": "15",
+    "url": "https://job-boards.greenhouse.io/airtable/jobs/8409168002",
+    "status": "ok",
+    "title": "AI Agent Architect, Customer Experience"
+  },
+  {
+    "id": "16",
+    "url": "https://job-boards.greenhouse.io/airtable/jobs/8461582002",
+    "status": "ok",
+    "title": "Senior Partner Solutions Architect"
+  },
+  {
+    "id": "17",
+    "url": "https://job-boards.greenhouse.io/airtable/jobs/8487502002",
+    "status": "ok",
+    "title": "Senior Solutions Architect"
+  },
+  {
+    "id": "18",
+    "url": "https://job-boards.greenhouse.io/vercel/jobs/5995789004",
+    "status": "ok",
+    "title": "Senior Manager, Solutions Architect"
+  },
+  {
+    "id": "19",
+    "url": "https://job-boards.greenhouse.io/vercel/jobs/5796302004",
+    "status": "ok",
+    "title": "Solutions Architect"
+  },
+  {
+    "id": "20",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5969145004",
+    "status": "ok",
+    "title": "AI Application Engineer"
+  },
+  {
+    "id": "21",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5989512004",
+    "status": "ok",
+    "title": "AI Application Engineer, APJ"
+  },
+  {
+    "id": "22",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5818115004",
+    "status": "ok",
+    "title": "AI Product Manager"
+  },
+  {
+    "id": "23",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5793354004",
+    "status": "ok",
+    "title": "AI Sales Engineer, EMEA"
+  },
+  {
+    "id": "24",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5792327004",
+    "status": "ok",
+    "title": "AI Sales Engineer, US"
+  },
+  {
+    "id": "25",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5993755004",
+    "status": "ok",
+    "title": "AI Solutions Engineer, East"
+  },
+  {
+    "id": "26",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5781408004",
+    "status": "ok",
+    "title": "AI Solutions Engineer, EMEA"
+  },
+  {
+    "id": "27",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5797408004",
+    "status": "ok",
+    "title": "AI Solutions Engineer, West"
+  },
+  {
+    "id": "28",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5989503004",
+    "status": "ok",
+    "title": "AI Solutions Manager, APJ"
+  },
+  {
+    "id": "29",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5989510004",
+    "status": "ok",
+    "title": "AI Solutions Manager, EMEA"
+  },
+  {
+    "id": "30",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5987435004",
+    "status": "ok",
+    "title": "AI Solutions Manager, SMB"
+  },
+  {
+    "id": "31",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5783026004",
+    "status": "ok",
+    "title": "AI Solutions Manager, West"
+  },
+  {
+    "id": "32",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5993317004",
+    "status": "ok",
+    "title": "Forward Deployed Engineer, APJ"
+  },
+  {
+    "id": "33",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/6002637004",
+    "status": "ok",
+    "title": "Forward Deployed Engineer, US"
+  },
+  {
+    "id": "34",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5396396004",
+    "status": "ok",
+    "title": "Senior AI Product Engineer, Backend"
+  },
+  {
+    "id": "35",
+    "url": "https://job-boards.greenhouse.io/arizeai/jobs/5396420004",
+    "status": "ok",
+    "title": "Senior AI Product Engineer, Fullstack"
+  },
+  {
+    "id": "36",
+    "url": "https://job-boards.greenhouse.io/runpod/jobs/5191760008",
+    "status": "ok",
+    "title": "Developer Relations Lead, AI Infrastructure and Community"
+  },
+  {
+    "id": "37",
+    "url": "https://job-boards.greenhouse.io/runpod/jobs/5115139008",
+    "status": "ok",
+    "title": "Director, Cloud Marketplace and AI Infrastructure Partnerships"
+  },
+  {
+    "id": "38",
+    "url": "https://job-boards.greenhouse.io/runpod/jobs/5173070008",
+    "status": "ok",
+    "title": "Forward Deployed Engineer APAC"
+  },
+  {
+    "id": "39",
+    "url": "https://job-boards.greenhouse.io/runpod/jobs/5099089008",
+    "status": "ok",
+    "title": "Manager, HPC Storage Engineer"
+  },
+  {
+    "id": "40",
+    "url": "https://job-boards.greenhouse.io/runpod/jobs/5112001008",
+    "status": "ok",
+    "title": "Senior Product Manager "
+  },
+  {
+    "id": "41",
+    "url": "https://coreweave.com/careers/job?4683502006&board=coreweave&gh_jid=4683502006",
+    "status": "ok",
+    "title": "Senior Threat Intelligence Specialist (Supply Chain & Geopolitical Security)"
+  },
+  {
+    "id": "42",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4661913005",
+    "status": "ok",
+    "title": "AI Outcomes Manager, Central"
+  },
+  {
+    "id": "43",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4661934005",
+    "status": "ok",
+    "title": "AI Outcomes Manager, East"
+  },
+  {
+    "id": "44",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4661899005",
+    "status": "ok",
+    "title": "AI Outcomes Manager, West"
+  },
+  {
+    "id": "45",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4661884005",
+    "status": "ok",
+    "title": "AI Success Manager, Central"
+  },
+  {
+    "id": "46",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4661878005",
+    "status": "ok",
+    "title": "AI Success Manager, East "
+  },
+  {
+    "id": "47",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4694339005",
+    "status": "ok",
+    "title": "AI Success Manager, West"
+  },
+  {
+    "id": "48",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4651991005",
+    "status": "ok",
+    "title": "Founding Forward Deployed Engineer"
+  },
+  {
+    "id": "49",
+    "url": "https://job-boards.greenhouse.io/gleanwork/jobs/4508312005",
+    "status": "ok",
+    "title": "Solutions Architect "
+  },
+  {
+    "id": "50",
+    "url": "https://job-boards.greenhouse.io/later/jobs/8366766002",
+    "status": "ok",
+    "title": " Domain Architect"
+  },
+  {
+    "id": "51",
+    "url": "https://job-boards.greenhouse.io/later/jobs/8486147002",
+    "status": "ok",
+    "title": "Retail Media Strategist (Walmart Connect) - Freelance Contractor"
+  },
+  {
+    "id": "52",
+    "url": "https://job-boards.greenhouse.io/celonis/jobs/7712529003?gh_jid=7712529003",
+    "status": "ok",
+    "title": "Manager, Value Engineering - Public Sector Transformation"
+  },
+  {
+    "id": "53",
+    "url": "https://job-boards.greenhouse.io/celonis/jobs/7749204003?gh_jid=7749204003",
+    "status": "ok",
+    "title": "Principal Client Value Partner - Retail"
+  },
+  {
+    "id": "54",
+    "url": "https://job-boards.greenhouse.io/celonis/jobs/7657903003?gh_jid=7657903003",
+    "status": "ok",
+    "title": "Territory Partner Manager (Mumbai)"
+  },
+  {
+    "id": "55",
+    "url": "http://stability.ai/careers?gh_jid=4770256101",
+    "status": "ok",
+    "title": "Multimodal Generative AI Researcher"
+  },
+  {
+    "id": "56",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5982446004",
+    "status": "ok",
+    "title": "AI Creative Designer, Ads"
+  },
+  {
+    "id": "57",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5823552004",
+    "status": "ok",
+    "title": "AI Operations, GTM"
+  },
+  {
+    "id": "58",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5618829004",
+    "status": "ok",
+    "title": "AI Strategy Consultant "
+  },
+  {
+    "id": "59",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5726252004",
+    "status": "ok",
+    "title": " Enterprise Account Executive - Mountain West"
+  },
+  {
+    "id": "60",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5718912004",
+    "status": "ok",
+    "title": "Forward Deployed Marketing Data Scientist"
+  },
+  {
+    "id": "61",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/6008745004",
+    "status": "ok",
+    "title": "Founding Forward Deployed Marketer"
+  },
+  {
+    "id": "62",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5970143004",
+    "status": "ok",
+    "title": "Lead Product Manager, Agentic Ads Platform"
+  },
+  {
+    "id": "63",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5834919004",
+    "status": "ok",
+    "title": "Lead Product Manager, Agentic Personalization"
+  },
+  {
+    "id": "64",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5727573004",
+    "status": "ok",
+    "title": "Manager, Solutions Engineering"
+  },
+  {
+    "id": "65",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/6002877004",
+    "status": "ok",
+    "title": "Manager, Solutions Engineering, Mid-Market"
+  },
+  {
+    "id": "66",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5983622004",
+    "status": "ok",
+    "title": "Mid-Market Account Executive - Mountain West"
+  },
+  {
+    "id": "67",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5542602004",
+    "status": "ok",
+    "title": "Software Engineer, AI Agents"
+  },
+  {
+    "id": "68",
+    "url": "https://job-boards.greenhouse.io/hightouch/jobs/5535187004",
+    "status": "ok",
+    "title": "Solutions Engineer, Mid-Market (Pre-Sales)"
+  },
+  {
+    "id": "69",
+    "url": "https://job-boards.greenhouse.io/planetscale/jobs/4009936009",
+    "status": "ok",
+    "title": "Software Engineer - Sharded Postgres (Neki)"
+  },
+  {
+    "id": "70",
+    "url": "https://job-boards.greenhouse.io/planetscale/jobs/4052805009",
+    "status": "ok",
+    "title": "Solutions Engineer"
+  }
+]

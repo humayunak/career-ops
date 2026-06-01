@@ -56,6 +56,7 @@ These files contain system logic, scripts, templates, and instructions that impr
 | `batch/batch-prompt.md` | Batch worker prompt |
 | `batch/batch-runner.sh` | Batch orchestrator |
 | `dashboard/*` | Go TUI dashboard |
+| `web/*` | Browser UI (static + local server) |
 | `templates/*` | Base templates |
 | `fonts/*` | Self-hosted fonts |
 | `.claude/skills/*` | Skill definitions |

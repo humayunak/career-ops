@@ -92,7 +92,13 @@ Notes:
 - [Personalization suggestions the candidate should review]
 ```
 
-## Step 6 — Post-apply (optional)
+## Step 6 — Save draft for web UI (required)
+
+After generating responses, **always write the full output** to `data/apply-drafts/{NNN}.md` where `{NNN}` is the report number zero-padded to 3 digits (report #33 → `033.md`).
+
+The candidate reads this in the web UI (**Applications → View apply**). Do not skip.
+
+## Step 7 — Post-apply (optional)
 
 If the candidate confirms that they submitted the application:
 1. Update status in `applications.md` from "Evaluated" to "Applied"

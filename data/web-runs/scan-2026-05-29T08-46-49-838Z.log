@@ -1,0 +1,58 @@
+$ /Users/humayunak/.nvm/versions/node/v22.19.0/bin/node scan.mjs
+Scanning 80 companies via providers (0 local parser; 16 skipped — no provider matched)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Portal Scan — 2026-05-29
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Companies scanned:     80
+Total jobs found:      3853
+Filtered by title:     2994 removed
+Filtered by location:  787 removed
+Duplicates:            72 skipped
+New offers added:      0
+
+Errors (39):
+  ✗ Ada: HTTP 404: {"status":404,"error":"Job not found"}
+  ✗ ElevenLabs: This operation was aborted
+  ✗ Deepgram: This operation was aborted
+  ✗ Vapi: This operation was aborted
+  ✗ Bland AI: This operation was aborted
+  ✗ Sierra: This operation was aborted
+  ✗ Decagon: This operation was aborted
+  ✗ n8n: This operation was aborted
+  ✗ Zapier: This operation was aborted
+  ✗ Factorial: HTTP 404: {"status":404,"error":"Job not found"}
+  ✗ Tinybird: HTTP 404: Not Found
+  ✗ Cohere: This operation was aborted
+  ✗ Clarity AI: HTTP 404: {"ok":false,"error":"Document not found"}
+  ✗ LangChain: This operation was aborted
+  ✗ Forto: HTTP 404: {"ok":false,"error":"Document not found"}
+  ✗ Pinecone: This operation was aborted
+  ✗ Klue: This operation was aborted
+  ✗ Glacis AI: This operation was aborted
+  ✗ Attio: This operation was aborted
+  ✗ Travelperk: This operation was aborted
+  ✗ Aleph Alpha: This operation was aborted
+  ✗ DeepL: This operation was aborted
+  ✗ Vinted: HTTP 404: {"ok":false,"error":"Document not found"}
+  ✗ Lakera: This operation was aborted
+  ✗ Runway: HTTP 404: {"status":404,"error":"Job not found"}
+  ✗ Cradle: This operation was aborted
+  ✗ Photoroom: This operation was aborted
+  ✗ Synthesia: This operation was aborted
+  ✗ Faculty: This operation was aborted
+  ✗ Causaly: This operation was aborted
+  ✗ Lovable: This operation was aborted
+  ✗ Legora: This operation was aborted
+  ✗ Perplexity: This operation was aborted
+  ✗ Clay Labs: This operation was aborted
+  ✗ WorkOS: This operation was aborted
+  ✗ Supabase: This operation was aborted
+  ✗ Resend: This operation was aborted
+  ✗ Clerk: This operation was aborted
+  ✗ Inngest: This operation was aborted
+
+→ Run /career-ops pipeline to evaluate new offers.
+→ Share results and get help: https://discord.gg/8pRpHETxa4
+
+[exit 0]

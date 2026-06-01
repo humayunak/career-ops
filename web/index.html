@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Career-Ops</title>
+  <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+  <link rel="stylesheet" href="static/shell.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient__blob ambient__blob--1"></div>
+    <div class="ambient__blob ambient__blob--2"></div>
+    <div class="ambient__grid"></div>
+  </div>
+
+  <div id="app" class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <div class="sidebar__inner">
+        <div class="sidebar__brand">
+          <span class="sidebar__logo">CO</span>
+          <div>
+            <div class="sidebar__name">Career-Ops</div>
+            <div class="sidebar__tag" id="sidebarVersion">Mission control</div>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">Work</span>
+            <button type="button" class="sidebar-nav__item is-active" data-panel="overview">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+              <span class="sidebar-nav__label-text">Overview</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="inbox">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12H2l3-7h14l3 7z"/><path d="M5 12v7h14v-7"/></svg></span>
+              <span class="sidebar-nav__label-text">Inbox</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="applications">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+              <span class="sidebar-nav__label-text">Applications</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="reports">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></span>
+              <span class="sidebar-nav__label-text">Reports</span>
+            </button>
+          </div>
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">Sources</span>
+            <button type="button" class="sidebar-nav__item" data-panel="portals">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></span>
+              <span class="sidebar-nav__label-text">Portals</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="linkedin">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v2"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></span>
+              <span class="sidebar-nav__label-text">LinkedIn</span>
+            </button>
+          </div>
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">You</span>
+            <button type="button" class="sidebar-nav__item" data-panel="profile">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg></span>
+              <span class="sidebar-nav__label-text">Profile</span>
+            </button>
+          </div>
+          <div class="sidebar-nav__group">
+            <span class="sidebar-nav__label">System</span>
+            <button type="button" class="sidebar-nav__item" data-panel="runs">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
+              <span class="sidebar-nav__label-text">Runs</span>
+            </button>
+            <button type="button" class="sidebar-nav__item" data-panel="commands">
+              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span>
+              <span class="sidebar-nav__label-text">Commands</span>
+            </button>
+          </div>
+        </nav>
+
+        <p class="sidebar__footer">Refresh data with <kbd>Refresh</kbd> in the header.</p>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <div>
+          <h1 class="topbar__title" id="topbarTitle">Overview</h1>
+          <p class="topbar__meta" id="topbarMeta">Catppuccin Mocha</p>
+        </div>
+        <div class="topbar__actions">
+          <button type="button" class="btn btn--ghost" id="btnRefresh">Refresh</button>
+        </div>
+      </header>
+
+      <main class="main-scroll">
+        <section id="mainOverview" class="main-view is-active" aria-label="Overview">
+          <div id="overviewRoot"></div>
+        </section>
+        <section id="mainInbox" class="main-view" aria-label="Inbox" hidden>
+          <div id="inboxRoot"></div>
+        </section>
+        <section id="mainApplications" class="main-view" aria-label="Applications" hidden>
+          <div id="applicationsRoot"></div>
+        </section>
+        <section id="mainReports" class="main-view" aria-label="Reports" hidden>
+          <div id="reportsRoot"></div>
+        </section>
+        <section id="mainPortals" class="main-view" aria-label="Portals" hidden>
+          <div id="portalsRoot"></div>
+        </section>
+        <section id="mainLinkedin" class="main-view" aria-label="LinkedIn" hidden>
+          <div id="linkedinRoot"></div>
+        </section>
+        <section id="mainProfile" class="main-view" aria-label="Profile" hidden>
+          <div id="profileRoot"></div>
+        </section>
+        <section id="mainRuns" class="main-view" aria-label="Runs" hidden>
+          <div id="runsRoot"></div>
+        </section>
+        <section id="mainCommands" class="main-view" aria-label="Commands" hidden>
+          <div class="panel-intro">
+            <p>Architecture + slash commands. Agent work runs in one Cursor chat; web reads saved files (reports, apply drafts).</p>
+          </div>
+          <div id="commandsRoot"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div id="pdfModal" class="pdf-modal" hidden aria-hidden="true">
+    <div class="pdf-modal__backdrop" data-close-pdf></div>
+    <div class="pdf-modal__panel glass-card" role="dialog" aria-labelledby="pdfModalTitle">
+      <header class="pdf-modal__header">
+        <h2 id="pdfModalTitle" class="pdf-modal__title">Resume PDF</h2>
+        <div class="pdf-modal__actions">
+          <a id="pdfModalOpen" class="btn btn--sm btn--ghost" href="#" target="_blank" rel="noopener">Open tab</a>
+          <button type="button" class="btn btn--sm" data-close-pdf aria-label="Close">Close</button>
+        </div>
+      </header>
+      <iframe id="pdfModalFrame" class="pdf-modal__frame" title="PDF preview"></iframe>
+    </div>
+  </div>
+
+  <div id="applyModal" class="pdf-modal" hidden aria-hidden="true">
+    <div class="pdf-modal__backdrop" data-close-apply></div>
+    <div class="pdf-modal__panel glass-card pdf-modal__panel--wide" role="dialog" aria-labelledby="applyModalTitle">
+      <header class="pdf-modal__header">
+        <h2 id="applyModalTitle" class="pdf-modal__title">Apply draft</h2>
+        <div class="pdf-modal__actions">
+          <button type="button" class="btn btn--sm" data-close-apply aria-label="Close">Close</button>
+        </div>
+      </header>
+      <div id="applyModalBody" class="apply-modal__body"></div>
+    </div>
+  </div>
+
+  <script src="static/vendor/marked.min.js"></script>
+  <script src="static/util.js"></script>
+  <script src="static/lib/config-forms.js"></script>
+  <script src="static/modules/panels/commands.js"></script>
+  <script src="static/modules/panels/overview.js"></script>
+  <script src="static/modules/panels/inbox.js"></script>
+  <script src="static/modules/panels/applications.js"></script>
+  <script src="static/modules/panels/reports.js"></script>
+  <script src="static/modules/panels/portals.js"></script>
+  <script src="static/modules/panels/linkedin.js"></script>
+  <script src="static/modules/panels/profile.js"></script>
+  <script src="static/modules/panels/runs.js"></script>
+  <script src="static/router.js"></script>
+  <script src="static/boot.js"></script>
+</body>
+</html>

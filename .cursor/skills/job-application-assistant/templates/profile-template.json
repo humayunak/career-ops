@@ -1,0 +1,168 @@
+{
+  "personal_info": {
+    "name": "Your Full Name",
+    "email": "your.email@example.com",
+    "phone": "+1-234-567-8900",
+    "location": "City, State/Country",
+    "linkedin": "linkedin.com/in/yourprofile",
+    "github": "github.com/yourusername",
+    "portfolio": "yourportfolio.com",
+    "preferred_title": "Your Professional Title (e.g., Senior Software Engineer)"
+  },
+  
+  "professional_summary": "A 2-3 sentence summary of your professional background, key strengths, and career focus. This will be customized for each application but serves as your baseline.",
+  
+  "work_experience": [
+    {
+      "company": "Company Name",
+      "title": "Your Job Title",
+      "location": "City, State",
+      "start_date": "Month Year",
+      "end_date": "Month Year or Present",
+      "description": "Brief overview of your role and responsibilities",
+      "achievements": [
+        "Specific achievement with quantifiable impact (e.g., Increased sales by 40% through implementing new CRM system)",
+        "Another achievement showing leadership or technical skills",
+        "Achievement demonstrating problem-solving or innovation",
+        "Include metrics whenever possible (%, $, time saved, etc.)"
+      ],
+      "skills_used": ["Skill 1", "Skill 2", "Skill 3"],
+      "keywords": ["relevant", "industry", "terms"]
+    },
+    {
+      "company": "Previous Company",
+      "title": "Previous Job Title",
+      "location": "City, State",
+      "start_date": "Month Year",
+      "end_date": "Month Year",
+      "description": "Brief overview of your role",
+      "achievements": [
+        "Key achievement from this role",
+        "Another important accomplishment"
+      ],
+      "skills_used": ["Skill 1", "Skill 2"],
+      "keywords": ["relevant", "terms"]
+    }
+  ],
+  
+  "education": [
+    {
+      "institution": "University Name",
+      "degree": "Bachelor of Science in Computer Science",
+      "location": "City, State",
+      "graduation_date": "Month Year",
+      "gpa": "3.8/4.0 (optional - include if strong)",
+      "honors": ["Dean's List", "Magna Cum Laude", "etc."],
+      "relevant_coursework": ["Course 1", "Course 2", "Course 3"],
+      "activities": ["Relevant clubs, organizations, or leadership roles"]
+    }
+  ],
+  
+  "skills": {
+    "technical": {
+      "programming_languages": ["Python", "JavaScript", "Java"],
+      "frameworks_libraries": ["React", "Django", "Node.js"],
+      "tools_platforms": ["Git", "Docker", "AWS", "Jira"],
+      "databases": ["PostgreSQL", "MongoDB", "Redis"],
+      "other_technical": ["RESTful APIs", "Microservices", "CI/CD"]
+    },
+    "soft_skills": [
+      "Leadership & Team Management",
+      "Cross-functional Collaboration", 
+      "Strategic Planning",
+      "Project Management",
+      "Public Speaking",
+      "Stakeholder Communication"
+    ],
+    "languages": [
+      {"language": "English", "proficiency": "Native"},
+      {"language": "Spanish", "proficiency": "Professional Working"}
+    ]
+  },
+  
+  "certifications": [
+    {
+      "name": "AWS Certified Solutions Architect",
+      "issuer": "Amazon Web Services",
+      "date": "Month Year",
+      "credential_id": "ABC123 (optional)"
+    }
+  ],
+  
+  "projects": [
+    {
+      "name": "Project Name",
+      "description": "Brief description of the project and your role",
+      "technologies": ["Tech 1", "Tech 2", "Tech 3"],
+      "impact": "What problem it solved or value it created",
+      "link": "github.com/yourproject or live demo URL",
+      "highlights": [
+        "Key achievement or technical challenge overcome",
+        "Quantifiable result if applicable"
+      ]
+    }
+  ],
+  
+  "publications_presentations": [
+    {
+      "title": "Title of Paper or Presentation",
+      "venue": "Conference or Journal Name",
+      "date": "Month Year",
+      "link": "URL if available",
+      "description": "Brief description of the work"
+    }
+  ],
+  
+  "volunteer_leadership": [
+    {
+      "organization": "Organization Name",
+      "role": "Your Role",
+      "dates": "Month Year - Month Year",
+      "description": "What you did and impact created",
+      "achievements": ["Specific accomplishment"]
+    }
+  ],
+  
+  "awards_recognition": [
+    {
+      "award": "Award Name",
+      "issuer": "Who gave it",
+      "date": "Month Year",
+      "description": "What it was for"
+    }
+  ],
+  
+  "career_preferences": {
+    "target_roles": ["Role 1", "Role 2", "Role 3"],
+    "industries_of_interest": ["Industry 1", "Industry 2"],
+    "company_sizes": ["Startup", "Mid-size", "Enterprise"],
+    "work_arrangement": ["Remote", "Hybrid", "On-site"],
+    "deal_breakers": ["Things you absolutely won't compromise on"],
+    "nice_to_haves": ["Preferences but not requirements"]
+  },
+  
+  "keywords_to_emphasize": [
+    "Important keywords for your industry/role that should appear in tailored materials",
+    "Technical terms you want to highlight",
+    "Industry buzzwords that are relevant to you",
+    "Methodologies you follow (e.g., Agile, Design Thinking)"
+  ],
+  
+  "stories_for_interviews": [
+    {
+      "theme": "Leadership / Conflict Resolution / Technical Challenge / etc.",
+      "situation": "Brief context of the situation",
+      "task": "What you needed to accomplish",
+      "action": "What you specifically did",
+      "result": "The outcome with metrics if possible",
+      "skills_demonstrated": ["Skill 1", "Skill 2"]
+    }
+  ],
+  
+  "notes": {
+    "strengths": "What you're particularly good at or known for",
+    "areas_for_growth": "Skills you're developing or want to develop",
+    "career_goals": "Where you want to be in 2-5 years",
+    "unique_value_proposition": "What makes you different from other candidates"
+  }
+}

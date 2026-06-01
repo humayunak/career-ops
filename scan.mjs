@@ -377,6 +377,7 @@ function guardStatusFor(code) {
 async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
+  const jsonOnly = args.includes('--json-only');
   const verify = args.includes('--verify');
   const companyFlag = args.indexOf('--company');
   const filterCompany = companyFlag !== -1 ? args[companyFlag + 1]?.toLowerCase() : null;
@@ -532,7 +533,33 @@ async function main() {
     }
   }
 
-  // 7. Print summary
+  // 7. Print summary (or machine JSON for web UI)
+  if (jsonOnly) {
+    console.log(
+      JSON.stringify({
+        date,
+        dryRun,
+        summary: {
+          companiesScanned: targets.length,
+          totalFound,
+          filteredTitle: totalFilteredTitle,
+          filteredLocation: totalFilteredLocation,
+          dupes: totalDupes,
+          newOffers: verifiedOffers.length,
+        },
+        offers: verifiedOffers.map((o) => ({
+          url: o.url,
+          company: o.company,
+          title: o.title,
+          location: o.location || '',
+          source: o.source || '',
+        })),
+        errors,
+      }),
+    );
+    return;
+  }
+
   console.log(`\n${'━'.repeat(45)}`);
   console.log(`Portal Scan — ${date}`);
   console.log(`${'━'.repeat(45)}`);
