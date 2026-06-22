@@ -1,29 +1,21 @@
-# Mode: tracker — Applications Tracker
+# Mode: tracker — Application Tracker
 
-Read and display `data/applications.md`.
+Query and display application data from the DB.
 
-**Tracker Format:**
-
-```markdown
-| # | Date | Company | Role | Score | Status | PDF | Report | Notes |
+```bash
+node db.mjs stats                        # summary counts by status
+node db.mjs query                        # all applications (table)
+node db.mjs query status=Evaluated       # filtered
+node db.mjs query --json score>=4.0      # JSON output
+node db.mjs get <num>                    # single application detail
 ```
 
-Possible states: `Evaluated` → `Applied` → `Responded` → `Interview` → `Offer` / `Rejected` / `Discarded` / `SKIP`
+**To update a status or field:**
+```bash
+node db.mjs update <num> status=Applied
+node db.mjs update <num> notes="text" score=4.2
+```
 
-- `Evaluated` = offer evaluated with report, pending decision
-- `Applied` = the candidate submitted their application
-- `Responded` = Company has responded (not yet interview)
-- `Interview` = active interview process
-- `Offer` = job offer received
-- `Rejected` = rejected by company
-- `Discarded` = discarded by candidate or offer closed
-- `SKIP` = doesn't fit, don't apply
+**Canonical statuses:** `Evaluated` → `Applied` → `Responded` → `Interview` → `Offer` / `Rejected` / `Discarded` / `SKIP`
 
-If the user asks to update a state, edit the corresponding row.
-
-Also show statistics:
-- Total applications
-- Breakdown by state
-- Average score
-- % with PDF generated
-- % with report generated
+Show the user a formatted summary table from `node db.mjs query` output. Include stats: total, by status, avg score, pipeline pending.

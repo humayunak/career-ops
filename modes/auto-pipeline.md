@@ -16,18 +16,6 @@ If the input is a **URL** (not pasted JD text), follow this strategy to extract 
 
 **If the input is JD text** (not a URL): use directly, without needing to fetch.
 
-## Step 0.5 — Liveness gate
-
-Before running any evaluation, confirm the posting is still live. The Step 0 Playwright snapshot already holds the evidence — judge it now, before spending tokens on the A-G evaluation, the report, or a PDF. A 404/expired page silently served as a static fallback ("position filled", empty shell) otherwise scores a full evaluation against phantom content.
-
-1. From the Step 0 snapshot/fetched content, classify the posting:
-   - **active posting evidence:** title/role + a real job description or an application/apply path
-   - **closed posting evidence:** expired/closed/"no longer accepting applications", missing JD with only nav/footer, hard redirect to a generic careers/search page, or 404/410
-2. If the posting appears closed or the page is a dead/fallback shell, **stop here**: do not run Step 1–Step 4. Tell the candidate the link is dead, and if the entry came from `data/pipeline.md`, mark it `- [x] ~~Company | Role~~ — oferta nieaktywna`.
-3. If only JD text was pasted (no URL), there is no link to verify — skip the gate and proceed.
-
-Do not continue to Step 1 until this gate is resolved.
-
 ## Step 1 — A-G Evaluation
 
 Execute the same as the `oferta` mode (read `modes/oferta.md` for all A-F blocks + Block G Posting Legitimacy).
@@ -82,6 +70,9 @@ If the final score is >= 4.5, generate a draft of responses for the application 
 
 ## Step 5 — Update Tracker
 
-Record it in `data/applications.md` with all columns including Report and PDF as ✅.
+Record via DB:
+```bash
+node db.mjs update <num> date=YYYY-MM-DD company="Company" role="Role" score=X.X status=Evaluated pdf=✅ report=reports/NNN-slug-date.md notes="summary"
+```
 
 **If any step fails**, continue with the next ones and mark the failed step as pending in the tracker.

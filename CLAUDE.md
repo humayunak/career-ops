@@ -1,4 +1,22 @@
-# Career-Ops -- AI Job Search Pipeline
+# Career-Ops — Humayun Akbar's Job Search Pipeline
+
+<!-- HUMAYUN'S INSTANCE — branch: humayun/web-ui -->
+<!-- upstream: https://github.com/santifer/career-ops.git -->
+<!-- to pull upstream updates: git fetch upstream && git merge upstream/main -->
+<!-- NEVER run `node scripts/update-system.mjs apply` — use git merge instead (web/ is excluded from SYSTEM_PATHS) -->
+
+## Working Surfaces
+
+| Surface | How to open | Slash command |
+|---------|------------|---------------|
+| **Cursor** | Open `career-ops/` folder in Cursor | `/career-ops` (via `.cursor/skills/career-ops/SKILL.md`) |
+| **Claude Code CLI** | `cd career-ops && claude` | `/career-ops` |
+| **Claude co-work** | Open this project in claude.ai | `/career-ops` skill auto-loaded |
+| **Web UI** | `npm run web` → http://127.0.0.1:8793 | n/a (local Node server, zero LLM cost) |
+
+**Active branch:** `humayun/web-ui` — contains web UI, custom batch scripts, role-specific CV templates.  
+**User:** Humayun Akbar — targeting AI Solutions Engineer / AI Automation Engineer roles.  
+**Profile:** `modes/_profile.md` (fully configured), `config/profile.yml`, `cv.md`, `article-digest.md`.
 
 ## Origin
 
@@ -20,6 +38,42 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 - `modes/_shared.md`, `modes/oferta.md`, all other modes
 - `CLAUDE.md`, `*.mjs` scripts, `dashboard/*`, `templates/*`, `batch/*`
 
+**Humayun's Extended User Layer (also protected, NOT in upstream):**
+- `web/` — local browser UI (Catppuccin Mocha, port 8793). Do not overwrite.
+- `scripts/db.mjs` — SQLite data layer (replaces MD-based tracker flow). Do not overwrite.
+- `web/lib/db.mjs` — web server DB access layer. Do not overwrite.
+- `data/career-ops.db` — SQLite DB (gitignored, user data). Fresh — run `node scripts/db.mjs migrate` to seed.
+- `batch/build-*.mjs`, `batch/fetch-*.mjs`, `batch/sync-*.mjs`, `batch/write-*.mjs` — custom batch scripts
+- `templates/cv-temp-*.html` — role-specific CV template variants
+- `.cursor/` — Cursor IDE skills and config
+
+## DB Quick Reference (agent-facing)
+
+**RULE: Never read `applications.md` to find a single row. Always use `node scripts/db.mjs`.**
+
+```bash
+node scripts/db.mjs get <num>                          # fetch single app — ~80 tokens vs 3,500
+node scripts/db.mjs update <num> status=Applied        # write back a field
+node scripts/db.mjs update <num> notes="text" score=4.2 pdf=✅ report=reports/NNN-slug-date.md
+node scripts/db.mjs query status=Evaluated             # filtered list (human table)
+node scripts/db.mjs query --json score>=4.0            # JSON for scripts
+node scripts/db.mjs stats                              # counts + top unapplied
+node scripts/db.mjs add-pipeline <url>                 # add to inbox
+node scripts/db.mjs pipeline-pending                   # list pending (JSON)
+node scripts/db.mjs verify                             # integrity check
+node scripts/db.mjs migrate                            # re-sync from applications.md (recovery only)
+```
+
+**Removed (replaced by db.mjs):** `merge-tracker.mjs`, `dedup-tracker.mjs`, `normalize-statuses.mjs`, `verify-pipeline.mjs` — deleted, do not recreate.
+
+## Upstream Merge Protocol
+
+```bash
+git fetch upstream
+git merge upstream/main   # resolve conflicts in system files only
+# NEVER run: node scripts/update-system.mjs apply  (use git merge instead)
+```
+
 **THE RULE: When the user asks to customize anything (archetypes, narrative, negotiation scripts, proof points, location policy, comp targets), ALWAYS write to `modes/_profile.md` or `config/profile.yml`. NEVER edit `modes/_shared.md` for user-specific content.** This ensures system updates don't overwrite their customizations.
 
 ## Update Check
@@ -27,20 +81,20 @@ There are two layers. Read `DATA_CONTRACT.md` for the full list.
 On the first message of each session, run the update checker silently:
 
 ```bash
-node update-system.mjs check
+node scripts/update-system.mjs check
 ```
 
 Parse the JSON output:
 - `{"status": "update-available", "local": "1.0.0", "remote": "1.1.0", "changelog": "..."}` → tell the user:
   > "career-ops update available (v{local} → v{remote}). Your data (CV, profile, tracker, reports) will NOT be touched. Want me to update?"
-  If yes → run `node update-system.mjs apply`. If no → run `node update-system.mjs dismiss`.
+  If yes → run `node scripts/update-system.mjs apply`. If no → run `node scripts/update-system.mjs dismiss`.
 - `{"status": "up-to-date"}` → say nothing
 - `{"status": "dismissed"}` → say nothing
 - `{"status": "offline"}` → say nothing
 - `{"status": "no-remote-version"}` → say nothing (checker reached GitHub but neither VERSION nor the latest release tag parsed as semver — treat as a silent non-failure, same as offline)
 
 The user can also say "check for updates" or "update career-ops" at any time to force a check.
-To rollback: `node update-system.mjs rollback`
+To rollback: `node scripts/update-system.mjs rollback`
 
 ## What is career-ops
 
@@ -50,70 +104,88 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 
 | File | Function |
 |------|----------|
-| `data/applications.md` | Application tracker |
-| `data/pipeline.md` | Inbox of pending URLs |
+| `data/career-ops.db` | **Primary data store** — applications + pipeline (SQLite) |
+| `scripts/db.mjs` | DB CLI + library — get/update/query/stats/verify/migrate |
+| ~~`data/applications.md`~~ | Deleted — DB is source of truth |
+| ~~`data/pipeline.md`~~ | Deleted — use `node scripts/db.mjs add-pipeline` or `/career-ops intake` |
 | `data/scan-history.tsv` | Scanner dedup history |
 | `portals.yml` | Query and company config |
 | `templates/cv-template.html` | HTML template for CVs |
 | `templates/cv-template.tex` | LaTeX/Overleaf template for CVs |
-| `generate-pdf.mjs` | Playwright: HTML to PDF |
-| `generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
+| `scripts/generate-pdf.mjs` | Playwright: HTML to PDF |
+| `scripts/generate-latex.mjs` | LaTeX CV validator + pdflatex compiler |
 | `article-digest.md` | Compact proof points from portfolio (optional) |
 | `interview-prep/story-bank.md` | Accumulated STAR+R stories across evaluations |
 | `interview-prep/{company}-{role}.md` | Company-specific interview intel reports |
-| `analyze-patterns.mjs` | Pattern analysis script (JSON output) |
-| `followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
+| `scripts/analyze-patterns.mjs` | Pattern analysis script (JSON output) |
+| `scripts/followup-cadence.mjs` | Follow-up cadence calculator (JSON output) |
 | `data/follow-ups.md` | Follow-up history tracker |
-| `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
-| `check-liveness.mjs` | Job posting liveness checker |
-| `liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
+| `scripts/scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
+| `scripts/check-liveness.mjs` | Job posting liveness checker |
+| `scripts/liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`). Blocks A-F + G (Posting Legitimacy), plus `## Machine Summary` YAML for downstream scripts. Header includes `**Legitimacy:** {tier}`. |
 
-### OpenCode & Gemini CLI Commands
+### OpenCode Commands
 
-Both [OpenCode](https://opencode.ai) and [Gemini CLI](https://github.com/google-gemini/gemini-cli) natively support the open agent skill standard (`agentskills.io`). 
+When using [OpenCode](https://opencode.ai), the following slash commands are available (defined in `.opencode/commands/`):
 
-Instead of registering individual `.toml` files for every slash command, all subcommands are routed through the single unified skill defined in `.agents/skills/career-ops/SKILL.md`.
+| Command | Claude Code Equivalent | Description |
+|---------|------------------------|-------------|
+| `/career-ops` | `/career-ops` | Show menu or evaluate JD with args |
+| `/career-ops-pipeline` | `/career-ops pipeline` | Process pending URLs from inbox |
+| `/career-ops-evaluate` | `/career-ops oferta` | Evaluate job offer (A-F scoring) |
+| `/career-ops-compare` | `/career-ops ofertas` | Compare and rank multiple offers |
+| `/career-ops-contact` | `/career-ops contacto` | LinkedIn outreach (find contacts + draft) |
+| `/career-ops-deep` | `/career-ops deep` | Deep company research |
+| `/career-ops-pdf` | `/career-ops pdf` | Generate ATS-optimized CV |
+| `/career-ops-latex` | `/career-ops latex` | Export CV as LaTeX/Overleaf .tex |
+| `/career-ops-training` | `/career-ops training` | Evaluate course/cert against goals |
+| `/career-ops-project` | `/career-ops project` | Evaluate portfolio project idea |
+| `/career-ops-tracker` | `/career-ops tracker` | Application status overview |
+| `/career-ops-apply` | `/career-ops apply` | Live application assistant |
+| `/career-ops-scan` | `/career-ops scan` | Scan portals for new offers |
+| `/career-ops-batch` | `/career-ops batch` | Batch processing with parallel workers |
+| `/career-ops-patterns` | `/career-ops patterns` | Analyze rejection patterns and improve targeting |
+| `/career-ops-followup` | `/career-ops followup` | Follow-up cadence tracker |
 
-You can invoke the command center or any of its modes directly within your CLI:
+**Note:** OpenCode commands invoke the same `.claude/skills/career-ops/SKILL.md` skill used by Claude Code. The `modes/*` files are shared between both platforms.
 
-* `/career-ops` (Shows the Command Center menu)
-* `/career-ops {JD text or URL}` (Runs the auto-evaluation pipeline)
-* `/career-ops [subcommand]` (Runs a specific subcommand)
+### Gemini CLI Commands
 
-#### Subcommands:
-* `pipeline` — Process pending URLs from inbox
-* `scan` — Scan job portals for new offers
-* `tracker` — Show application status overview
-* `pdf` — Generate ATS-optimized CV PDF
-* `latex` — Export CV as LaTeX/Overleaf .tex
-* `cover` — Generate cover letter
-* `interview-prep` — Generate interview preparation guide
-* `interview` — Onboarding/on-demand interview
-* `contacto` — Generate LinkedIn outreach message
-* `deep` — Execute deep company research
-* `training` — Evaluate course/cert against North Star
-* `project` — Evaluate portfolio project idea
-* `batch` — Run parallel batch evaluations
-* `patterns` — Analyze rejection patterns
-* `followup` — Update and calculate follow-ups
-* `update` — Update system files
+When using the [Gemini CLI](https://github.com/google-gemini/gemini-cli), the following slash commands are available (defined in `.gemini/commands/`):
 
-All `modes/*` files and prompt contexts (e.g., `GEMINI.md`) are shared across Claude Code, OpenCode, and Gemini CLI.
+| Command | Claude Code Equivalent | Description |
+|---------|------------------------|-------------|
+| `/career-ops` | `/career-ops` | Show menu or evaluate JD with args |
+| `/career-ops-pipeline` | `/career-ops pipeline` | Process pending URLs from inbox |
+| `/career-ops-evaluate` | `/career-ops oferta` | Evaluate job offer (A-G scoring) |
+| `/career-ops-compare` | `/career-ops ofertas` | Compare and rank multiple offers |
+| `/career-ops-contact` | `/career-ops contacto` | LinkedIn outreach (find contacts + draft) |
+| `/career-ops-deep` | `/career-ops deep` | Deep company research |
+| `/career-ops-pdf` | `/career-ops pdf` | Generate ATS-optimized CV |
+| `/career-ops-training` | `/career-ops training` | Evaluate course/cert against goals |
+| `/career-ops-project` | `/career-ops project` | Evaluate portfolio project idea |
+| `/career-ops-tracker` | `/career-ops tracker` | Application status overview |
+| `/career-ops-apply` | `/career-ops apply` | Live application assistant |
+| `/career-ops-scan` | `/career-ops scan` | Scan portals for new offers |
+| `/career-ops-batch` | `/career-ops batch` | Batch processing with parallel workers |
+| `/career-ops-patterns` | `/career-ops patterns` | Analyze rejection patterns and improve targeting |
+| `/career-ops-followup` | `/career-ops followup` | Follow-up cadence tracker |
+
+**Note:** Gemini CLI commands are defined in `.gemini/commands/*.toml`. The project context is auto-loaded from `GEMINI.md`. All `modes/*` files are shared across Claude Code, OpenCode, and Gemini CLI.
 
 ### First Run — Onboarding (IMPORTANT)
 
-**Before doing ANYTHING else, check if the system is set up.** On the first message of each session, run the cold-start check — one deterministic source of truth (this doc and `doctor.mjs` share the same prerequisite list, so they can never drift):
+**Before doing ANYTHING else, check if the system is set up.** Run these checks silently every time a session starts:
 
-```bash
-node doctor.mjs --json
-```
-
-Output: `{"onboardingNeeded": <bool>, "missing": [...], "warnings": [...]}`, where `missing` lists whichever of `cv.md`, `config/profile.yml`, `modes/_profile.md`, `portals.yml` are absent. `warnings` is reserved for non-blocking setup signals.
+1. Does `cv.md` exist?
+2. Does `config/profile.yml` exist (not just profile.example.yml)?
+3. Does `modes/_profile.md` exist (not just _profile.template.md)?
+4. Does `portals.yml` exist (not just templates/portals.example.yml)?
 
 If `modes/_profile.md` is missing, copy from `modes/_profile.template.md` silently. This is the user's customization file — it will never be overwritten by updates.
 
-**If, after that, `onboardingNeeded` is still true (any of `cv.md` / `config/profile.yml` / `portals.yml` is missing), enter onboarding mode.** Do NOT proceed with evaluations, scans, or any other mode until the basics are in place. Guide the user step by step:
+**If ANY of these is missing, enter onboarding mode.** Do NOT proceed with evaluations, scans, or any other mode until the basics are in place. Guide the user step by step:
 
 #### Step 1: CV (required)
 If `cv.md` is missing, ask:
@@ -144,13 +216,10 @@ If `portals.yml` is missing:
 
 Copy `templates/portals.example.yml` → `portals.yml`. If they gave target roles in Step 2, update `title_filter.positive` to match.
 
-#### Step 4: Tracker
-If `data/applications.md` doesn't exist, create it:
-```markdown
-# Applications Tracker
-
-| # | Date | Company | Role | Score | Status | PDF | Report | Notes |
-|---|------|---------|------|-------|--------|-----|--------|-------|
+#### Step 4: Tracker DB
+If `data/career-ops.db` doesn't exist, run:
+```bash
+node scripts/db.mjs migrate   # imports applications.md if it exists, otherwise creates empty DB
 ```
 
 #### Step 5: Get to know the user (important for quality)
@@ -233,7 +302,6 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 | Wants LinkedIn outreach | `contacto` |
 | Asks for company research | `deep` |
 | Preps for interview at specific company | `interview-prep` |
-| Wants interactive profile/CV onboarding | `interview` |
 | Wants to generate CV/PDF | `pdf` |
 | Evaluates a course/cert | `training` |
 | Evaluates portfolio project | `project` |
@@ -244,6 +312,7 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 | Batch processes offers | `batch` |
 | Asks about rejection patterns or wants to improve targeting | `patterns` |
 | Asks about follow-ups or application cadence | `followup` |
+| Wants to log a job from URL/JD/LinkedIn/recruiter into the inbox | `intake` |
 
 ### CV Source of Truth
 
@@ -292,55 +361,29 @@ Default modes are in `modes/` (English). Additional language-specific modes are 
 
 ## Stack and Conventions
 
-- Node.js (mjs modules), Playwright (PDF + scraping), YAML (config), HTML/CSS (template), Markdown (data), Canva MCP (optional visual CV)
+- Node.js (mjs modules), SQLite via `better-sqlite3`, Playwright (PDF + scraping), YAML (config), HTML/CSS (template)
 - Scripts in `.mjs`, configuration in YAML
 - Output in `output/` (gitignored), Reports in `reports/`
-- JDs in `jds/` (referenced as `local:jds/{file}` in pipeline.md)
+- JDs in `jds/` (referenced as `local:jds/{file}`)
 - Batch in `batch/` (gitignored except scripts and prompt)
-- Report numbering: sequential 3-digit zero-padded, max existing + 1
-- **RULE: After each batch of evaluations, run `node merge-tracker.mjs`** to merge tracker additions and avoid duplications.
-- **RULE: NEVER create new entries in applications.md if company+role already exists.** Update the existing entry.
+- Report numbering: sequential 3-digit zero-padded — next = max existing + 1
 
-### TSV Format for Tracker Additions
+### Adding a New Application (DB flow)
 
-Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slug}.tsv`. Single line, 9 tab-separated columns:
-
+After generating a report and PDF:
+```bash
+node scripts/db.mjs update <num> status=Evaluated score=4.2 pdf=1 report=reports/NNN-slug-YYYY-MM-DD.md notes="one liner"
+# If it's a new entry not yet in DB:
+# — use import-tsv or add via db.mjs directly
 ```
-{num}\t{date}\t{company}\t{role}\t{status}\t{score}/5\t{pdf_emoji}\t[{num}](reports/{num}-{slug}-{date}.md)\t{note}
-```
 
-**Column order (IMPORTANT -- status BEFORE score):**
-1. `num` -- sequential number (integer)
-2. `date` -- YYYY-MM-DD
-3. `company` -- short company name
-4. `role` -- job title
-5. `status` -- canonical status (e.g., `Evaluated`)
-6. `score` -- format `X.X/5` (e.g., `4.2/5`)
-7. `pdf` -- `✅` or `❌`
-8. `report` -- markdown link, always written **root-relative**: `[num](reports/...)`
-9. `notes` -- one-line summary
+All reports MUST include `**URL:**` in the header. Include `**Legitimacy:** {tier}`.
 
-**Note:** In applications.md, score comes BEFORE status. The merge script handles this column swap automatically.
-
-**Report link normalization:** The TSV always carries a **root-relative** `[num](reports/...)` link. `merge-tracker.mjs` rewrites it so the link is relative to the tracker file's own directory before writing it into the tracker — `../reports/...` when the tracker is at `data/applications.md`, or `reports/...` at the root layout. This keeps links clickable from the tracker (markdown links resolve relative to the file that contains them). Normalization is idempotent. To fix links in an existing tracker, run `node merge-tracker.mjs --migrate` (see #760).
-
-### Pipeline Integrity
-
-1. **NEVER edit applications.md to ADD new entries** -- Write TSV in `batch/tracker-additions/` and `merge-tracker.mjs` handles the merge.
-2. **YES you can edit applications.md to UPDATE status/notes of existing entries.**
-3. All reports MUST include `**URL:**` in the header (between Score and PDF). Include `**Legitimacy:** {tier}` (see Block G in `modes/oferta.md`).
-4. All statuses MUST be canonical (see `templates/states.yml`).
-5. Health check: `node verify-pipeline.mjs`
-6. Normalize statuses: `node normalize-statuses.mjs`
-7. Dedup: `node dedup-tracker.mjs`
-
-### Canonical States (applications.md)
-
-**Source of truth:** `templates/states.yml`
+### Canonical States
 
 | State | When to use |
 |-------|-------------|
-| `Evaluated` | Report completed, pending decision |
+| `Evaluated` | Report done, pending decision |
 | `Applied` | Application sent |
 | `Responded` | Company responded |
 | `Interview` | In interview process |
@@ -349,9 +392,12 @@ Write one TSV file per evaluation to `batch/tracker-additions/{num}-{company-slu
 | `Discarded` | Discarded by candidate or offer closed |
 | `SKIP` | Doesn't fit, don't apply |
 
-**RULES:**
-- No markdown bold (`**`) in status field
-- No dates in status field (use the date column)
-- No extra text (use the notes column)
+### Pipeline Integrity
+
+1. Add new URLs: `node scripts/db.mjs add-pipeline <url>`
+2. After evaluating: `node scripts/db.mjs update <num> status=Evaluated ...` + `node scripts/db.mjs pipeline-done <pipeline_id> <num>`
+3. Verify DB: `node scripts/db.mjs verify`
+4. Recovery (if DB lost): restore from backup or re-evaluate from `reports/` using `node scripts/db.mjs update`
+
 @AGENTS.md
 <!-- Add anything Claude Code specific that other agents don't need -->
