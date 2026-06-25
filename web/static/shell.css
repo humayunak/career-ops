@@ -3375,17 +3375,11 @@ button.co-card:hover {
   cursor: pointer;
 }
 
-/* ── Application sidecar (wide right panel) ── */
+/* ── Application sidecar (wide overlay from right) ── */
 .apps-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
+  position: relative;
   min-height: 0;
   height: 100%;
-}
-
-.apps-layout.has-sidecar {
-  grid-template-columns: 1fr 420px;
 }
 
 .apps-table-pane {
@@ -3394,11 +3388,24 @@ button.co-card:hover {
 }
 
 .app-sidecar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(560px, 50vw);
+  height: 100vh;
   border-left: 1px solid var(--hairline);
   background: var(--canvas);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  z-index: 200;
+  box-shadow: var(--shadow-pop, -4px 0 24px rgba(0,0,0,.12));
+  animation: sidecar-in 0.15s ease-out;
+}
+
+@keyframes sidecar-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
 }
 
 .app-sidecar__header {

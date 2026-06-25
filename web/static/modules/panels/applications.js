@@ -102,7 +102,7 @@ async function loadApplicationsPanel() {
           <input type="search" class="search-input" id="appSearchInput" placeholder="Search company, role, notes…" value="${esc(appSearch)}">
         </label>
       </div>
-      <div class="apps-layout${appDrawerNum != null ? ' has-sidecar' : ''}" id="appsLayout">
+      <div class="apps-layout" id="appsLayout">
         <div class="apps-table-pane" id="applicationsTable"></div>
         <div id="appSidecarMount"></div>
       </div>
@@ -235,8 +235,6 @@ function renderApplicationsTable(list, allApps) {
       if (e.target.closest('a, button')) return;
       const num = parseInt(row.dataset.appNum, 10);
       appDrawerNum = appDrawerNum === num ? null : num;
-      const layout = $('appsLayout');
-      if (layout) layout.classList.toggle('has-sidecar', appDrawerNum != null);
       el.querySelectorAll('.app-row').forEach((r) => {
         r.classList.toggle('app-row--open', parseInt(r.dataset.appNum, 10) === appDrawerNum);
       });
@@ -247,9 +245,18 @@ function renderApplicationsTable(list, allApps) {
 
 }
 
+function getSidecarMount() {
+  let mount = $('appSidecarOverlay');
+  if (!mount) {
+    mount = document.createElement('div');
+    mount.id = 'appSidecarOverlay';
+    document.body.appendChild(mount);
+  }
+  return mount;
+}
+
 async function renderAppSidecar(app, allApps) {
-  const mount = $('appSidecarMount');
-  if (!mount) return;
+  const mount = getSidecarMount();
   if (!app) {
     mount.innerHTML = '';
     return;
@@ -269,7 +276,7 @@ async function renderAppSidecar(app, allApps) {
   }
 
   mount.innerHTML = `
-    <aside class="app-sidecar" aria-label="Application details" style="position:relative">
+    <aside class="app-sidecar" aria-label="Application details">
       <div class="app-sidecar__header">
         <button type="button" class="btn btn--sm btn--ghost app-sidecar__close" data-close-sidecar aria-label="Close">&times;</button>
         <h2 class="app-sidecar__company">${esc(app.company)}</h2>
@@ -292,8 +299,7 @@ async function renderAppSidecar(app, allApps) {
 
   mount.querySelector('[data-close-sidecar]')?.addEventListener('click', () => {
     appDrawerNum = null;
-    mount.innerHTML = '';
-    $('appsLayout')?.classList.remove('has-sidecar');
+    getSidecarMount().innerHTML = '';
     document.querySelectorAll('.app-row--open').forEach(r => r.classList.remove('app-row--open'));
   });
 
