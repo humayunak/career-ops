@@ -60,19 +60,27 @@ async function renderProfilePane(mount) {
   }
 
   mount.innerHTML = `
-    <div class="tab-bar tab-bar--secondary" role="tablist" style="margin-bottom:16px">
-      <button type="button" class="tab-btn tab-btn--sm${profileTab === 'config' ? ' active' : ''}" data-ptab="config">Config</button>
-      <button type="button" class="tab-btn tab-btn--sm${profileTab === 'yaml' ? ' active' : ''}" data-ptab="yaml">Raw YAML</button>
-      <button type="button" class="tab-btn tab-btn--sm${profileTab === 'narrative' ? ' active' : ''}" data-ptab="narrative">Narrative</button>
-      <button type="button" class="tab-btn tab-btn--sm${profileTab === 'digest' ? ' active' : ''}" data-ptab="digest">Article digest</button>
+    <div class="disco-shell">
+      <nav class="disco-nav" aria-label="Profile settings">
+        <div class="disco-nav__group">
+          <span class="disco-nav__label">Settings</span>
+          <button class="disco-nav__item${profileTab === 'config' ? ' is-active' : ''}" data-ptab="config">Config</button>
+          <button class="disco-nav__item${profileTab === 'yaml' ? ' is-active' : ''}" data-ptab="yaml">Raw YAML</button>
+        </div>
+        <div class="disco-nav__group">
+          <span class="disco-nav__label">Content</span>
+          <button class="disco-nav__item${profileTab === 'narrative' ? ' is-active' : ''}" data-ptab="narrative">Narrative</button>
+          <button class="disco-nav__item${profileTab === 'digest' ? ' is-active' : ''}" data-ptab="digest">Article digest</button>
+        </div>
+      </nav>
+      <div class="disco-content" id="profileContent"></div>
     </div>
-    <div id="profileContent"></div>
   `;
 
   mount.querySelectorAll('[data-ptab]').forEach(btn => {
     btn.addEventListener('click', () => {
       profileTab = btn.dataset.ptab;
-      mount.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('active', b === btn));
+      mount.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('is-active', b === btn));
       renderProfileTab();
     });
   });
