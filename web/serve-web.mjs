@@ -25,7 +25,6 @@ import {
 } from './lib/db.mjs';
 import { listRuns, readRun, runScript, RUN_SCRIPTS } from './lib/runs.mjs';
 import { runScanDryRun, runScanAndSave } from './lib/scan-api.mjs';
-import { appendToPipelineFile } from './lib/pipeline-write.mjs';
 import {
   loadProfileFull,
   saveProfileStructured,
@@ -79,21 +78,31 @@ function serveStatic(res, rel) {
     return;
   }
   const ext = extname(rel);
-  res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
+  res.writeHead(200, {
+    'Content-Type': MIME[ext] || 'application/octet-stream',
+    'Cache-Control': 'no-store',
+  });
   res.end(buf);
 }
 
 function serveOutputPdf(res, name) {
-  const safe = basename(name);
-  if (!safe.endsWith('.pdf') || safe.includes('..')) {
+  // name may be "slug/file.pdf" (new layout) or "file.pdf" (legacy flat)
+  if (name.includes('..') || !name.endsWith('.pdf')) {
     return json(res, 400, { error: 'Invalid file' });
   }
-  const full = join(CAREER_OPS_ROOT, 'output', safe);
-  if (!existsSync(full)) return json(res, 404, { error: 'PDF not found' });
+  const safe = name.replace(/[^a-zA-Z0-9/_.-]/g, '');
+  const base = join(CAREER_OPS_ROOT, 'data/outputs');
+  // Try new layout first, then legacy pdfs/
+  const candidates = [
+    join(base, safe),
+    join(base, 'pdfs', basename(safe)),
+  ];
+  const full = candidates.find((p) => existsSync(p));
+  if (!full) return json(res, 404, { error: 'PDF not found' });
   const buf = readFileSync(full);
   res.writeHead(200, {
     'Content-Type': 'application/pdf',
-    'Content-Disposition': `inline; filename="${safe}"`,
+    'Content-Disposition': `inline; filename="${basename(full)}"`,
   });
   res.end(buf);
 }
@@ -106,12 +115,21 @@ async function readBody(req) {
 
 async function handleApi(req, res, url) {
   if (url.pathname === '/api/health') {
+    let userName = '', userRole = '';
+    try {
+      const { getProfile } = await import('./lib/profile-api.mjs');
+      const p = getProfile(CAREER_OPS_ROOT);
+      userName = p?.fullName || p?.name || '';
+      userRole = p?.targetRoles?.[0] || p?.currentRole || '';
+    } catch { /* profile optional */ }
     return json(res, 200, {
       ok: true,
       root: CAREER_OPS_ROOT,
       version: existsSync(join(CAREER_OPS_ROOT, 'VERSION'))
         ? readFileSync(join(CAREER_OPS_ROOT, 'VERSION'), 'utf8').trim()
         : null,
+      userName,
+      userRole,
     });
   }
 
@@ -163,6 +181,21 @@ async function handleApi(req, res, url) {
     if (body.status === 'done') return json(res, 200, markPipelineDone(pipelineItemMatch[1], body.app_num));
     if (body.status === 'discarded') return json(res, 200, discardPipelineItem(pipelineItemMatch[1]));
     return json(res, 400, { error: 'status must be done or discarded' });
+  }
+
+  if (url.pathname === '/api/file-list' && req.method === 'GET') {
+    const dir = url.searchParams.get('dir');
+    const ext = url.searchParams.get('ext') || '';
+    if (!dir) return json(res, 400, { error: 'Missing dir' });
+    const resolved = resolveAllowedFile(CAREER_OPS_ROOT, dir);
+    if (resolved.error) return json(res, resolved.status, { error: resolved.error });
+    try {
+      const entries = readdirSync(resolved.full, { withFileTypes: true });
+      const files = entries
+        .filter(e => e.isFile() && (!ext || e.name.endsWith(ext)))
+        .map(e => ({ name: e.name }));
+      return json(res, 200, { files });
+    } catch { return json(res, 200, { files: [] }); }
   }
 
   if (url.pathname === '/api/file') {
@@ -249,9 +282,15 @@ async function handleApi(req, res, url) {
     }
   }
 
-  const pdfMatch = url.pathname.match(/^\/api\/output\/([^/]+)$/);
+  // /api/output/{slug/file.pdf} — new layout; /api/output/{file.pdf} — legacy
+  const pdfMatch = url.pathname.match(/^\/api\/output\/(.+)$/);
   if (pdfMatch && req.method === 'GET') {
     return serveOutputPdf(res, pdfMatch[1]);
+  }
+
+  const baseResumePdfMatch = url.pathname.match(/^\/api\/base-resume-pdf\/(.+)$/);
+  if (baseResumePdfMatch && req.method === 'GET') {
+    return serveOutputPdf(res, baseResumePdfMatch[1]);
   }
 
   if (url.pathname === '/api/profile' && req.method === 'GET') {
@@ -316,11 +355,10 @@ async function handleApi(req, res, url) {
     try {
       const body = JSON.parse((await readBody(req)) || '{}');
       const offers = body.offers || [];
-      // Write to DB
-      const dbResults = offers.map(o => addPipelineUrl({ url: o.url, source: o.source || 'portal', notes: o.title ? `${o.company || ''} — ${o.title}` : '' }));
-      // Also write to pipeline.md for legacy scan compatibility
-      const result = appendToPipelineFile(CAREER_OPS_ROOT, offers);
-      return json(res, 200, { ...result, db: dbResults });
+      // DB is the single source of truth (pipeline.md legacy write removed)
+      const dbResults = offers.map(o => addPipelineUrl({ url: o.url, source: o.source || 'portal', notes: o.title ? `${o.company || ''} — ${o.title}` : (o.notes || '') }));
+      const added = dbResults.filter(r => r && r.ok !== false).length;
+      return json(res, 200, { ok: true, added, db: dbResults });
     } catch (e) {
       return json(res, 400, { error: e.message });
     }
@@ -335,6 +373,79 @@ async function handleApi(req, res, url) {
     const result = readApplyDraft(CAREER_OPS_ROOT, applyDraftMatch[1]);
     if (result.error) return json(res, result.status, { error: result.error });
     return json(res, 200, result);
+  }
+
+  if (url.pathname === '/api/base-resumes' && req.method === 'GET') {
+    const base = join(CAREER_OPS_ROOT, 'data/outputs');
+    const files = [];
+    if (existsSync(base)) {
+      // Legacy pdfs/ flat dir
+      const legacyDir = join(base, 'pdfs');
+      if (existsSync(legacyDir)) {
+        readdirSync(legacyDir).filter(f => f.endsWith('.pdf')).forEach(f => {
+          files.push({ name: f, path: `pdfs/${f}`, label: f.replace(/\.pdf$/, '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()), mtime: statSync(join(legacyDir, f)).mtime.toISOString() });
+        });
+      }
+      // New per-job subdirs
+      readdirSync(base, { withFileTypes: true })
+        .filter(e => e.isDirectory() && e.name !== 'pdfs' && e.name !== 'reports' && e.name !== 'apply-drafts')
+        .forEach(dir => {
+          readdirSync(join(base, dir.name)).filter(f => f.endsWith('.pdf')).forEach(f => {
+            files.push({ name: f, path: `${dir.name}/${f}`, label: `${dir.name} — ${f.replace(/\.pdf$/, '')}`, mtime: statSync(join(base, dir.name, f)).mtime.toISOString() });
+          });
+        });
+    }
+    return json(res, 200, { files: files.sort((a, b) => a.name.localeCompare(b.name)) });
+  }
+
+  if (url.pathname === '/api/templates' && req.method === 'GET') {
+    const templatesDir = join(CAREER_OPS_ROOT, 'templates');
+    const files = existsSync(templatesDir)
+      ? readdirSync(templatesDir).filter((f) => f.endsWith('.html')).sort()
+      : [];
+    const profileRaw = existsSync(join(CAREER_OPS_ROOT, 'config', 'profile.yml'))
+      ? readFileSync(join(CAREER_OPS_ROOT, 'config', 'profile.yml'), 'utf8')
+      : '';
+    const activeMatch = profileRaw.match(/active_template:\s*(.+)/);
+    const active = activeMatch ? activeMatch[1].trim() : 'templates/resume.html';
+    const templates = files.map((f) => ({
+      filename: f,
+      path: `templates/${f}`,
+      isActive: `templates/${f}` === active,
+    }));
+    return json(res, 200, { templates, active });
+  }
+
+  const templatePreviewMatch = url.pathname.match(/^\/api\/templates\/([^/]+)$/);
+  if (templatePreviewMatch && req.method === 'GET') {
+    const safe = basename(templatePreviewMatch[1]);
+    if (!safe.endsWith('.html') || safe.includes('..')) return json(res, 400, { error: 'Invalid template' });
+    const full = join(CAREER_OPS_ROOT, 'templates', safe);
+    if (!existsSync(full)) return json(res, 404, { error: 'Template not found' });
+    const content = readFileSync(full, 'utf8');
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+    res.end(content);
+    return;
+  }
+
+  if (url.pathname === '/api/templates/active' && req.method === 'POST') {
+    const body = JSON.parse((await readBody(req)) || '{}');
+    if (!body.path) return json(res, 400, { error: 'path required' });
+    const safe = basename(body.path);
+    if (!safe.endsWith('.html') || safe.includes('..')) return json(res, 400, { error: 'Invalid template' });
+    const full = join(CAREER_OPS_ROOT, 'templates', safe);
+    if (!existsSync(full)) return json(res, 404, { error: 'Template not found' });
+    const profilePath = join(CAREER_OPS_ROOT, 'config', 'profile.yml');
+    let raw = existsSync(profilePath) ? readFileSync(profilePath, 'utf8') : '';
+    if (/active_template:/.test(raw)) {
+      raw = raw.replace(/active_template:.*/, `active_template: templates/${safe}`);
+    } else if (/^cv:/m.test(raw)) {
+      raw = raw.replace(/^(cv:.*\n(?:  \S.*\n)*)/m, (m) => m + `  active_template: templates/${safe}\n`);
+    } else {
+      raw += `\ncv:\n  active_template: templates/${safe}\n`;
+    }
+    writeFileSync(profilePath, raw, 'utf8');
+    return json(res, 200, { active: `templates/${safe}`, saved: true });
   }
 
   if (url.pathname === '/api/linkedin/scan' && req.method === 'POST') {
@@ -379,7 +490,7 @@ function handleRequest(req, res) {
     const runPost = req.method === 'POST' && url.pathname.startsWith('/api/run/');
     const mutatingPost =
       req.method === 'POST' &&
-      ['/api/scan/preview', '/api/scan/run', '/api/pipeline/add', '/api/linkedin/scan'].includes(
+      ['/api/scan/preview', '/api/scan/run', '/api/pipeline/add', '/api/linkedin/scan', '/api/templates/active'].includes(
         url.pathname,
       );
     const filePut = req.method === 'PUT' && url.pathname === '/api/file';
