@@ -115,6 +115,29 @@ async function loadOverviewPanel() {
           </div>
         </div>
       </div>
+
+      <div class="ov-panel-row">
+        <div class="ov-panel">
+          <div class="ov-panel-head">
+            <h3>Recent activity</h3>
+          </div>
+          <div class="ov-recent">
+            ${renderRecentActivity(apps)}
+          </div>
+        </div>
+
+        <div class="ov-panel">
+          <div class="ov-panel-head">
+            <h3>Quick actions</h3>
+          </div>
+          <div class="ov-actions">
+            <button type="button" class="btn btn--sm" data-goto="inbox">Process inbox</button>
+            <button type="button" class="btn btn--sm" data-goto="discovery">Run scan</button>
+            <button type="button" class="btn btn--sm" data-goto="patterns">View patterns</button>
+            <button type="button" class="btn btn--sm" data-goto="followups">Check follow-ups</button>
+          </div>
+        </div>
+      </div>
     `;
 
         root.querySelectorAll('[data-goto]').forEach((btn) => {
@@ -134,6 +157,23 @@ async function loadOverviewPanel() {
   } catch (e) {
     root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
   }
+}
+
+function renderRecentActivity(apps) {
+  const recent = apps
+    .filter(a => a.date)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, 5);
+
+  if (!recent.length) return '<p class="ov-empty">No activity yet.</p>';
+
+  return recent.map(a => `
+    <div class="ov-activity-row">
+      <span class="status-pill status-pill--${(a.status || '').toLowerCase().replace(/[^a-z]/g, '')}" style="font-size:0.6875rem">${esc(a.status || '—')}</span>
+      <span class="ov-activity-name">${esc(a.company)} — ${esc(a.role)}</span>
+      <span class="muted" style="font-size:0.75rem;white-space:nowrap">${esc(formatTimeAgo(a.date))}</span>
+    </div>
+  `).join('');
 }
 
 function bucketWidth(count, buckets) {

@@ -1,33 +1,76 @@
-/** LinkedIn — Apify search URL → triage → inbox */
+/** LinkedIn Command Center — job scraper + outreach + content */
 
 let linkedinOffers = [];
 let linkedinSelected = new Set();
+let linkedinTab = 'jobs';
 
 async function loadLinkedinPanel() {
   const root = $('linkedinRoot');
   if (!root) return;
 
   root.innerHTML = `
-    <div class="glass-card">
-      <h2 class="section-title">LinkedIn job search</h2>
-      <p class="muted">Paste a LinkedIn jobs search URL, fetch listings, then add the ones you want to your inbox.</p>
-      <details class="muted" style="margin:12px 0">
-        <summary style="cursor:pointer">Setup (technical)</summary>
-        <p style="margin-top:8px">Requires <code>APIFY_TOKEN</code> in your environment. Optional: <code>APIFY_LINKEDIN_ACTOR</code>.</p>
-      </details>
-      <label class="field-label" for="linkedinUrl">Search URL</label>
-      <input type="url" class="search-input" id="linkedinUrl" placeholder="https://www.linkedin.com/jobs/search/?..." style="width:100%;max-width:720px">
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-        <button type="button" class="btn btn--primary" id="btnLinkedinScan">Fetch jobs</button>
-        <button type="button" class="btn btn--sm" id="btnLinkedinInbox" disabled>Add selected to inbox</button>
-      </div>
-      <div id="linkedinResults" style="margin-top:16px"></div>
+    <div class="tab-bar" role="tablist" style="margin-bottom:16px">
+      <button type="button" class="tab-btn${linkedinTab === 'jobs' ? ' active' : ''}" data-litab="jobs" role="tab">Job scraper</button>
+      <button type="button" class="tab-btn${linkedinTab === 'outreach' ? ' active' : ''}" data-litab="outreach" role="tab">Outreach</button>
+      <button type="button" class="tab-btn${linkedinTab === 'content' ? ' active' : ''}" data-litab="content" role="tab">Content</button>
     </div>
+    <div id="linkedinTabContent"></div>
   `;
 
-  $('btnLinkedinScan')?.addEventListener('click', runLinkedinFetch);
-  $('btnLinkedinInbox')?.addEventListener('click', addLinkedinToInbox);
-  renderLinkedinResults();
+  root.querySelectorAll('[data-litab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      linkedinTab = btn.dataset.litab;
+      root.querySelectorAll('[data-litab]').forEach(b => b.classList.toggle('active', b === btn));
+      renderLinkedinTab();
+    });
+  });
+
+  renderLinkedinTab();
+}
+
+function renderLinkedinTab() {
+  const mount = $('linkedinTabContent');
+  if (!mount) return;
+
+  if (linkedinTab === 'jobs') {
+    mount.innerHTML = `
+      <div class="glass-card">
+        <h2 class="section-title">LinkedIn job search</h2>
+        <p class="muted">Paste a LinkedIn jobs search URL, fetch via Apify, then add matches to your inbox.</p>
+        <label class="field-label" for="linkedinUrl">Search URL</label>
+        <input type="url" class="search-input" id="linkedinUrl" placeholder="https://www.linkedin.com/jobs/search/?..." style="width:100%;max-width:720px">
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <button type="button" class="btn btn--primary" id="btnLinkedinScan">Fetch jobs</button>
+          <button type="button" class="btn btn--sm" id="btnLinkedinInbox" disabled>Add selected to inbox</button>
+        </div>
+        <div id="linkedinResults" style="margin-top:16px"></div>
+      </div>
+    `;
+
+    $('btnLinkedinScan')?.addEventListener('click', runLinkedinFetch);
+    $('btnLinkedinInbox')?.addEventListener('click', addLinkedinToInbox);
+    renderLinkedinResults();
+  } else if (linkedinTab === 'outreach') {
+    mount.innerHTML = `
+      <div class="glass-card">
+        <h2 class="section-title">LinkedIn outreach</h2>
+        <p class="muted">Draft connection requests and follow-up DMs. Run <code>/career-ops-research</code> to generate outreach drafts for a specific company.</p>
+        <div class="empty-state" style="margin-top:16px">
+          <p>Outreach drafts appear here after running the research skill on a target company.</p>
+        </div>
+      </div>
+    `;
+  } else if (linkedinTab === 'content') {
+    mount.innerHTML = `
+      <div class="glass-card">
+        <h2 class="section-title">Content calendar</h2>
+        <p class="muted">Plan and track LinkedIn posts to build visibility during your job search.</p>
+        <div class="empty-state" style="margin-top:16px">
+          <p>Coming soon — post ideas, scheduling, and engagement tracking.</p>
+        </div>
+      </div>
+    `;
+  }
 }
 
 async function runLinkedinFetch() {

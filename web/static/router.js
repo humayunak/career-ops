@@ -13,18 +13,16 @@ const COW_PANELS = [
   { id: 'patterns', title: 'Patterns', group: 'Insights' },
   { id: 'followups', title: 'Follow-ups', group: 'Insights' },
   { id: 'interviewprep', title: 'Interview prep', group: 'Insights' },
-  { id: 'discovery', title: 'Discovery', group: 'Sources' },
   { id: 'linkedin', title: 'LinkedIn', group: 'Sources' },
+  { id: 'discovery', title: 'Discovery', group: 'Sources' },
+  { id: 'profile', title: 'Profile', group: 'You' },
   { id: 'baseresumes', title: 'Base resumes', group: 'You' },
   { id: 'templates', title: 'Resume templates', group: 'You' },
-  { id: 'profile', title: 'Profile', group: 'You' },
   { id: 'workflow', title: 'How it works', group: 'Help' },
   { id: 'commands', title: 'AI commands', group: 'Help' },
   { id: 'runs', title: 'Maintenance', group: 'Help' },
-  { id: 'reports', title: 'Reports', group: 'Jobs' },
-  { id: 'mindmap', title: 'Mind map', group: 'Insights' },
-  { id: 'portals', title: 'Portals (legacy)', group: 'Sources' },
   { id: 'files', title: 'Files', group: 'Help' },
+  { id: 'portals', title: 'Discovery', group: 'System', hidden: true },
 ];
 
 const COW_PANEL_IDS = {
@@ -42,8 +40,6 @@ const COW_PANEL_IDS = {
   workflow: 'mainWorkflow',
   commands: 'mainCommands',
   runs: 'mainRuns',
-  reports: 'mainReports',
-  mindmap: 'mainMindmap',
   portals: 'mainPortals',
   files: 'mainFiles',
 };
@@ -63,8 +59,6 @@ const COW_LOADERS = {
   templates: loadTemplatesPanel,
   profile: loadProfilePanel,
   runs: loadRunsPanel,
-  reports: loadReportsPanel,
-  mindmap: loadMindmapPanel,
   portals: loadPortalsPanel,
   files: loadFilesPanel,
 };

@@ -79,6 +79,8 @@ function filterApps(apps) {
   return list.sort((a, b) => (b.score || 0) - (a.score || 0));
 }
 
+let appSidecarTab = 'report';
+
 async function loadApplicationsPanel() {
   const root = $('applicationsRoot');
   if (!root) return;
@@ -88,9 +90,6 @@ async function loadApplicationsPanel() {
     const apps = snap.applications || [];
 
     root.innerHTML = `
-      <div class="panel-intro">
-        <p><strong>Copy application answers</strong> sends a prompt to your AI assistant. After it saves answers, click <strong>Refresh</strong> then <strong>View answers</strong>.</p>
-      </div>
       <div class="filter-bar">
         <div class="tab-bar tab-bar--wrap" role="tablist">
           ${APP_TABS.map(
@@ -103,8 +102,10 @@ async function loadApplicationsPanel() {
           <input type="search" class="search-input" id="appSearchInput" placeholder="Search company, role, notes…" value="${esc(appSearch)}">
         </label>
       </div>
-      <div id="applicationsTable"></div>
-      <div id="appDrawerMount"></div>
+      <div class="apps-layout${appDrawerNum != null ? ' has-sidecar' : ''}" id="appsLayout">
+        <div class="apps-table-pane" id="applicationsTable"></div>
+        <div id="appSidecarMount"></div>
+      </div>
     `;
 
     root.querySelectorAll('.tab-btn[data-tab]').forEach((btn) => {
@@ -123,7 +124,7 @@ async function loadApplicationsPanel() {
     renderApplicationsTable(filterApps(apps), apps);
     if (appDrawerNum != null) {
       const app = apps.find((a) => a.number === appDrawerNum);
-      if (app) renderAppDrawer(app);
+      if (app) renderAppSidecar(app, apps);
     }
   } catch (e) {
     root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
@@ -184,9 +185,7 @@ function renderApplicationsTable(list, allApps) {
             <th class="col-score" data-sort="score">Score ${sortArrow('score')}</th>
             <th class="col-arch">Archetype</th>
             <th class="col-next">Next</th>
-            <th class="col-report">Report</th>
-            <th class="col-pdf">PDF</th>
-            <th class="col-apply">Apply</th>
+            <th class="col-outputs">Outputs</th>
           </tr>
         </thead>
         <tbody>
@@ -195,7 +194,7 @@ function renderApplicationsTable(list, allApps) {
               const na = nextAction(a);
               return `
             <tr data-app-num="${a.number}" class="app-row${appDrawerNum === a.number ? ' app-row--open' : ''}">
-              <td class="col-num"><button type="button" class="link-btn" data-open-drawer="${a.number}">${a.number}</button></td>
+              <td class="col-num">${a.number}</td>
               <td class="col-company">
                 <div class="app-cell-stack">
                   <span class="app-cell-stack__company" title="${esc(a.company)}">${a.companyUrl ? `<a href="${esc(a.companyUrl)}" target="_blank" rel="noopener" class="link-btn">${esc(a.company)}</a>` : esc(a.company)}</span>
@@ -206,24 +205,12 @@ function renderApplicationsTable(list, allApps) {
               <td class="col-score"><span class="score-tier--${scoreTier(a.score)}">${esc(formatScore(a.score, a.scoreRaw))}</span></td>
               <td class="col-arch">${a.archetype ? `<span class="archetype-badge">${esc(a.archetype)}</span>` : '<span class="muted">—</span>'}</td>
               <td class="col-next"><span class="next-action-cell${na.due ? ' next-action-cell--due' : ''}">${esc(na.text)}</span></td>
-              <td class="col-report">${
-                a.reportNumber
-                  ? `<button type="button" class="app-report-link" data-open-report="${esc(a.reportNumber)}" data-app-num="${a.number}" title="Open report #${esc(a.reportNumber)}">${coIcon('arrow')}<span>#${esc(a.reportNumber)}</span></button>`
-                  : '<span class="muted">—</span>'
-              }</td>
-              <td class="col-pdf">${
-                a.pdfFilename
-                  ? `<button type="button" class="link-btn" data-preview-pdf="${esc(a.pdfFilename)}">Preview</button>`
-                  : a.hasPdf
-                    ? '<span class="muted">✓</span>'
-                    : '<span class="muted">—</span>'
-              }</td>
-              <td class="col-apply app-actions">
-                ${
-                  a.hasApplyDraft
-                    ? `<button type="button" class="btn btn--sm btn--primary" data-view-apply="${esc(a.reportNumber || a.number)}">See Answers</button>`
-                    : '<span class="muted app-actions__pending">—</span>'
-                }
+              <td class="col-outputs">
+                <span class="output-tray">
+                  <span class="output-tick${a.reportNumber ? ' output-tick--on' : ''}" title="Report">R</span>
+                  <span class="output-tick${a.hasPdf || a.pdfFilename ? ' output-tick--on' : ''}" title="PDF">P</span>
+                  <span class="output-tick${a.hasApplyDraft ? ' output-tick--on' : ''}" title="Answers">A</span>
+                </span>
               </td>
             </tr>`;
             })
@@ -242,142 +229,134 @@ function renderApplicationsTable(list, allApps) {
     });
   });
 
-  el.querySelectorAll('[data-open-drawer]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const num = parseInt(btn.dataset.openDrawer, 10);
+  el.querySelectorAll('.app-row').forEach((row) => {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('a, button')) return;
+      const num = parseInt(row.dataset.appNum, 10);
       appDrawerNum = appDrawerNum === num ? null : num;
-      const app = allApps.find((a) => a.number === num);
-      renderAppDrawer(app || null);
-      el.querySelectorAll('.app-row').forEach((row) => {
-        row.classList.toggle('app-row--open', parseInt(row.dataset.appNum, 10) === appDrawerNum);
+      const layout = $('appsLayout');
+      if (layout) layout.classList.toggle('has-sidecar', appDrawerNum != null);
+      el.querySelectorAll('.app-row').forEach((r) => {
+        r.classList.toggle('app-row--open', parseInt(r.dataset.appNum, 10) === appDrawerNum);
       });
+      const app = allApps.find((a) => a.number === num);
+      renderAppSidecar(appDrawerNum != null ? app : null, allApps);
     });
   });
 
-  el.querySelectorAll('[data-open-report]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const reportId = btn.dataset.openReport;
-      const appNum = parseInt(btn.dataset.appNum, 10);
-      const app = allApps.find((a) => a.number === appNum);
-      openReportDrawer(reportId, app);
-    });
-  });
-
-  el.querySelectorAll('[data-preview-pdf]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      openPdfPreview(btn.dataset.previewPdf, btn.textContent);
-    });
-  });
-
-  const appByNum = new Map(list.map((a) => [a.number, a]));
-
-  el.querySelectorAll('[data-view-apply]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const app = [...appByNum.values()].find(
-        (a) => String(a.reportNumber) === btn.dataset.viewApply || a.number === parseInt(btn.dataset.viewApply, 10),
-      );
-      openApplyDraft(app?.reportNumber || btn.dataset.viewApply, app ? `${app.company} — ${app.role}` : undefined);
-    });
-  });
 }
 
-async function renderAppDrawer(app) {
-  const mount = $('appDrawerMount');
+async function renderAppSidecar(app, allApps) {
+  const mount = $('appSidecarMount');
   if (!mount) return;
   if (!app) {
     mount.innerHTML = '';
     return;
   }
 
+  const TABS = [
+    { id: 'report',   label: 'Report',      has: !!app.reportNumber },
+    { id: 'pdf',      label: 'PDF',         has: !!(app.hasPdf || app.pdfFilename) },
+    { id: 'answers',  label: 'Answers',     has: !!app.hasApplyDraft },
+    { id: 'email',    label: 'Email draft',  has: false },
+    { id: 'linkedin', label: 'LinkedIn DM',  has: false },
+  ];
+
+  if (!TABS.find(t => t.id === appSidecarTab)?.has) {
+    const first = TABS.find(t => t.has);
+    appSidecarTab = first ? first.id : 'report';
+  }
+
   mount.innerHTML = `
-    <aside class="app-drawer glass-card" aria-label="Job details">
-      <div class="app-drawer__head">
-        <h2 class="section-title">${esc(app.company)} — ${esc(app.role)}</h2>
-        <button type="button" class="btn btn--sm btn--ghost" data-close-drawer aria-label="Close">Close</button>
-      </div>
-      <p class="muted">Job #${app.number} · ${esc(formatTimeAgo(app.date))} · <span class="score-pill ${scoreClass(app.score)}">${esc(formatScore(app.score, app.scoreRaw))}</span></p>
-      <div class="app-drawer__actions">
-        ${app.reportNumber ? `<button type="button" class="btn btn--sm" data-drawer-report="${esc(app.reportNumber)}">View report</button>` : ''}
-        ${app.pdfFilename ? `<button type="button" class="btn btn--sm" data-drawer-pdf="${esc(app.pdfFilename)}">Preview resume</button>` : ''}
-        ${app.hasApplyDraft ? `<button type="button" class="btn btn--sm btn--primary" data-drawer-view-apply="${esc(app.reportNumber)}">See Answers</button>` : ''}
-        ${/^evaluated$/i.test(app.status) ? `<button type="button" class="btn btn--sm btn--success" data-drawer-mark-applied="${app.number}">✓ Mark Applied</button>` : ''}
-      </div>
-      ${app.selectedBullets ? `
-      <div class="app-drawer__bullets">
-        <h3 class="section-title" style="font-size:12px;margin:10px 0 6px">CV bullets used</h3>
-        <div style="display:flex;flex-wrap:wrap;gap:6px">
-          ${app.selectedBullets.split(',').map(b => `<span class="badge" title="Bullet ID from article-digest.md pool">${esc(b.trim())}</span>`).join('')}
+    <aside class="app-sidecar" aria-label="Application details" style="position:relative">
+      <div class="app-sidecar__header">
+        <button type="button" class="btn btn--sm btn--ghost app-sidecar__close" data-close-sidecar aria-label="Close">&times;</button>
+        <h2 class="app-sidecar__company">${esc(app.company)}</h2>
+        <p class="app-sidecar__role">${esc(app.role)}</p>
+        <div class="app-sidecar__meta">
+          <span class="status-pill status-pill--${app.norm}">${esc(app.status || '—')}</span>
+          <span class="score-tier--${scoreTier(app.score)}">${esc(formatScore(app.score, app.scoreRaw))}</span>
+          ${app.archetype ? `<span class="archetype-badge">${esc(app.archetype)}</span>` : ''}
+          ${/^evaluated$/i.test(app.status) ? `<button type="button" class="btn btn--sm btn--primary" data-sidecar-mark-applied="${app.number}">Mark Applied</button>` : ''}
         </div>
-      </div>` : ''}
-      <div id="appDrawerSummary" class="app-drawer__summary"><p class="loading">Loading summary…</p></div>
+      </div>
+      <nav class="app-sidecar__tabs">
+        ${TABS.map(t => `<button type="button" class="app-sidecar__tab${appSidecarTab === t.id ? ' is-active' : ''}" data-stab="${t.id}" ${t.has ? '' : 'disabled'}>${t.label}</button>`).join('')}
+      </nav>
+      <div class="app-sidecar__body" id="sidecarBody">
+        <p class="loading">Loading…</p>
+      </div>
     </aside>
   `;
 
-  mount.querySelector('[data-close-drawer]')?.addEventListener('click', () => {
+  mount.querySelector('[data-close-sidecar]')?.addEventListener('click', () => {
     appDrawerNum = null;
     mount.innerHTML = '';
-    document.querySelectorAll('.app-row--open').forEach((r) => r.classList.remove('app-row--open'));
+    $('appsLayout')?.classList.remove('has-sidecar');
+    document.querySelectorAll('.app-row--open').forEach(r => r.classList.remove('app-row--open'));
   });
 
-  mount.querySelector('[data-drawer-report]')?.addEventListener('click', () => {
-    openReportDrawer(app.reportNumber, app);
+  mount.querySelectorAll('[data-stab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      appSidecarTab = btn.dataset.stab;
+      mount.querySelectorAll('.app-sidecar__tab').forEach(t => t.classList.toggle('is-active', t.dataset.stab === appSidecarTab));
+      loadSidecarContent(app);
+    });
   });
 
-  mount.querySelector('[data-drawer-pdf]')?.addEventListener('click', (e) => {
-    openPdfPreview(e.target.dataset.drawerPdf, `${app.company} resume`);
-  });
-
-  mount.querySelector('[data-drawer-view-apply]')?.addEventListener('click', () => {
-    openApplyDraft(app.reportNumber, `${app.company} — ${app.role}`);
-  });
-
-  mount.querySelector('[data-drawer-mark-applied]')?.addEventListener('click', async (e) => {
+  mount.querySelector('[data-sidecar-mark-applied]')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.disabled = true;
     btn.textContent = 'Saving…';
     try {
       await patchApplication(app.number, { status: 'Applied' });
-      btn.textContent = '✓ Applied';
-      btn.classList.remove('btn--success');
+      btn.textContent = 'Applied';
       btn.classList.add('btn--ghost');
-      // sync the status label in the table row
-      const lbl = document.querySelector(`[data-status-num="${app.number}"]`);
-      if (lbl) { lbl.textContent = 'Applied'; lbl.style.color = statusColor('applied'); }
+      btn.classList.remove('btn--primary');
       showToast(`Job #${app.number} marked as Applied`);
-    } catch (err) {
+    } catch {
       btn.disabled = false;
-      btn.textContent = '✓ Mark Applied';
+      btn.textContent = 'Mark Applied';
       showToast('Failed to update status');
     }
   });
 
-  const sumEl = $('appDrawerSummary');
-  if (app.hasApplyDraft && app.reportNumber) {
-    try {
-      const data = await api(`/api/apply-drafts/${encodeURIComponent(app.reportNumber)}`);
-      if (sumEl) {
-        sumEl.innerHTML = `
-          <h3 class="section-title" style="font-size:12px;margin:0 0 8px">Application Answers</h3>
-          <div id="applyDraftInlineMount"></div>`;
-        mountMdViewer($('applyDraftInlineMount'), data.markdown, data.path);
-      }
-    } catch {
-      if (sumEl) sumEl.innerHTML = '<p class="muted">Could not load apply draft.</p>';
-    }
-  } else if (app.reportNumber) {
+  loadSidecarContent(app);
+}
+
+async function loadSidecarContent(app) {
+  const body = $('sidecarBody');
+  if (!body) return;
+
+  if (appSidecarTab === 'report' && app.reportNumber) {
+    body.innerHTML = '<p class="loading">Loading report…</p>';
     try {
       const data = await api(`/api/reports/${encodeURIComponent(app.reportNumber)}`);
-      const summary = typeof parseReportSummary === 'function' ? parseReportSummary(data.markdown) : null;
-      if (sumEl && summary) {
-        sumEl.innerHTML = renderReportSummaryCard(summary);
-      } else if (sumEl) {
-        sumEl.innerHTML = '<p class="muted">No summary available. Open the full report.</p>';
-      }
+      body.innerHTML = '<div id="sidecarReportMd"></div>';
+      mountMdViewer($('sidecarReportMd'), data.markdown, '');
     } catch {
-      if (sumEl) sumEl.innerHTML = '<p class="muted">Report not found.</p>';
+      body.innerHTML = '<div class="empty-state"><p>Report not found.</p></div>';
     }
+  } else if (appSidecarTab === 'pdf' && (app.hasPdf || app.pdfFilename)) {
+    const filename = app.pdfFilename || `${app.number}.pdf`;
+    body.innerHTML = `<iframe src="/api/pdf-preview/${encodeURIComponent(filename)}" style="width:100%;height:100%;border:none;border-radius:var(--r-sm)"></iframe>`;
+  } else if (appSidecarTab === 'answers' && app.hasApplyDraft) {
+    body.innerHTML = '<p class="loading">Loading answers…</p>';
+    try {
+      const data = await api(`/api/apply-drafts/${encodeURIComponent(app.reportNumber)}`);
+      body.innerHTML = '<div id="sidecarAnswersMd"></div>';
+      mountMdViewer($('sidecarAnswersMd'), data.markdown, data.path);
+    } catch {
+      body.innerHTML = '<div class="empty-state"><p>Could not load apply draft.</p></div>';
+    }
+  } else if (appSidecarTab === 'email') {
+    body.innerHTML = '<div class="empty-state"><p>Email draft not yet generated. Run the apply skill to create one.</p></div>';
+  } else if (appSidecarTab === 'linkedin') {
+    body.innerHTML = '<div class="empty-state"><p>LinkedIn DM draft not yet generated. Run the apply skill to create one.</p></div>';
   } else {
-    if (sumEl) sumEl.innerHTML = '<p class="muted">Evaluate this role to generate a report.</p>';
+    body.innerHTML = '<div class="empty-state"><p>Evaluate this role to generate outputs.</p></div>';
   }
 }
 

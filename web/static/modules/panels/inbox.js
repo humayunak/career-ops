@@ -1,6 +1,19 @@
 /** Inbox — portal scan triage, pending evaluate */
 
 let scanOffers = [];
+
+/** Location cell with remote-friendliness flag (worldwide-remote search) */
+function renderLocationCell(location) {
+  if (!location) return '—';
+  const loc = location.toLowerCase();
+  const remoteHints = ['remote', 'worldwide', 'anywhere', 'global', 'distributed', 'emea', 'apac'];
+  const isRemote = remoteHints.some((k) => loc.includes(k));
+  const badge = isRemote
+    ? '<span class="badge" style="background:color-mix(in srgb,var(--success) 12%,transparent);color:var(--success);margin-left:6px">remote</span>'
+    : '<span class="badge" style="background:color-mix(in srgb,var(--warning) 12%,transparent);color:var(--warning);margin-left:6px" title="Location does not look worldwide-remote — verify before adding">check geo</span>';
+  return `${esc(location)}${badge}`;
+}
+
 let selectedScan = new Set();
 
 async function loadInboxPanel() {
@@ -14,35 +27,26 @@ async function loadInboxPanel() {
     const pending = snap.pipelinePending || [];
 
     root.innerHTML = `
-      <div class="panel-intro">
-        <p>Jobs waiting for evaluation. Add new roles with <strong>/career-ops intake</strong> in your assistant, or use portal scan below.</p>
-      </div>
-      <div class="workflow-strip glass-card" role="list">
-        <div class="workflow-step"><span class="workflow-step__n">${wf.inbox ?? pending.length}</span><span>Inbox</span></div>
-        <div class="workflow-step__arrow">→</div>
-        <div class="workflow-step"><span class="workflow-step__n">${wf.evaluated ?? 0}</span><span>Evaluated</span></div>
-        <div class="workflow-step__arrow">→</div>
-        <div class="workflow-step"><span class="workflow-step__n">${wf.reports ?? 0}</span><span>Reports</span></div>
-        <div class="workflow-step__arrow">→</div>
-        <div class="workflow-step"><span class="workflow-step__n">${wf.pdfs ?? 0}</span><span>Resumes</span></div>
-      </div>
+      <section class="glass-card">
+        <h2 class="section-title">Input channels</h2>
+        <p class="muted" style="margin-bottom:12px">Connected sources that feed jobs into your inbox.</p>
+        <div class="channel-grid" id="channelGrid"></div>
+      </section>
 
       <section class="glass-card" style="margin-top:16px">
         <div class="section-head">
-          <h2 class="section-title">Portal scan</h2>
+          <h2 class="section-title">Scan results</h2>
           <div class="section-head__actions">
             <button type="button" class="btn btn--sm" id="btnScanPreview">Preview scan</button>
             <button type="button" class="btn btn--sm btn--primary" id="btnScanRun">Run scan</button>
-            <button type="button" class="btn btn--sm btn--ghost" data-goto-portals>Portals settings</button>
           </div>
         </div>
-        <p class="muted">Uses enabled companies and filters from <strong>Sources → Portals</strong>. Preview first, then run to add matches here.</p>
         <div id="scanTriageMount"></div>
       </section>
 
       <section class="glass-card" style="margin-top:16px">
         <div class="section-head">
-          <h2 class="section-title">Ready to evaluate</h2>
+          <h2 class="section-title">Ready to evaluate (${pending.length})</h2>
           <button type="button" class="btn btn--sm" id="copyPipelineCmd">Copy batch evaluate prompt</button>
         </div>
         <div id="pipelineList"></div>
@@ -55,13 +59,83 @@ async function loadInboxPanel() {
       await copyText(pipelinePrompt());
       showToast('Batch evaluate prompt copied');
     });
-    root.querySelector('[data-goto-portals]')?.addEventListener('click', () => switchPanel('portals'));
 
+    renderChannelGrid(snap);
     renderScanTriage();
     renderPipelineList(pending);
   } catch (e) {
     root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
   }
+}
+
+function renderChannelGrid(snap) {
+  const grid = $('channelGrid');
+  if (!grid) return;
+
+  const portals = snap.portals || {};
+  const enabledCo = portals.enabledCount || 0;
+  const totalCo = portals.totalCount || 0;
+
+  const channels = [
+    {
+      name: 'API Scanner',
+      desc: `Greenhouse, Ashby, Lever APIs`,
+      status: enabledCo > 0 ? 'active' : 'inactive',
+      detail: `${enabledCo}/${totalCo} companies enabled`,
+      action: () => switchPanel('discovery'),
+      actionLabel: 'Configure',
+    },
+    {
+      name: 'Apify',
+      desc: 'LinkedIn Jobs Scraper actor',
+      status: 'configured',
+      detail: 'curious_coder/linkedin-jobs-scraper',
+      link: 'https://console.apify.com/',
+      actionLabel: 'Open Apify',
+    },
+    {
+      name: 'LinkedIn Import',
+      desc: 'Manual URL paste or DM links',
+      status: 'manual',
+      detail: 'Paste URLs via /career-ops intake',
+      actionLabel: 'How to use',
+    },
+    {
+      name: 'Email',
+      desc: 'Gmail recruiter thread import',
+      status: 'available',
+      detail: 'MCP connector available',
+      actionLabel: 'Connect',
+    },
+  ];
+
+  const statusIcon = (s) => {
+    switch (s) {
+      case 'active': return '<span class="channel-dot channel-dot--on"></span>';
+      case 'configured': return '<span class="channel-dot channel-dot--on"></span>';
+      case 'manual': return '<span class="channel-dot channel-dot--dim"></span>';
+      default: return '<span class="channel-dot"></span>';
+    }
+  };
+
+  grid.innerHTML = channels.map(ch => `
+    <div class="channel-card glass-card">
+      <div class="channel-card__head">
+        ${statusIcon(ch.status)}
+        <strong>${esc(ch.name)}</strong>
+      </div>
+      <p class="muted" style="font-size:0.8125rem;margin:4px 0">${esc(ch.desc)}</p>
+      <p style="font-size:0.75rem;color:var(--muted-soft)">${esc(ch.detail)}</p>
+      ${ch.link ? `<a href="${esc(ch.link)}" target="_blank" rel="noopener" class="btn btn--sm btn--ghost" style="margin-top:8px">${esc(ch.actionLabel)}</a>` : ''}
+      ${ch.action ? `<button type="button" class="btn btn--sm btn--ghost channel-action" style="margin-top:8px">${esc(ch.actionLabel)}</button>` : ''}
+      ${!ch.link && !ch.action ? `<span class="muted" style="font-size:0.75rem;margin-top:8px;display:block">${esc(ch.actionLabel)}</span>` : ''}
+    </div>
+  `).join('');
+
+  const actionChannels = channels.filter(c => c.action);
+  grid.querySelectorAll('.channel-action').forEach((btn, i) => {
+    if (actionChannels[i]?.action) btn.addEventListener('click', actionChannels[i].action);
+  });
 }
 
 function renderScanTriage() {
@@ -88,7 +162,7 @@ function renderScanTriage() {
               <td><input type="checkbox" data-scan-idx="${i}" ${selectedScan.has(i) ? 'checked' : ''} aria-label="Select"></td>
               <td>${esc(o.company)}</td>
               <td>${esc(o.title)}</td>
-              <td class="muted">${esc(o.location || '—')}</td>
+              <td class="muted">${renderLocationCell(o.location)}</td>
               <td>${o.url ? `<a class="ext-link" href="${esc(o.url)}" target="_blank" rel="noopener">Open</a>` : '—'}</td>
             </tr>`,
             )
