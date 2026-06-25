@@ -1,4 +1,12 @@
-/** Shared utilities — Career-Ops Web (Catppuccin) */
+/** Shared utilities — Northstar OS Web */
+
+const CO_ICONS = {
+  arrow: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>`,
+};
+
+function coIcon(name, cls = '') {
+  return `<span class="co-icon${cls ? ` ${cls}` : ''}" aria-hidden="true">${CO_ICONS[name] || ''}</span>`;
+}
 
 function $(id) {
   return document.getElementById(id);
@@ -56,18 +64,44 @@ function formatScore(score, raw) {
   return raw || '—';
 }
 
+/** Relative time from YYYY-MM-DD (or ISO) — e.g. "3 hr ago", "2 days ago" */
+function formatTimeAgo(dateStr) {
+  if (!dateStr) return '—';
+  const raw = String(dateStr).trim();
+  const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(raw) ? `${raw}T12:00:00` : raw);
+  if (Number.isNaN(d.getTime())) return raw;
+
+  const sec = Math.floor((Date.now() - d.getTime()) / 1000);
+  if (sec < 45) return 'just now';
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min} min ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr} hr ago`;
+  const day = Math.floor(hr / 24);
+  if (day === 1) return '1 day ago';
+  if (day < 7) return `${day} days ago`;
+  const week = Math.floor(day / 7);
+  if (week === 1) return '1 wk ago';
+  if (week < 5) return `${week} wk ago`;
+  const month = Math.floor(day / 30);
+  if (month === 1) return '1 mo ago';
+  if (month < 12) return `${month} mo ago`;
+  const year = Math.floor(day / 365);
+  return year === 1 ? '1 yr ago' : `${year} yr ago`;
+}
+
 function statusColor(norm) {
   const map = {
-    evaluated: 'var(--ctp-blue)',
-    applied: 'var(--ctp-green)',
-    responded: 'var(--ctp-sky)',
-    interview: 'var(--ctp-mauve)',
-    offer: 'var(--ctp-yellow)',
-    rejected: 'var(--ctp-red)',
-    discarded: 'var(--ctp-overlay)',
-    skip: 'var(--ctp-peach)',
+    evaluated: 'var(--status-info)',
+    applied: 'var(--success)',
+    responded: 'var(--status-info)',
+    interview: 'var(--status-highlight)',
+    offer: 'var(--warning)',
+    rejected: 'var(--error)',
+    discarded: 'var(--text-faint)',
+    skip: 'var(--accent-text)',
   };
-  return map[norm] || 'var(--ctp-subtext)';
+  return map[norm] || 'var(--text-muted)';
 }
 
 function initMarked() {
@@ -137,7 +171,7 @@ function openPdfPreview(filename, title) {
   const openLink = $('pdfModalOpen');
   if (!modal || !frame) return;
 
-  const url = `/api/output/${encodeURIComponent(filename)}`;
+  const url = `/api/output/${filename.split('/').map(encodeURIComponent).join('/')}`;
   frame.src = url;
   if (heading) heading.textContent = title || filename;
   if (openLink) openLink.href = url;
@@ -192,6 +226,16 @@ async function openApplyDraft(reportNumber, title) {
 
 function closeApplyModal() {
   const modal = $('applyModal');
+  if (modal) {
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+  }
+}
+
+function closeTemplatePreview() {
+  const modal = $('templatePreviewModal');
+  const frame = $('templatePreviewFrame');
+  if (frame) frame.src = 'about:blank';
   if (modal) {
     modal.hidden = true;
     modal.setAttribute('aria-hidden', 'true');

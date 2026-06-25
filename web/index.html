@@ -3,117 +3,196 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Career-Ops</title>
+  <title>Northstar OS</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('career-ops-theme') || 'system';
+        var dark =
+          t === 'dark' ||
+          (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (dark) document.documentElement.classList.add('dark');
+      } catch (e) {}
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="static/favicon.svg">
   <link rel="stylesheet" href="static/shell.css">
 </head>
 <body>
-  <div class="ambient" aria-hidden="true">
-    <div class="ambient__blob ambient__blob--1"></div>
-    <div class="ambient__blob ambient__blob--2"></div>
-    <div class="ambient__grid"></div>
-  </div>
-
   <div id="app" class="app-shell">
     <aside class="sidebar" aria-label="Main navigation">
-      <div class="sidebar__inner">
-        <div class="sidebar__brand">
-          <span class="sidebar__logo">CO</span>
-          <div>
-            <div class="sidebar__name">Career-Ops</div>
-            <div class="sidebar__tag" id="sidebarVersion">Job search</div>
-          </div>
-        </div>
+      <!-- brand -->
+      <div class="side-top">
+        <span class="side-brand">
+          <svg class="star-mark" width="20" height="20" viewBox="0 0 24 24" fill="none" style="color:var(--ink)" aria-hidden="true">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="currentColor"/>
+          </svg>
+          <span>Northstar OS</span>
+        </span>
+        <span class="side-version" id="sidebarVersion"></span>
+      </div>
 
-        <nav class="sidebar-nav">
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Home</span>
-            <button type="button" class="sidebar-nav__item is-active" data-panel="overview">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
-              <span class="sidebar-nav__label-text">Overview</span>
-            </button>
-          </div>
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Jobs</span>
-            <button type="button" class="sidebar-nav__item" data-panel="inbox">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12H2l3-7h14l3 7z"/><path d="M5 12v7h14v-7"/></svg></span>
-              <span class="sidebar-nav__label-text">Inbox</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="applications">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
-              <span class="sidebar-nav__label-text">Applications</span>
-            </button>
-          </div>
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Insights</span>
-            <button type="button" class="sidebar-nav__item" data-panel="reports">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></span>
-              <span class="sidebar-nav__label-text">Reports</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="patterns">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 5-9"/></svg></span>
-              <span class="sidebar-nav__label-text">Patterns</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="followups">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
-              <span class="sidebar-nav__label-text">Follow-ups</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="interviewprep">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span>
-              <span class="sidebar-nav__label-text">Interview prep</span>
-            </button>
-          </div>
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Sources</span>
-            <button type="button" class="sidebar-nav__item" data-panel="discovery">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg></span>
-              <span class="sidebar-nav__label-text">Discovery</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="linkedin">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v2"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></span>
-              <span class="sidebar-nav__label-text">LinkedIn</span>
-            </button>
-          </div>
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">You</span>
-            <button type="button" class="sidebar-nav__item" data-panel="profile">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a6 6 0 0 1 12 0v2"/></svg></span>
-              <span class="sidebar-nav__label-text">Profile</span>
-            </button>
-          </div>
-          <div class="sidebar-nav__group">
-            <span class="sidebar-nav__label">Help</span>
-            <button type="button" class="sidebar-nav__item" data-panel="workflow">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h16"/></svg></span>
-              <span class="sidebar-nav__label-text">How it works</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="commands">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span>
-              <span class="sidebar-nav__label-text">AI commands</span>
-            </button>
-            <button type="button" class="sidebar-nav__item" data-panel="runs">
-              <span class="sidebar-nav__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></span>
-              <span class="sidebar-nav__label-text">Maintenance</span>
-            </button>
-          </div>
+      <!-- scrollable nav -->
+      <div class="side-scroll">
+        <nav>
+          <button type="button" class="nav-item is-active" data-panel="overview">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+            <span>Overview</span>
+          </button>
         </nav>
 
-        <p class="sidebar__footer">Use <kbd>Refresh</kbd> to sync after working in your AI assistant.</p>
+        <div class="side-section"><span class="eyebrow">Jobs</span></div>
+        <nav>
+          <button type="button" class="nav-item" data-panel="inbox">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 12H2l3-7h14l3 7z"/><path d="M5 12v7h14v-7"/></svg>
+            <span>Inbox</span>
+            <span class="nav-count" id="navCountInbox"></span>
+          </button>
+          <button type="button" class="nav-item" data-panel="applications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <span>Applications</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="reports">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
+            <span>Reports</span>
+          </button>
+        </nav>
+
+        <div class="side-section"><span class="eyebrow">Insights</span></div>
+        <nav>
+          <button type="button" class="nav-item" data-panel="patterns">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 5-9"/></svg>
+            <span>Patterns</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="followups">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Follow-ups</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="interviewprep">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Interview prep</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="mindmap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="2.5"/><circle cx="5" cy="5" r="2"/><circle cx="19" cy="5" r="2"/><circle cx="5" cy="19" r="2"/><circle cx="19" cy="19" r="2"/><path d="M10.2 10.2L6.4 6.4M13.8 10.2l3.8-3.8M10.2 13.8l-3.8 3.8M13.8 13.8l3.8 3.8"/></svg>
+            <span>Mind map</span>
+          </button>
+        </nav>
+
+        <div class="side-section"><span class="eyebrow">Sources</span></div>
+        <nav>
+          <button type="button" class="nav-item" data-panel="discovery">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span>Discovery</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="linkedin">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-13h4v2"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            <span>LinkedIn</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="portals">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>Portals (legacy)</span>
+          </button>
+        </nav>
+
+        <div class="side-section"><span class="eyebrow">You</span></div>
+        <nav>
+          <button type="button" class="nav-item" data-panel="baseresumes">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+            <span>Base resumes</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="templates">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M3 9h18M7 21h10"/><path d="M12 14v7"/></svg>
+            <span>Resume templates</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="profile">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+            <span>Profile</span>
+          </button>
+        </nav>
+
+        <div class="side-section"><span class="eyebrow">Help</span></div>
+        <nav>
+          <button type="button" class="nav-item" data-panel="workflow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h10M4 18h16"/></svg>
+            <span>How it works</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="commands">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+            <span>AI commands</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="runs">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Maintenance</span>
+          </button>
+          <button type="button" class="nav-item" data-panel="files">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+            <span>Files</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- user chip footer -->
+      <div class="side-foot">
+        <button type="button" class="user-chip" id="userChip" aria-haspopup="true" aria-expanded="false">
+          <span class="avatar" id="userAvatar">HA</span>
+          <span class="user-meta">
+            <span class="user-nm" id="userName">Humayun Akbar</span>
+            <span class="user-rl" id="userRole">AI Solutions Engineer</span>
+          </span>
+          <svg class="user-chip-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M18 15l-6-6-6 6"/></svg>
+        </button>
       </div>
     </aside>
 
+    <!-- settings popup (portal-rendered above sidebar) -->
+    <div class="side-popup" id="sidePopup" hidden aria-label="User menu">
+      <div class="side-menu">
+        <div class="side-menu-head">
+          <span class="avatar sm" id="popupAvatar">HA</span>
+          <span>
+            <div class="side-menu-nm" id="popupName">Humayun Akbar</div>
+            <div class="side-menu-em" id="popupRole">AI Solutions Engineer</div>
+          </span>
+        </div>
+        <div class="side-menu-sep"></div>
+        <button type="button" class="side-menu-item" data-panel="profile" data-close-popup>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile &amp; settings
+        </button>
+        <button type="button" class="side-menu-item" id="popupThemeBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2"/></svg>
+          Toggle theme
+        </button>
+        <div class="side-menu-sep"></div>
+        <button type="button" class="side-menu-item" id="popupRefreshBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Refresh data
+          <span class="side-menu-sc">⌘R</span>
+        </button>
+      </div>
+    </div>
+
     <div class="app-main">
       <header class="topbar">
-        <div>
+        <div class="topbar__lead">
           <h1 class="topbar__title" id="topbarTitle">Overview</h1>
-          <p class="topbar__meta" id="topbarMeta">Home · Career-Ops</p>
+          <p class="topbar__meta" id="topbarMeta">Home · Northstar OS</p>
         </div>
         <div class="topbar__actions">
-          <button type="button" class="btn btn--ghost" id="btnRefresh">Refresh</button>
+          <button type="button" class="icon-btn" id="btnTheme" aria-label="Switch to dark mode" aria-pressed="false">
+            <span class="icon-btn__glyph icon-btn__glyph--sun" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+            </span>
+            <span class="icon-btn__glyph icon-btn__glyph--moon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+          </button>
+          <button type="button" class="icon-btn" id="btnRefresh" aria-label="Refresh data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>
+          </button>
         </div>
       </header>
-
-      <main class="main-scroll">
+      <main class="main-scroll" id="mainScroll">
         <section id="mainOverview" class="main-view is-active" aria-label="Overview">
           <div id="overviewRoot"></div>
         </section>
@@ -122,9 +201,6 @@
         </section>
         <section id="mainApplications" class="main-view" aria-label="Applications" hidden>
           <div id="applicationsRoot"></div>
-        </section>
-        <section id="mainReports" class="main-view" aria-label="Reports" hidden>
-          <div id="reportsRoot"></div>
         </section>
         <section id="mainPatterns" class="main-view" aria-label="Patterns" hidden>
           <div id="patternsRoot"></div>
@@ -141,6 +217,12 @@
         <section id="mainLinkedin" class="main-view" aria-label="LinkedIn" hidden>
           <div id="linkedinRoot"></div>
         </section>
+        <section id="mainBaseResumes" class="main-view" aria-label="Base resumes" hidden>
+          <div id="baseResumesRoot"></div>
+        </section>
+        <section id="mainTemplates" class="main-view" aria-label="Resume templates" hidden>
+          <div id="templatesRoot"></div>
+        </section>
         <section id="mainProfile" class="main-view" aria-label="Profile" hidden>
           <div id="profileRoot"></div>
         </section>
@@ -153,31 +235,75 @@
         <section id="mainRuns" class="main-view" aria-label="Maintenance" hidden>
           <div id="runsRoot"></div>
         </section>
+        <section id="mainReports" class="main-view" aria-label="Reports" hidden>
+          <div id="reportsRoot"></div>
+        </section>
+        <section id="mainMindmap" class="main-view" aria-label="Mind map" hidden>
+          <div id="mindmapRoot"></div>
+        </section>
+        <section id="mainPortals" class="main-view" aria-label="Portals (legacy)" hidden>
+          <div id="portalsRoot"></div>
+        </section>
+        <section id="mainFiles" class="main-view" aria-label="Files" hidden>
+          <div id="filesRoot"></div>
+        </section>
       </main>
+    </div>
+  </div>
+
+  <!-- Report side drawer -->
+  <div id="reportDrawer" class="report-drawer" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="reportDrawerTitle">
+    <div class="report-drawer__backdrop" data-close-report-drawer></div>
+    <div class="report-drawer__panel">
+      <header class="report-drawer__header">
+        <div class="report-drawer__header-meta">
+          <h2 class="report-drawer__title" id="reportDrawerTitle">Report</h2>
+          <p class="report-drawer__subtitle" id="reportDrawerSubtitle"></p>
+        </div>
+        <div class="report-drawer__header-actions">
+          <a id="reportDrawerLink" class="btn btn--sm btn--ghost" href="#" target="_blank" rel="noopener" hidden>Open job</a>
+          <button type="button" class="btn btn--sm btn--ghost" data-close-report-drawer aria-label="Close">Close</button>
+        </div>
+      </header>
+      <div class="report-drawer__summary" id="reportDrawerSummary"></div>
+      <div class="report-drawer__body" id="reportDrawerBody"></div>
     </div>
   </div>
 
   <div id="pdfModal" class="pdf-modal" hidden aria-hidden="true">
     <div class="pdf-modal__backdrop" data-close-pdf></div>
-    <div class="pdf-modal__panel glass-card" role="dialog" aria-labelledby="pdfModalTitle">
+    <div class="pdf-modal__panel glass-card" role="dialog" aria-modal="true" aria-labelledby="pdfModalTitle">
       <header class="pdf-modal__header">
         <h2 id="pdfModalTitle" class="pdf-modal__title">Resume PDF</h2>
         <div class="pdf-modal__actions">
           <a id="pdfModalOpen" class="btn btn--sm btn--ghost" href="#" target="_blank" rel="noopener">Open tab</a>
-          <button type="button" class="btn btn--sm" data-close-pdf aria-label="Close">Close</button>
+          <button type="button" class="btn btn--sm btn--ghost" data-close-pdf aria-label="Close">Close</button>
         </div>
       </header>
       <iframe id="pdfModalFrame" class="pdf-modal__frame" title="PDF preview"></iframe>
     </div>
   </div>
 
+  <div id="templatePreviewModal" class="pdf-modal" hidden aria-hidden="true">
+    <div class="pdf-modal__backdrop" data-close-template-preview></div>
+    <div class="pdf-modal__panel glass-card" role="dialog" aria-modal="true" aria-labelledby="templatePreviewTitle">
+      <header class="pdf-modal__header">
+        <h2 id="templatePreviewTitle" class="pdf-modal__title">Template preview</h2>
+        <div class="pdf-modal__actions">
+          <button type="button" class="btn btn--sm btn--ghost" data-close-template-preview aria-label="Close">Close</button>
+        </div>
+      </header>
+      <iframe id="templatePreviewFrame" class="pdf-modal__frame" title="Template preview"></iframe>
+    </div>
+  </div>
+
   <div id="applyModal" class="pdf-modal" hidden aria-hidden="true">
     <div class="pdf-modal__backdrop" data-close-apply></div>
-    <div class="pdf-modal__panel glass-card pdf-modal__panel--wide" role="dialog" aria-labelledby="applyModalTitle">
+    <div class="pdf-modal__panel glass-card pdf-modal__panel--wide" role="dialog" aria-modal="true" aria-labelledby="applyModalTitle">
       <header class="pdf-modal__header">
         <h2 id="applyModalTitle" class="pdf-modal__title">Application answers</h2>
         <div class="pdf-modal__actions">
-          <button type="button" class="btn btn--sm" data-close-apply aria-label="Close">Close</button>
+          <button type="button" class="btn btn--sm btn--primary" data-close-apply aria-label="Close">Done</button>
         </div>
       </header>
       <div id="applyModalBody" class="apply-modal__body"></div>
@@ -200,8 +326,14 @@
   <script src="static/modules/panels/interview-prep.js"></script>
   <script src="static/modules/panels/discovery.js"></script>
   <script src="static/modules/panels/linkedin.js"></script>
+  <script src="static/modules/panels/base-resumes.js"></script>
+  <script src="static/modules/panels/templates.js"></script>
   <script src="static/modules/panels/profile.js"></script>
   <script src="static/modules/panels/runs.js"></script>
+  <script src="static/modules/panels/portals.js"></script>
+  <script src="static/modules/panels/mindmap.js"></script>
+  <script src="static/modules/panels/files.js"></script>
+  <script src="static/theme.js"></script>
   <script src="static/router.js"></script>
   <script src="static/boot.js"></script>
 </body>

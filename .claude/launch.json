@@ -5,7 +5,8 @@
       "name": "career-ops-web",
       "runtimeExecutable": "node",
       "runtimeArgs": ["web/serve-web.mjs"],
-      "port": 8793
+      "port": 8793,
+      "autoPort": false
     }
   ]
 }

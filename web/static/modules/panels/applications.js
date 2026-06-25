@@ -2,6 +2,7 @@
 
 const APP_TABS = [
   { id: 'all', label: 'All' },
+  { id: 'inbox', label: 'Inbox' },
   { id: 'evaluated', label: 'Evaluated' },
   { id: 'applied', label: 'Applied' },
   { id: 'interview', label: 'Interview' },
@@ -13,8 +14,9 @@ const APP_TABS = [
 
 let appFilterTab = 'all';
 let appSearch = '';
-let appCompareSelected = new Set();
 let appDrawerNum = null;
+let appSortCol = 'score';
+let appSortAsc = false;
 
 function normalizeStatus(raw) {
   let s = (raw || '').replace(/\*\*/g, '').trim().toLowerCase();
@@ -28,12 +30,16 @@ function normalizeStatus(raw) {
   if (s.includes('rejected')) return 'rejected';
   if (s.includes('discarded') || s.includes('descartado')) return 'discarded';
   if (s.includes('evaluated') || s.includes('evaluada')) return 'evaluated';
+  if (s === 'inbox') return 'inbox';
   return s;
 }
 
 function filterApps(apps) {
   let list = apps.map((a) => ({ ...a, norm: normalizeStatus(a.status) }));
   switch (appFilterTab) {
+    case 'inbox':
+      list = list.filter((a) => a.norm === 'inbox');
+      break;
     case 'evaluated':
       list = list.filter((a) => a.norm === 'evaluated');
       break;
@@ -64,7 +70,10 @@ function filterApps(apps) {
       (a) =>
         a.company.toLowerCase().includes(q) ||
         a.role.toLowerCase().includes(q) ||
-        (a.notes || '').toLowerCase().includes(q),
+        (a.notes || '').toLowerCase().includes(q) ||
+        (a.recruiterName || '').toLowerCase().includes(q) ||
+        (a.location || '').toLowerCase().includes(q) ||
+        (a.archetype || '').toLowerCase().includes(q),
     );
   }
   return list.sort((a, b) => (b.score || 0) - (a.score || 0));
@@ -93,7 +102,6 @@ async function loadApplicationsPanel() {
           <span class="sr-only">Search applications</span>
           <input type="search" class="search-input" id="appSearchInput" placeholder="Search company, role, notes…" value="${esc(appSearch)}">
         </label>
-        <button type="button" class="btn btn--sm" id="btnCompareApps" disabled>Compare selected (0)</button>
       </div>
       <div id="applicationsTable"></div>
       <div id="appDrawerMount"></div>
@@ -112,20 +120,6 @@ async function loadApplicationsPanel() {
       renderApplicationsTable(filterApps(apps), apps);
     });
 
-    $('btnCompareApps')?.addEventListener('click', async () => {
-      const selected = apps.filter((a) => appCompareSelected.has(a.number));
-      if (selected.length < 2) {
-        showToast('Select at least 2 applications to compare');
-        return;
-      }
-      if (selected.length > 3) {
-        showToast('Select at most 3 applications');
-        return;
-      }
-      await copyText(comparePrompt(selected));
-      showToast('Compare prompt copied — paste in your AI assistant');
-    });
-
     renderApplicationsTable(filterApps(apps), apps);
     if (appDrawerNum != null) {
       const app = apps.find((a) => a.number === appDrawerNum);
@@ -136,12 +130,36 @@ async function loadApplicationsPanel() {
   }
 }
 
-function updateCompareButton() {
-  const btn = $('btnCompareApps');
-  if (!btn) return;
-  const n = appCompareSelected.size;
-  btn.disabled = n < 2;
-  btn.textContent = `Compare selected (${n})`;
+function scoreTier(s) {
+  if (s >= 4) return 'high';
+  if (s >= 3) return 'mid';
+  return 'low';
+}
+
+function nextAction(a) {
+  const s = normalizeStatus(a.status);
+  if (s === 'interview' || s === 'offer') return { text: 'Prep interview', due: true };
+  if (s === 'applied') return { text: a.followUpDate || 'Follow up', due: !!a.followUpDate };
+  if (s === 'evaluated') return { text: a.hasPdf ? 'Apply' : 'Generate PDF', due: true };
+  if (s === 'inbox') return { text: 'Evaluate', due: false };
+  return { text: '—', due: false };
+}
+
+function sortApps(list) {
+  const dir = appSortAsc ? 1 : -1;
+  return [...list].sort((a, b) => {
+    switch (appSortCol) {
+      case 'company': return dir * (a.company || '').localeCompare(b.company || '');
+      case 'status': return dir * (a.norm || '').localeCompare(b.norm || '');
+      case 'score': return dir * ((a.score || 0) - (b.score || 0));
+      default: return dir * ((a.score || 0) - (b.score || 0));
+    }
+  });
+}
+
+function sortArrow(col) {
+  if (appSortCol !== col) return '<span class="sort-arrow">↕</span>';
+  return `<span class="sort-arrow active">${appSortAsc ? '↑' : '↓'}</span>`;
 }
 
 function renderApplicationsTable(list, allApps) {
@@ -149,121 +167,80 @@ function renderApplicationsTable(list, allApps) {
   if (!el) return;
 
   if (!list.length) {
-    el.innerHTML = '<div class="empty-state"><p>No applications match this filter.</p></div>';
-    updateCompareButton();
+    el.innerHTML = '<div class="empty-state"><p class="empty-state__msg">No applications match this filter.</p><p class="empty-state__hint">Try a different tab or search term.</p></div>';
     return;
   }
 
+  const sorted = sortApps(list);
+
   el.innerHTML = `
-    <div class="table-wrap">
-      <table class="data-table data-table--apps">
+    <div class="table-wrap table-wrap--scroll">
+      <table class="data-table data-table--hero">
         <thead>
           <tr>
-            <th class="col-check"><input type="checkbox" data-select-all aria-label="Select all for compare"></th>
-            <th>#</th><th>Date</th><th>Company</th><th>Role</th><th>Score</th><th>Status</th><th>Notes</th><th>PDF</th><th>Report</th><th>Apply</th>
+            <th class="col-num">#</th>
+            <th class="col-company" data-sort="company">Company / Role ${sortArrow('company')}</th>
+            <th class="col-status" data-sort="status">Status ${sortArrow('status')}</th>
+            <th class="col-score" data-sort="score">Score ${sortArrow('score')}</th>
+            <th class="col-arch">Archetype</th>
+            <th class="col-next">Next</th>
+            <th class="col-report">Report</th>
+            <th class="col-pdf">PDF</th>
+            <th class="col-apply">Apply</th>
           </tr>
         </thead>
         <tbody>
-          ${list
-            .map(
-              (a) => `
+          ${sorted
+            .map((a) => {
+              const na = nextAction(a);
+              return `
             <tr data-app-num="${a.number}" class="app-row${appDrawerNum === a.number ? ' app-row--open' : ''}">
-              <td class="col-check">
-                <input type="checkbox" data-compare="${a.number}" aria-label="Select for compare" ${appCompareSelected.has(a.number) ? 'checked' : ''}>
+              <td class="col-num"><button type="button" class="link-btn" data-open-drawer="${a.number}">${a.number}</button></td>
+              <td class="col-company">
+                <div class="app-cell-stack">
+                  <span class="app-cell-stack__company" title="${esc(a.company)}">${a.companyUrl ? `<a href="${esc(a.companyUrl)}" target="_blank" rel="noopener" class="link-btn">${esc(a.company)}</a>` : esc(a.company)}</span>
+                  <span class="app-cell-stack__role" title="${esc(a.role)}">${a.url ? `<a href="${esc(a.url)}" target="_blank" rel="noopener">${esc(a.role)}</a>` : esc(a.role)}</span>
+                </div>
               </td>
-              <td><button type="button" class="link-btn" data-open-drawer="${a.number}">${a.number}</button></td>
-              <td>${esc(a.date)}</td>
-              <td>${esc(a.company)}</td>
-              <td>${esc(a.role)}</td>
-              <td><span class="score-pill ${scoreClass(a.score)}">${esc(formatScore(a.score, a.scoreRaw))}</span></td>
-              <td>
-                <select class="status-select" data-status-num="${a.number}" aria-label="Status for ${esc(a.company)}">
-                  ${statusSelectOptions(a.status)}
-                </select>
-              </td>
-              <td class="notes-cell">
-                <input type="text" class="notes-input" data-notes-num="${a.number}" value="${esc(a.notes || '')}" placeholder="Notes…">
-              </td>
-              <td>${
+              <td class="col-status"><span class="status-pill status-pill--${a.norm}">${esc(a.status || '—')}</span></td>
+              <td class="col-score"><span class="score-tier--${scoreTier(a.score)}">${esc(formatScore(a.score, a.scoreRaw))}</span></td>
+              <td class="col-arch">${a.archetype ? `<span class="archetype-badge">${esc(a.archetype)}</span>` : '<span class="muted">—</span>'}</td>
+              <td class="col-next"><span class="next-action-cell${na.due ? ' next-action-cell--due' : ''}">${esc(na.text)}</span></td>
+              <td class="col-report">${
+                a.reportNumber
+                  ? `<button type="button" class="app-report-link" data-open-report="${esc(a.reportNumber)}" data-app-num="${a.number}" title="Open report #${esc(a.reportNumber)}">${coIcon('arrow')}<span>#${esc(a.reportNumber)}</span></button>`
+                  : '<span class="muted">—</span>'
+              }</td>
+              <td class="col-pdf">${
                 a.pdfFilename
                   ? `<button type="button" class="link-btn" data-preview-pdf="${esc(a.pdfFilename)}">Preview</button>`
                   : a.hasPdf
                     ? '<span class="muted">✓</span>'
-                    : '—'
+                    : '<span class="muted">—</span>'
               }</td>
-              <td>${a.reportNumber ? `<button type="button" class="link-btn" data-goto-report="${esc(a.reportNumber)}">#${esc(a.reportNumber)}</button>` : '—'}</td>
-              <td class="app-actions">
+              <td class="col-apply app-actions">
                 ${
-                  a.reportNumber
-                    ? `<button type="button" class="btn btn--sm" data-copy-apply="${esc(a.reportNumber)}">Copy answers</button>
-                       ${
-                         a.hasApplyDraft
-                           ? `<button type="button" class="btn btn--sm btn--primary" data-view-apply="${esc(a.reportNumber)}">View answers</button>`
-                           : `<span class="muted app-actions__pending">—</span>`
-                       }`
-                    : '—'
+                  a.hasApplyDraft
+                    ? `<button type="button" class="btn btn--sm btn--primary" data-view-apply="${esc(a.reportNumber || a.number)}">See Answers</button>`
+                    : '<span class="muted app-actions__pending">—</span>'
                 }
               </td>
-            </tr>`,
-            )
+            </tr>`;
+            })
             .join('')}
         </tbody>
       </table>
     </div>
   `;
 
-  const maxCompare = 3;
-  const compareHeader = el.querySelector('[data-select-all]');
-
-  const syncCompareHeader = () => {
-    if (!compareHeader) return;
-    const rows = [...el.querySelectorAll('[data-compare]')];
-    const checked = rows.filter((cb) => cb.checked);
-    compareHeader.checked = rows.length > 0 && checked.length === rows.length;
-    compareHeader.indeterminate = checked.length > 0 && checked.length < rows.length;
-  };
-
-  const applyCompareRow = (cb, checked) => {
-    const num = parseInt(cb.dataset.compare, 10);
-    if (checked) {
-      if (appCompareSelected.size >= maxCompare && !appCompareSelected.has(num)) {
-        cb.checked = false;
-        showToast('Maximum 3 applications for compare');
-        return;
-      }
-      appCompareSelected.add(num);
-    } else {
-      appCompareSelected.delete(num);
-    }
-    updateCompareButton();
-    syncCompareHeader();
-  };
-
-  el.querySelectorAll('[data-compare]').forEach((cb) => {
-    cb.addEventListener('change', () => applyCompareRow(cb, cb.checked));
-  });
-
-  compareHeader?.addEventListener('change', () => {
-    if (compareHeader.checked) {
-      for (const a of list) {
-        if (appCompareSelected.size >= maxCompare) break;
-        appCompareSelected.add(a.number);
-      }
-      if (list.length > maxCompare) {
-        showToast('Only the first 3 rows were selected (compare limit)');
-      }
-    } else {
-      for (const a of list) appCompareSelected.delete(a.number);
-    }
-    el.querySelectorAll('[data-compare]').forEach((cb) => {
-      const num = parseInt(cb.dataset.compare, 10);
-      cb.checked = appCompareSelected.has(num);
+  el.querySelectorAll('[data-sort]').forEach((th) => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort;
+      if (appSortCol === col) { appSortAsc = !appSortAsc; }
+      else { appSortCol = col; appSortAsc = col === 'company'; }
+      renderApplicationsTable(list, allApps);
     });
-    updateCompareButton();
-    syncCompareHeader();
   });
-
-  syncCompareHeader();
 
   el.querySelectorAll('[data-open-drawer]').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -277,36 +254,12 @@ function renderApplicationsTable(list, allApps) {
     });
   });
 
-  el.querySelectorAll('[data-status-num]').forEach((sel) => {
-    sel.addEventListener('change', async () => {
-      const num = sel.dataset.statusNum;
-      try {
-        await patchApplication(num, { status: sel.value });
-        invalidateSnapshot();
-        showToast('Status updated');
-      } catch (e) {
-        showToast(e.message);
-      }
-    });
-  });
-
-  el.querySelectorAll('[data-notes-num]').forEach((input) => {
-    input.addEventListener('change', async () => {
-      const num = input.dataset.notesNum;
-      try {
-        await patchApplication(num, { notes: input.value });
-        invalidateSnapshot();
-        showToast('Notes saved');
-      } catch (e) {
-        showToast(e.message);
-      }
-    });
-  });
-
-  el.querySelectorAll('[data-goto-report]').forEach((btn) => {
+  el.querySelectorAll('[data-open-report]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      COW._reportPick = btn.dataset.gotoReport;
-      switchPanel('reports');
+      const reportId = btn.dataset.openReport;
+      const appNum = parseInt(btn.dataset.appNum, 10);
+      const app = allApps.find((a) => a.number === appNum);
+      openReportDrawer(reportId, app);
     });
   });
 
@@ -316,25 +269,16 @@ function renderApplicationsTable(list, allApps) {
     });
   });
 
-  const appByReport = new Map(list.filter((a) => a.reportNumber).map((a) => [String(a.reportNumber), a]));
-
-  el.querySelectorAll('[data-copy-apply]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const app = appByReport.get(btn.dataset.copyApply);
-      if (!app) return;
-      await copyText(buildApplyPrompt(app));
-      showToast('Application prompt copied — paste in your AI assistant');
-    });
-  });
+  const appByNum = new Map(list.map((a) => [a.number, a]));
 
   el.querySelectorAll('[data-view-apply]').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const app = appByReport.get(btn.dataset.viewApply);
-      openApplyDraft(btn.dataset.viewApply, app ? `${app.company} — ${app.role}` : undefined);
+      const app = [...appByNum.values()].find(
+        (a) => String(a.reportNumber) === btn.dataset.viewApply || a.number === parseInt(btn.dataset.viewApply, 10),
+      );
+      openApplyDraft(app?.reportNumber || btn.dataset.viewApply, app ? `${app.company} — ${app.role}` : undefined);
     });
   });
-
-  updateCompareButton();
 }
 
 async function renderAppDrawer(app) {
@@ -351,13 +295,20 @@ async function renderAppDrawer(app) {
         <h2 class="section-title">${esc(app.company)} — ${esc(app.role)}</h2>
         <button type="button" class="btn btn--sm btn--ghost" data-close-drawer aria-label="Close">Close</button>
       </div>
-      <p class="muted">#${app.number} · ${esc(app.date)} · <span class="score-pill ${scoreClass(app.score)}">${esc(formatScore(app.score, app.scoreRaw))}</span></p>
+      <p class="muted">Job #${app.number} · ${esc(formatTimeAgo(app.date))} · <span class="score-pill ${scoreClass(app.score)}">${esc(formatScore(app.score, app.scoreRaw))}</span></p>
       <div class="app-drawer__actions">
         ${app.reportNumber ? `<button type="button" class="btn btn--sm" data-drawer-report="${esc(app.reportNumber)}">View report</button>` : ''}
         ${app.pdfFilename ? `<button type="button" class="btn btn--sm" data-drawer-pdf="${esc(app.pdfFilename)}">Preview resume</button>` : ''}
-        ${app.reportNumber ? `<button type="button" class="btn btn--sm" data-drawer-copy-apply="${esc(app.reportNumber)}">Copy application prompt</button>` : ''}
-        ${app.hasApplyDraft ? `<button type="button" class="btn btn--sm btn--primary" data-drawer-view-apply="${esc(app.reportNumber)}">View answers</button>` : ''}
+        ${app.hasApplyDraft ? `<button type="button" class="btn btn--sm btn--primary" data-drawer-view-apply="${esc(app.reportNumber)}">See Answers</button>` : ''}
+        ${/^evaluated$/i.test(app.status) ? `<button type="button" class="btn btn--sm btn--success" data-drawer-mark-applied="${app.number}">✓ Mark Applied</button>` : ''}
       </div>
+      ${app.selectedBullets ? `
+      <div class="app-drawer__bullets">
+        <h3 class="section-title" style="font-size:12px;margin:10px 0 6px">CV bullets used</h3>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${app.selectedBullets.split(',').map(b => `<span class="badge" title="Bullet ID from article-digest.md pool">${esc(b.trim())}</span>`).join('')}
+        </div>
+      </div>` : ''}
       <div id="appDrawerSummary" class="app-drawer__summary"><p class="loading">Loading summary…</p></div>
     </aside>
   `;
@@ -369,38 +320,119 @@ async function renderAppDrawer(app) {
   });
 
   mount.querySelector('[data-drawer-report]')?.addEventListener('click', () => {
-    COW._reportPick = app.reportNumber;
-    switchPanel('reports');
+    openReportDrawer(app.reportNumber, app);
   });
 
   mount.querySelector('[data-drawer-pdf]')?.addEventListener('click', (e) => {
     openPdfPreview(e.target.dataset.drawerPdf, `${app.company} resume`);
   });
 
-  mount.querySelector('[data-drawer-copy-apply]')?.addEventListener('click', async () => {
-    await copyText(buildApplyPrompt(app));
-    showToast('Application prompt copied');
-  });
-
   mount.querySelector('[data-drawer-view-apply]')?.addEventListener('click', () => {
     openApplyDraft(app.reportNumber, `${app.company} — ${app.role}`);
   });
 
-  if (app.reportNumber) {
+  mount.querySelector('[data-drawer-mark-applied]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      await patchApplication(app.number, { status: 'Applied' });
+      btn.textContent = '✓ Applied';
+      btn.classList.remove('btn--success');
+      btn.classList.add('btn--ghost');
+      // sync the status label in the table row
+      const lbl = document.querySelector(`[data-status-num="${app.number}"]`);
+      if (lbl) { lbl.textContent = 'Applied'; lbl.style.color = statusColor('applied'); }
+      showToast(`Job #${app.number} marked as Applied`);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '✓ Mark Applied';
+      showToast('Failed to update status');
+    }
+  });
+
+  const sumEl = $('appDrawerSummary');
+  if (app.hasApplyDraft && app.reportNumber) {
+    try {
+      const data = await api(`/api/apply-drafts/${encodeURIComponent(app.reportNumber)}`);
+      if (sumEl) {
+        sumEl.innerHTML = `
+          <h3 class="section-title" style="font-size:12px;margin:0 0 8px">Application Answers</h3>
+          <div id="applyDraftInlineMount"></div>`;
+        mountMdViewer($('applyDraftInlineMount'), data.markdown, data.path);
+      }
+    } catch {
+      if (sumEl) sumEl.innerHTML = '<p class="muted">Could not load apply draft.</p>';
+    }
+  } else if (app.reportNumber) {
     try {
       const data = await api(`/api/reports/${encodeURIComponent(app.reportNumber)}`);
       const summary = typeof parseReportSummary === 'function' ? parseReportSummary(data.markdown) : null;
-      const sumEl = $('appDrawerSummary');
       if (sumEl && summary) {
         sumEl.innerHTML = renderReportSummaryCard(summary);
       } else if (sumEl) {
         sumEl.innerHTML = '<p class="muted">No summary available. Open the full report.</p>';
       }
     } catch {
-      const sumEl = $('appDrawerSummary');
       if (sumEl) sumEl.innerHTML = '<p class="muted">Report not found.</p>';
     }
   } else {
-    $('appDrawerSummary').innerHTML = '<p class="muted">Evaluate this role to generate a report.</p>';
+    if (sumEl) sumEl.innerHTML = '<p class="muted">Evaluate this role to generate a report.</p>';
   }
+}
+
+async function openReportDrawer(reportId, app) {
+  const drawer = $('reportDrawer');
+  const titleEl = $('reportDrawerTitle');
+  const subtitleEl = $('reportDrawerSubtitle');
+  const summaryEl = $('reportDrawerSummary');
+  const bodyEl = $('reportDrawerBody');
+  const linkEl = $('reportDrawerLink');
+  if (!drawer) return;
+
+  if (titleEl) titleEl.textContent = app ? `${app.company} — ${app.role}` : `Report #${reportId}`;
+  if (subtitleEl) {
+    const parts = [];
+    if (app?.number) parts.push(`Job #${app.number}`);
+    if (app?.date) parts.push(formatTimeAgo(app.date));
+    if (app?.score) parts.push(`${app.score}/5`);
+    subtitleEl.textContent = parts.join(' · ');
+  }
+  if (summaryEl) summaryEl.innerHTML = '<p class="loading">Loading…</p>';
+  if (bodyEl) bodyEl.innerHTML = '';
+  if (linkEl) linkEl.hidden = true;
+
+  drawer.hidden = false;
+  drawer.setAttribute('aria-hidden', 'false');
+
+  try {
+    const data = await api(`/api/reports/${encodeURIComponent(reportId)}`);
+    const summary = data.summary || (typeof parseReportSummary === 'function' ? parseReportSummary(data.markdown) : null);
+
+    if (summaryEl) {
+      summaryEl.innerHTML = summary
+        ? renderReportSummaryCard(summary)
+        : '<p class="muted">No summary block in this report.</p>';
+    }
+
+    if (bodyEl) {
+      bodyEl.innerHTML = '<div id="reportDrawerMd"></div>';
+      mountMdViewer($('reportDrawerMd'), data.markdown, '');
+    }
+
+    if (linkEl && data.url) {
+      linkEl.href = data.url;
+      linkEl.hidden = false;
+    }
+  } catch (e) {
+    if (summaryEl) summaryEl.innerHTML = '';
+    if (bodyEl) bodyEl.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
+  }
+}
+
+function closeReportDrawer() {
+  const drawer = $('reportDrawer');
+  if (!drawer) return;
+  drawer.hidden = true;
+  drawer.setAttribute('aria-hidden', 'true');
 }

@@ -5,13 +5,13 @@ const WF_DIAGRAMS = [
     id: 'lifecycle',
     label: 'Main workflow',
     src: '/static/career-ops-lifecycle-flow.html',
-    title: 'Career-Ops main workflow — Discover, Evaluate, Apply',
+    title: 'Northstar OS main workflow — Discover, Evaluate, Apply',
   },
   {
     id: 'architecture',
     label: 'System & data',
     src: '/static/career-ops-workflow.html',
-    title: 'Career-Ops workflow architecture',
+    title: 'Northstar OS workflow architecture',
   },
 ];
 
