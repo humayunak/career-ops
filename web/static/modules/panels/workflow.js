@@ -1,126 +1,317 @@
-/** How it works — minimal system flow infographic */
+/** How it works — full-screen agent blueprint */
 
 function loadWorkflowPanel() {
   const root = $('workflowRoot');
   if (!root) return;
 
   root.innerHTML = `
-    <div class="wf-infographic">
-      <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" role="img" style="width:100%;max-width:800px;margin:0 auto;display:block">
-        <title>Northstar OS — How it works</title>
-        <desc>Job search pipeline: Discover → Evaluate → Decide → Apply → Track</desc>
-        <style>
-          .wf-box { fill: var(--surface-card); stroke: var(--hairline); stroke-width: 1; rx: 8; }
-          .wf-box--active { stroke: var(--primary); stroke-width: 1.5; }
-          .wf-label { fill: var(--ink); font-family: var(--sans); font-size: 13px; font-weight: 600; }
-          .wf-sub { fill: var(--muted); font-family: var(--sans); font-size: 10px; }
-          .wf-arrow { stroke: var(--muted-soft); stroke-width: 1.5; fill: none; marker-end: url(#wfArrow); }
-          .wf-agent { fill: var(--primary-soft); stroke: var(--primary); stroke-width: 1; rx: 8; }
-          .wf-agent-label { fill: var(--primary); font-family: var(--sans); font-size: 10px; font-weight: 500; }
-          .wf-section { fill: var(--muted); font-family: var(--sans); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
-          .wf-connector { fill: var(--muted-soft); font-family: var(--sans); font-size: 9px; }
-        </style>
-        <defs>
-          <marker id="wfArrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-            <path d="M0,0 L8,3 L0,6" fill="var(--muted-soft)"/>
-          </marker>
-        </defs>
+    <div class="blueprint">
 
-        <!-- Section: Sources -->
-        <text x="120" y="30" class="wf-section" text-anchor="middle">Sources</text>
+      <!-- ── Header ── -->
+      <div class="bp-header">
+        <div class="bp-header__title">
+          <h1 class="bp-h1">Agent Blueprint</h1>
+          <span class="bp-badge">Northstar OS v1</span>
+        </div>
+        <p class="bp-header__sub">AI-powered job search pipeline — 8 skills, 3 archetypes, fully autonomous scan-to-apply</p>
+      </div>
 
-        <rect x="20" y="44" width="200" height="52" class="wf-box"/>
-        <text x="120" y="68" class="wf-label" text-anchor="middle">Discovery</text>
-        <text x="120" y="84" class="wf-sub" text-anchor="middle">Greenhouse · Ashby · Lever APIs</text>
+      <!-- ── Pipeline flow ── -->
+      <div class="bp-pipeline">
 
-        <rect x="20" y="108" width="200" height="52" class="wf-box"/>
-        <text x="120" y="132" class="wf-label" text-anchor="middle">Connectors</text>
-        <text x="120" y="148" class="wf-sub" text-anchor="middle">Apify · LinkedIn · Email · Manual</text>
+        <!-- Stage 0: Input -->
+        <div class="bp-stage bp-stage--input">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">⚡</span>
+            <h2 class="bp-stage__title">Input Layer</h2>
+            <span class="bp-pill bp-pill--dim">Triggers</span>
+          </div>
+          <div class="bp-cards">
+            <div class="bp-card">
+              <div class="bp-card__head">
+                <strong>API Scanner</strong>
+                <span class="bp-pill bp-pill--green">Cron</span>
+              </div>
+              <p class="bp-card__body">Greenhouse · Ashby · Lever APIs<br>Zero LLM cost — direct API hits</p>
+              <code class="bp-card__cmd">/career-ops-scan</code>
+            </div>
+            <div class="bp-card">
+              <div class="bp-card__head">
+                <strong>Apify Actor</strong>
+                <span class="bp-pill bp-pill--green">Webhook</span>
+              </div>
+              <p class="bp-card__body">LinkedIn Jobs Scraper<br>Runs on schedule, pushes to inbox</p>
+              <code class="bp-card__cmd">curious_coder/linkedin-jobs-scraper</code>
+            </div>
+            <div class="bp-card">
+              <div class="bp-card__head">
+                <strong>Manual</strong>
+                <span class="bp-pill bp-pill--dim">User</span>
+              </div>
+              <p class="bp-card__body">Paste URL · Email forward<br>Add via CLI or web inbox</p>
+              <code class="bp-card__cmd">db.mjs add-pipeline &lt;url&gt;</code>
+            </div>
+          </div>
+          <div class="bp-cron">
+            <span class="bp-cron__label">Automatable:</span>
+            <code>schedule scan every 3 days</code>
+          </div>
+        </div>
 
-        <!-- Arrow: Sources → Inbox -->
-        <path d="M220,96 L260,96 L260,180 L300,180" class="wf-arrow"/>
+        <div class="bp-arrow">▼</div>
 
-        <!-- Section: Pipeline -->
-        <text x="420" y="30" class="wf-section" text-anchor="middle">Pipeline</text>
+        <!-- Stage 1: Inbox -->
+        <div class="bp-stage">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">📥</span>
+            <h2 class="bp-stage__title">Inbox</h2>
+            <span class="bp-pill bp-pill--amber">status: Inbox</span>
+          </div>
+          <div class="bp-stage__desc">
+            <p>New offers land here from all connectors. Triage: select promising roles → move to Applications for evaluation. Dismiss the rest.</p>
+          </div>
+          <div class="bp-cron">
+            <span class="bp-cron__label">Batch action:</span>
+            <code>evaluate all status=Inbox</code>
+          </div>
+        </div>
 
-        <rect x="300" y="44" width="240" height="56" class="wf-box wf-box--active"/>
-        <text x="420" y="66" class="wf-label" text-anchor="middle">Inbox</text>
-        <text x="420" y="82" class="wf-sub" text-anchor="middle">New offers land here · Triage + select</text>
+        <div class="bp-arrow">▼</div>
 
-        <!-- Agent badge -->
-        <rect x="468" y="90" width="68" height="20" class="wf-agent"/>
-        <text x="502" y="104" class="wf-agent-label" text-anchor="middle">AI Scan</text>
+        <!-- Stage 2: Evaluate -->
+        <div class="bp-stage bp-stage--wide">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">🔬</span>
+            <h2 class="bp-stage__title">Evaluate (A–G)</h2>
+            <span class="bp-pill bp-pill--blue">AI Skill</span>
+            <span class="bp-pill bp-pill--amber">status: Evaluated</span>
+          </div>
+          <div class="bp-blocks">
+            <div class="bp-block">
+              <strong>A</strong>
+              <span>Role Summary</span>
+            </div>
+            <div class="bp-block">
+              <strong>B</strong>
+              <span>Fit Analysis</span>
+            </div>
+            <div class="bp-block">
+              <strong>C</strong>
+              <span>Comp & Logistics</span>
+            </div>
+            <div class="bp-block">
+              <strong>D</strong>
+              <span>Red/Green Flags</span>
+            </div>
+            <div class="bp-block">
+              <strong>E</strong>
+              <span>Negotiation Intel</span>
+            </div>
+            <div class="bp-block">
+              <strong>F</strong>
+              <span>Verdict + Score</span>
+            </div>
+            <div class="bp-block">
+              <strong>G</strong>
+              <span>Legitimacy Check</span>
+            </div>
+          </div>
+          <div class="bp-outputs">
+            <span class="bp-output">📄 Eval report</span>
+            <span class="bp-output">🎯 Score /5</span>
+            <span class="bp-output">🏷️ Archetype match</span>
+            <span class="bp-output">💾 DB update</span>
+          </div>
+          <div class="bp-cron">
+            <span class="bp-cron__label">Batch action:</span>
+            <code>run pending evaluations</code> — processes all Inbox items
+          </div>
+          <code class="bp-card__cmd">/career-ops-evaluate</code>
+        </div>
 
-        <!-- Arrow: Inbox → Evaluate -->
-        <path d="M420,100 L420,140" class="wf-arrow"/>
-        <text x="430" y="128" class="wf-connector">select</text>
+        <div class="bp-arrow">▼</div>
 
-        <rect x="300" y="145" width="240" height="56" class="wf-box wf-box--active"/>
-        <text x="420" y="168" class="wf-label" text-anchor="middle">Evaluate (A–G)</text>
-        <text x="420" y="184" class="wf-sub" text-anchor="middle">Score · Archetype · Legitimacy check</text>
+        <!-- Decision -->
+        <div class="bp-decision">
+          <div class="bp-decision__diamond">Score ≥ 4.0?</div>
+          <div class="bp-decision__paths">
+            <div class="bp-decision__path bp-decision__path--yes">
+              <span class="bp-pill bp-pill--green">Yes → Generate + Apply</span>
+            </div>
+            <div class="bp-decision__path bp-decision__path--no">
+              <span class="bp-pill bp-pill--dim">No → SKIP (save time)</span>
+            </div>
+          </div>
+        </div>
 
-        <rect x="468" y="191" width="68" height="20" class="wf-agent"/>
-        <text x="502" y="205" class="wf-agent-label" text-anchor="middle">AI Eval</text>
+        <div class="bp-arrow">▼</div>
 
-        <!-- Arrow: Evaluate → Decide -->
-        <path d="M420,201 L420,240" class="wf-arrow"/>
+        <!-- Stage 3: Resume -->
+        <div class="bp-stage">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">📑</span>
+            <h2 class="bp-stage__title">Generate Resume</h2>
+            <span class="bp-pill bp-pill--blue">AI Skill</span>
+          </div>
+          <div class="bp-stage__desc">
+            <p>Matches role to archetype → selects bullets from article-digest pool → assembles ATS-optimized HTML → Playwright renders PDF.</p>
+          </div>
+          <div class="bp-outputs">
+            <span class="bp-output">📝 Resume HTML</span>
+            <span class="bp-output">📄 PDF (Playwright)</span>
+            <span class="bp-output">🏷️ Selected bullets log</span>
+          </div>
+          <div class="bp-sub-detail">
+            <strong>Archetypes:</strong>
+            <span class="bp-pill bp-pill--dim">ai-automation</span>
+            <span class="bp-pill bp-pill--dim">ai-product-founding</span>
+            <span class="bp-pill bp-pill--dim">technical-lead</span>
+          </div>
+          <div class="bp-cron">
+            <span class="bp-cron__label">Batch action:</span>
+            <code>run pending PDFs</code> — generates for all Evaluated with score ≥ 4.0
+          </div>
+          <code class="bp-card__cmd">/career-ops-pdf</code>
+        </div>
 
-        <!-- Decision diamond -->
-        <polygon points="420,245 460,270 420,295 380,270" style="fill:var(--surface-card);stroke:var(--hairline);stroke-width:1"/>
-        <text x="420" y="274" class="wf-label" text-anchor="middle" style="font-size:11px">≥ 4.0?</text>
+        <div class="bp-arrow">▼</div>
 
-        <!-- Arrow: Yes → Apply -->
-        <path d="M460,270 L520,270 L520,340 L560,340" class="wf-arrow"/>
-        <text x="480" y="264" class="wf-connector">yes</text>
+        <!-- Stage 4: Apply -->
+        <div class="bp-stage">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">🚀</span>
+            <h2 class="bp-stage__title">Apply</h2>
+            <span class="bp-pill bp-pill--blue">AI Skill</span>
+            <span class="bp-pill bp-pill--amber">status: Applied</span>
+          </div>
+          <div class="bp-stage__desc">
+            <p>AI fills application forms with grounded answers from profile + eval report. Drafts email and LinkedIn DM. <strong>Never auto-submits</strong> — user reviews first.</p>
+          </div>
+          <div class="bp-outputs">
+            <span class="bp-output">📋 Form answers</span>
+            <span class="bp-output">✉️ Email draft</span>
+            <span class="bp-output">💬 LinkedIn DM draft</span>
+          </div>
+          <div class="bp-cron">
+            <span class="bp-cron__label">Batch action:</span>
+            <code>run pending applications</code>
+          </div>
+          <code class="bp-card__cmd">/career-ops-apply</code>
+        </div>
 
-        <!-- Arrow: No → Skip -->
-        <path d="M380,270 L340,270 L340,340 L300,340" class="wf-arrow"/>
-        <text x="350" y="264" class="wf-connector">no</text>
+        <div class="bp-arrow">▼</div>
 
-        <rect x="260" y="315" width="100" height="44" class="wf-box" style="opacity:0.6"/>
-        <text x="310" y="340" class="wf-label" text-anchor="middle" style="font-size:11px;opacity:0.6">Skip</text>
+        <!-- Stage 5: Track -->
+        <div class="bp-stage">
+          <div class="bp-stage__head">
+            <span class="bp-stage__icon">📊</span>
+            <h2 class="bp-stage__title">Track + Follow up</h2>
+            <span class="bp-pill bp-pill--blue">AI Skills</span>
+          </div>
+          <div class="bp-stage__desc">
+            <p>Monitor application statuses, follow-up cadence, rejection pattern analysis, and interview preparation.</p>
+          </div>
+          <div class="bp-cards bp-cards--sm">
+            <div class="bp-card bp-card--compact">
+              <strong>Tracker</strong>
+              <code>/career-ops-tracker</code>
+            </div>
+            <div class="bp-card bp-card--compact">
+              <strong>Follow-up</strong>
+              <code>/career-ops-followup</code>
+            </div>
+            <div class="bp-card bp-card--compact">
+              <strong>Patterns</strong>
+              <code>/career-ops-prep</code>
+            </div>
+            <div class="bp-card bp-card--compact">
+              <strong>Interview</strong>
+              <code>/career-ops-prep</code>
+            </div>
+            <div class="bp-card bp-card--compact">
+              <strong>Research</strong>
+              <code>/career-ops-research</code>
+            </div>
+          </div>
+          <div class="bp-status-flow">
+            <span class="status-pill status-pill--applied">Applied</span>
+            <span class="bp-arrow--inline">→</span>
+            <span class="status-pill status-pill--responded">Responded</span>
+            <span class="bp-arrow--inline">→</span>
+            <span class="status-pill status-pill--interview">Interview</span>
+            <span class="bp-arrow--inline">→</span>
+            <span class="status-pill status-pill--offer">Offer</span>
+          </div>
+        </div>
 
-        <!-- Section: Action -->
-        <text x="680" y="30" class="wf-section" text-anchor="middle">Action</text>
+      </div>
 
-        <rect x="560" y="44" width="220" height="56" class="wf-box"/>
-        <text x="670" y="66" class="wf-label" text-anchor="middle">Generate Resume</text>
-        <text x="670" y="82" class="wf-sub" text-anchor="middle">Archetype-matched · ATS-optimized PDF</text>
+      <!-- ── Data layer ── -->
+      <div class="bp-section">
+        <h2 class="bp-section__title">Data Layer</h2>
+        <div class="bp-data-grid">
+          <div class="bp-data-item">
+            <strong>SQLite DB</strong>
+            <code>data/career-ops.db</code>
+            <span class="bp-sub">Applications + pipeline — source of truth</span>
+          </div>
+          <div class="bp-data-item">
+            <strong>Profile</strong>
+            <code>config/profile.yml</code>
+            <span class="bp-sub">Identity, targets, comp, preferences</span>
+          </div>
+          <div class="bp-data-item">
+            <strong>Narrative</strong>
+            <code>config/_profile.md</code>
+            <span class="bp-sub">Archetypes, scoring weights, deal-breakers</span>
+          </div>
+          <div class="bp-data-item">
+            <strong>Proof points</strong>
+            <code>config/article-digest.md</code>
+            <span class="bp-sub">Bullet pool grouped by lens</span>
+          </div>
+          <div class="bp-data-item">
+            <strong>Portals</strong>
+            <code>portals.yml</code>
+            <span class="bp-sub">45+ companies, query config, filters</span>
+          </div>
+          <div class="bp-data-item">
+            <strong>Outputs</strong>
+            <code>data/outputs/{NNN}-{slug}/</code>
+            <span class="bp-sub">Report, PDF, apply draft per job</span>
+          </div>
+        </div>
+      </div>
 
-        <rect x="708" y="90" width="68" height="20" class="wf-agent"/>
-        <text x="742" y="104" class="wf-agent-label" text-anchor="middle">AI PDF</text>
+      <!-- ── Skills inventory ── -->
+      <div class="bp-section">
+        <h2 class="bp-section__title">Skills Inventory</h2>
+        <div class="bp-skills-grid">
+          <div class="bp-skill"><strong>/evaluate</strong><span>A–G scoring + report</span></div>
+          <div class="bp-skill"><strong>/apply</strong><span>Form answers + drafts</span></div>
+          <div class="bp-skill"><strong>/scan</strong><span>Portal API scanner</span></div>
+          <div class="bp-skill"><strong>/pdf</strong><span>Resume HTML → PDF</span></div>
+          <div class="bp-skill"><strong>/research</strong><span>Deep company intel</span></div>
+          <div class="bp-skill"><strong>/prep</strong><span>Patterns + interview</span></div>
+          <div class="bp-skill"><strong>/followup</strong><span>Cadence + drafts</span></div>
+          <div class="bp-skill"><strong>/tracker</strong><span>Status overview</span></div>
+        </div>
+      </div>
 
-        <!-- Arrow: Evaluate → Resume -->
-        <path d="M540,170 L670,170 L670,100" class="wf-arrow"/>
+      <!-- ── Stack ── -->
+      <div class="bp-section bp-section--last">
+        <h2 class="bp-section__title">Stack</h2>
+        <div class="bp-stack">
+          <span class="bp-pill bp-pill--dim">Node.js (ESM)</span>
+          <span class="bp-pill bp-pill--dim">SQLite</span>
+          <span class="bp-pill bp-pill--dim">Playwright</span>
+          <span class="bp-pill bp-pill--dim">Claude Code</span>
+          <span class="bp-pill bp-pill--dim">Apify MCP</span>
+          <span class="bp-pill bp-pill--dim">Vanilla HTML/CSS/JS</span>
+          <span class="bp-pill bp-pill--dim">YAML config</span>
+        </div>
+      </div>
 
-        <rect x="560" y="310" width="220" height="56" class="wf-box wf-box--active"/>
-        <text x="670" y="332" class="wf-label" text-anchor="middle">Apply</text>
-        <text x="670" y="348" class="wf-sub" text-anchor="middle">Form answers · Email · LinkedIn DM</text>
-
-        <rect x="708" y="356" width="68" height="20" class="wf-agent"/>
-        <text x="742" y="370" class="wf-agent-label" text-anchor="middle">AI Apply</text>
-
-        <!-- Arrow: Apply → Track -->
-        <path d="M670,366 L670,410" class="wf-arrow"/>
-
-        <rect x="560" y="415" width="220" height="56" class="wf-box"/>
-        <text x="670" y="438" class="wf-label" text-anchor="middle">Track + Follow up</text>
-        <text x="670" y="454" class="wf-sub" text-anchor="middle">Status · Cadence · Interview prep</text>
-
-        <!-- Loop arrow: Track → Inbox -->
-        <path d="M560,443 L100,443 L100,160 L300,160" class="wf-arrow" stroke-dasharray="4,3"/>
-        <text x="100" y="310" class="wf-connector" text-anchor="middle" transform="rotate(-90,100,310)">feedback loop</text>
-
-        <!-- Legend -->
-        <g transform="translate(300,488)">
-          <rect x="0" y="0" width="12" height="12" class="wf-box wf-box--active"/>
-          <text x="18" y="10" class="wf-sub">Active step</text>
-          <rect x="100" y="0" width="12" height="12" class="wf-agent"/>
-          <text x="118" y="10" class="wf-sub">AI agent skill</text>
-          <line x1="210" y1="6" x2="240" y2="6" class="wf-arrow" stroke-dasharray="4,3"/>
-          <text x="248" y="10" class="wf-sub">Feedback loop</text>
-        </g>
-      </svg>
     </div>
   `;
 }
