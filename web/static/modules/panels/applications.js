@@ -347,7 +347,7 @@ async function loadSidecarContent(app) {
     }
   } else if (appSidecarTab === 'pdf' && (app.hasPdf || app.pdfFilename)) {
     const filename = app.pdfFilename || `${app.number}.pdf`;
-    body.innerHTML = `<iframe src="/api/pdf-preview/${encodeURIComponent(filename)}" style="width:100%;height:100%;border:none;border-radius:var(--r-sm)"></iframe>`;
+    body.innerHTML = `<iframe src="/api/output/${encodeURIComponent(filename)}" style="width:100%;height:100%;border:none;border-radius:var(--r-sm)"></iframe>`;
   } else if (appSidecarTab === 'answers' && app.hasApplyDraft) {
     body.innerHTML = '<p class="loading">Loading answers…</p>';
     try {
