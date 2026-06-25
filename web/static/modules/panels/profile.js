@@ -1,65 +1,30 @@
-/** Profile — merged panel: Profile (config + narrative + digest) | Archetypes (base resume MDs) */
+/** Profile — vertical nav: Config | Raw YAML | Narrative | Article digest */
 
-let profileSection = 'profile';
 let profileTab = 'config';
 let profileTagEditors = {};
 let profileDataCache = null;
-let archetypeSelected = null;
 
 async function loadProfilePanel() {
   const root = $('profileRoot');
   if (!root) return;
 
-  root.innerHTML = `
-    <div class="tab-bar" role="tablist" style="margin-bottom:16px">
-      <button type="button" class="tab-btn${profileSection === 'profile' ? ' active' : ''}" data-psec="profile" role="tab">Profile</button>
-      <button type="button" class="tab-btn${profileSection === 'archetypes' ? ' active' : ''}" data-psec="archetypes" role="tab">Archetypes</button>
-    </div>
-    <div id="profileSectionContent"></div>
-  `;
-
-  root.querySelectorAll('[data-psec]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      profileSection = btn.dataset.psec;
-      root.querySelectorAll('[data-psec]').forEach(b => b.classList.toggle('active', b === btn));
-      renderProfileSection();
-    });
-  });
-
-  renderProfileSection();
-}
-
-async function renderProfileSection() {
-  const mount = $('profileSectionContent');
-  if (!mount) return;
-
-  if (profileSection === 'profile') {
-    await renderProfilePane(mount);
-  } else {
-    await renderArchetypesPane(mount);
-  }
-}
-
-// ── Profile pane ─────────────────────────────────────────────────────────────
-
-async function renderProfilePane(mount) {
   if (!profileDataCache) {
-    mount.innerHTML = '<p class="loading">Loading profile…</p>';
+    root.innerHTML = '<p class="loading">Loading profile…</p>';
     profileTagEditors = {};
     try {
       const data = await api('/api/profile');
       if (data.error) {
-        mount.innerHTML = `<div class="empty-state"><p>${esc(data.error)}</p></div>`;
+        root.innerHTML = `<div class="empty-state"><p>${esc(data.error)}</p></div>`;
         return;
       }
       profileDataCache = data;
     } catch (e) {
-      mount.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
+      root.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
       return;
     }
   }
 
-  mount.innerHTML = `
+  root.innerHTML = `
     <div class="disco-shell">
       <nav class="disco-nav" aria-label="Profile settings">
         <div class="disco-nav__group">
@@ -77,10 +42,10 @@ async function renderProfilePane(mount) {
     </div>
   `;
 
-  mount.querySelectorAll('[data-ptab]').forEach(btn => {
+  root.querySelectorAll('[data-ptab]').forEach(btn => {
     btn.addEventListener('click', () => {
       profileTab = btn.dataset.ptab;
-      mount.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('is-active', b === btn));
+      root.querySelectorAll('[data-ptab]').forEach(b => b.classList.toggle('is-active', b === btn));
       renderProfileTab();
     });
   });
@@ -102,123 +67,6 @@ async function renderProfileTab() {
     await renderProfileMarkdown(content, 'config/article-digest.md');
   }
 }
-
-// ── Archetypes pane ──────────────────────────────────────────────────────────
-
-async function renderArchetypesPane(mount) {
-  mount.innerHTML = '<p class="loading">Loading archetypes…</p>';
-  try {
-    const files = await api('/api/file-list?dir=base-resumes&ext=.md');
-    const list = files.files || [];
-
-    if (!list.length) {
-      mount.innerHTML = '<div class="empty-state"><p>No archetype resumes found in <code>base-resumes/</code>. Run <code>/career-ops pdf</code> to generate one.</p></div>';
-      return;
-    }
-
-    if (!archetypeSelected || !list.find(f => f.name === archetypeSelected)) {
-      archetypeSelected = list[0].name;
-    }
-
-    mount.innerHTML = `
-      <div class="split-2 split-2--reports split-2--sticky-left">
-        <section>
-          <h2 class="section-title">Base resumes</h2>
-          <nav class="report-list" id="archNav">
-            ${list.map(f => `
-              <button type="button" class="report-item${f.name === archetypeSelected ? ' active' : ''}" data-arch="${esc(f.name)}">
-                <strong>${esc(f.name.replace(/\.md$/, '').replace(/-/g, ' '))}</strong>
-                <span class="report-item__file">base-resumes/${esc(f.name)}</span>
-              </button>
-            `).join('')}
-          </nav>
-        </section>
-        <section style="display:flex;flex-direction:column;min-height:0;">
-          <div class="section-head" style="margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
-            <h2 class="section-title" style="margin:0" id="archPreviewTitle">${esc(archetypeSelected.replace(/\.md$/, ''))}</h2>
-            <button type="button" class="btn btn--ghost btn--sm" id="archEditToggle">Edit</button>
-          </div>
-          <div id="archPreview" style="flex:1;min-height:0;overflow-y:auto;"></div>
-          <div id="archEditor" hidden>
-            <textarea class="yaml-editor yaml-editor--full" id="archSource"></textarea>
-            <div class="form-actions">
-              <button type="button" class="btn btn--primary" id="archSave">Save</button>
-              <button type="button" class="btn btn--ghost btn--sm" id="archCancel">Cancel</button>
-            </div>
-          </div>
-        </section>
-      </div>
-    `;
-
-    async function showArchetype(name) {
-      archetypeSelected = name;
-      const preview = $('archPreview');
-      const title = $('archPreviewTitle');
-      if (title) title.textContent = name.replace(/\.md$/, '');
-      if (!preview) return;
-      preview.innerHTML = '<p class="loading">Loading…</p>';
-      try {
-        const { content: md, path } = await api(`/api/file?path=${encodeURIComponent('base-resumes/' + name)}`);
-        mountMdViewer(preview, md, path);
-        $('archSource').value = md || '';
-      } catch (e) {
-        preview.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
-      }
-    }
-
-    mount.querySelectorAll('[data-arch]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        mount.querySelectorAll('.report-item').forEach(b => b.classList.toggle('active', b === btn));
-        showArchetype(btn.dataset.arch);
-        $('archPreview').hidden = false;
-        $('archEditor').hidden = true;
-        $('archEditToggle').textContent = 'Edit';
-      });
-    });
-
-    let editing = false;
-    $('archEditToggle')?.addEventListener('click', () => {
-      editing = !editing;
-      $('archPreview').hidden = editing;
-      $('archEditor').hidden = !editing;
-      $('archEditToggle').textContent = editing ? 'Preview' : 'Edit';
-      if (editing) $('archSource')?.focus();
-    });
-
-    $('archCancel')?.addEventListener('click', () => {
-      editing = false;
-      $('archPreview').hidden = false;
-      $('archEditor').hidden = true;
-      $('archEditToggle').textContent = 'Edit';
-    });
-
-    $('archSave')?.addEventListener('click', async () => {
-      const newMd = $('archSource')?.value;
-      const filePath = 'base-resumes/' + archetypeSelected;
-      try {
-        await api('/api/file', {
-          method: 'PUT',
-          body: JSON.stringify({ path: filePath, content: newMd }),
-        });
-        showToast(`${filePath} saved`);
-        editing = false;
-        $('archPreview').hidden = false;
-        $('archEditor').hidden = true;
-        $('archEditToggle').textContent = 'Edit';
-        const preview = $('archPreview');
-        if (preview) mountMdViewer(preview, newMd, filePath);
-      } catch (e) {
-        showToast(e.message);
-      }
-    });
-
-    showArchetype(archetypeSelected);
-  } catch (e) {
-    mount.innerHTML = `<div class="empty-state"><p>${esc(e.message)}</p></div>`;
-  }
-}
-
-// ── Profile form (config tab) ────────────────────────────────────────────────
 
 function renderProfileForm(content, data) {
   const c = data.candidate || {};
@@ -370,8 +218,6 @@ function renderProfileForm(content, data) {
   });
 }
 
-// ── Raw YAML editor ──────────────────────────────────────────────────────────
-
 function renderProfileYaml(content, data) {
   content.innerHTML = `
     <div class="glass-card">
@@ -400,11 +246,9 @@ function renderProfileYaml(content, data) {
   });
   $('cancelProfileYaml')?.addEventListener('click', () => {
     profileDataCache = null;
-    renderProfileSection();
+    loadProfilePanel();
   });
 }
-
-// ── Markdown preview + edit ──────────────────────────────────────────────────
 
 async function renderProfileMarkdown(content, filePath) {
   content.innerHTML = '<p class="loading">Loading…</p>';

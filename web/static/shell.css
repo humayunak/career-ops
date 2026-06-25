@@ -1541,6 +1541,24 @@ html.dark .icon-btn__glyph--sun {
   margin: 0 auto;
 }
 
+/* Archetypes fills main-scroll viewport — vertical nav + content */
+.main-scroll:has(#mainArchetypes.is-active) {
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#mainArchetypes.main-view.is-active {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: var(--content-max);
+  height: auto;
+  margin: 0 auto;
+}
+
 /* Discovery fills main-scroll viewport — internal panes scroll */
 .main-scroll:has(#mainDiscovery.is-active) {
   overflow: hidden;
