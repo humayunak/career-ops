@@ -30,9 +30,14 @@ const LOADER = pathToFileURL(path.join(HERE, "..", "helpers", "web-ts-alias-load
 
 /** Run one ESM snippet in a fresh Node process. Never throws; reports the failure. */
 function run(src, flags = [], cwd = WEB) {
+  // NO_COLOR=1 prevents Node from ANSI-colorizing `console.log(true, ...)` output
+  // when the parent process has FORCE_COLOR set (e.g. under `npm test`), which
+  // would otherwise cause assertions like `assert.equal(r.out, "true function")` to
+  // fail against `"\x1B[33mtrue\x1B[39m function"`.
+  const env = { ...process.env, NO_COLOR: "1" };
   try {
     return { ok: true, out: execFileSync(process.execPath, [...flags, "--input-type=module", "-e", src], {
-      cwd, encoding: "utf-8", timeout: 60000, stdio: ["ignore", "pipe", "pipe"],
+      cwd, env, encoding: "utf-8", timeout: 60000, stdio: ["ignore", "pipe", "pipe"],
     }).trim() };
   } catch (e) {
     return { ok: false, out: (e.stdout || "").toString().trim(), err: (e.stderr || "").toString() };
